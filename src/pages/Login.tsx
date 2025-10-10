@@ -1,15 +1,24 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/global.css';
-import '../styles/Login.css';
+import '../styles/_components.css';
 
-export function Login() {
+interface LoginProps {
+    setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
+}
+
+export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const navigate = useNavigate();
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault(); // Prevents the default browser form submission
-        // Add POST request logic here...
-        console.log('Login attempt with:', email, password);
+
+        // **MOCK SUCCESS:**
+        // Assume login was successful (replace with actual API call)
+        setIsLoggedIn(true);
+        navigate('/dashboard');
     };
 
     return (

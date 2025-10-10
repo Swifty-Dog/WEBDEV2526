@@ -1,0 +1,198 @@
+.upper-border {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: var(--upper-header-height);
+    padding: 0 1.5rem;
+    background-color: var(--color-bg-secondary);
+    box-shadow: 0 0.125rem 0.5rem var(--color-shadow-subtle);
+    z-index: 20;
+}
+
+.upper-border h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-brand-primary);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.top-bar-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.header-button {
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.header-button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-bg-secondary) 80%, var(--color-brand-primary));
+}
+
+.header-button:disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.sidebar {
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 0;
+    overflow: hidden;
+
+    background-color: var(--color-bg-secondary);
+    box-shadow: 0.125rem 0 0.25rem var(--color-shadow-subtle);
+    z-index: 10;
+
+    transition: width 0.3s ease;
+    height: 100%;
+}
+
+.sidebar.visible {
+    width: var(--sidebar-width);
+    overflow-y: auto;
+    padding-right: 0.125rem;
+}
+
+.sidebar-header {
+    padding: 1.5rem 1rem 1rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.menu-item:hover {
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    box-shadow: 0 0.3rem 0.5rem color-mix(in srgb, var(--color-bg-primary) 100%, transparent);
+}
+
+.menu-item.active {
+    background-color: var(--color-brand-secondary);
+    color: var(--color-text-primary);
+    font-weight: 500;
+    border-left: 5px solid var(--color-brand-accent);
+    box-shadow: 0 0.3rem 0.5rem color-mix(in srgb, var(--color-brand-accent) 50%, transparent);
+}
+
+.menu-item.active:hover {
+    background-color: var(--color-brand-primary);
+    box-shadow: 0 0.3rem 0.5rem color-mix(in srgb, var(--color-brand-primary) 50%, transparent);
+}
+
+.login {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+    margin: 4rem auto;
+    padding: 2.5rem;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 0.5rem 1.5rem var(--color-shadow-subtle);
+}
+
+.login-input {
+    padding: 1rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: 0.5rem;
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.login-input::placeholder {
+    color: var(--color-text-subtle);
+}
+
+.login-input:focus {
+    border-color: var(--color-brand-primary);
+    outline: none;
+}
+
+.button-primary {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text-contrast);
+    background-color: var(--color-brand-accent);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.button-primary:hover {
+    background-color: var(--color-brand-accent-hover);
+}
+
+.button-primary:active {
+    background-color: var(--color-brand-accent-active);
+    transform: scale(0.98);
+}
+
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding-right: 0.5rem;
+    flex-grow: 1;
+}
+
+.event-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.75rem;
+    background-color: color-mix(in srgb, var(--color-bg-secondary) 5%, transparent);
+    border-left: 5px solid var(--color-highlight-primary);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.event-item h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.event-item p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.event-item.no-events {
+    border-left: none;
+    background-color: transparent;
+    text-align: center;
+    padding: 20px;
+}

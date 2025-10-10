@@ -1,14 +1,16 @@
+// src/components/Topbar.tsx
+
 import { type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/_buttons.css';
-import '../styles/TopBar.css';
-import '../styles/Layout.css';
+import '../styles/_components.css';
+import '../styles/_layout.css';
 import '../styles/global.css';
 
 interface TopBarProps {
     theme: 'light' | 'dark';
     toggleTheme: () => void;
     isLoggedIn: boolean;
+    toggleSidebar: (() => void) | undefined;
 }
 
 const ThemeToggle: FC<Pick<TopBarProps, 'theme' | 'toggleTheme'>> = ({ theme, toggleTheme }) => (
@@ -17,7 +19,7 @@ const ThemeToggle: FC<Pick<TopBarProps, 'theme' | 'toggleTheme'>> = ({ theme, to
     </button>
 );
 
-export const TopBar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn }) => {
+export const Topbar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn, toggleSidebar }) => {
     const navigate = useNavigate();
 
     const handleLoginClick = () => {
@@ -26,6 +28,17 @@ export const TopBar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn }) => {
 
     return (
         <div className="upper-border">
+            {toggleSidebar ? (
+                <button
+                    className="header-button menu-toggle"
+                    onClick={toggleSidebar}
+                >
+                    ☰
+                </button>
+            ) : (
+                <div style={{ width: '4rem', height: '1rem' }} />
+            )}
+
             <h1>Office Calendar</h1>
 
             <div className="top-bar-controls">
