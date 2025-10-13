@@ -1,20 +1,62 @@
-import { type FC, type ReactNode } from 'react';
-import { TopBar } from './TopBar';
+import React, { useState, useEffect, useCallback, type FC } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Topbar } from './Topbar';
+import { Sidebar } from './Sidebar';
+import '../styles/_layout.css';
+import '../styles/global.css';
 
 interface LayoutProps {
-    children: ReactNode;
-    theme: 'light' | 'dark';
-    toggleTheme: () => void;
+    children: React.ReactNode;
     isLoggedIn: boolean;
+    setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const Layout: FC<LayoutProps> = ({ children, theme, toggleTheme, isLoggedIn }) => {
+export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn }) => {
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+    const activePath = useLocation().pathname;
+
+    useEffect(() => {
+        document.body.classList.toggle('light-mode', theme === 'light');
+    }, [theme]);
+
+    const toggleTheme = useCallback(() => {
+        setTheme(currentTheme => (currentTheme === 'dark' ? 'light' : 'dark'));
+    }, []);
+
+    const toggleSidebar = useCallback(() => {
+        setIsSidebarOpen(prev => !prev);
+    }, []);
+
+    const handleLogout = useCallback(() => {
+        setIsLoggedIn(false);
+    }, [setIsLoggedIn]);
+
+    const containerClass = `container`;
+    const isSidebarAvailable = isLoggedIn;
+
     return (
-        <div className="app-container">
-            <TopBar theme={theme} toggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
-            <main className="content">
-                {children}
-            </main>
-        </div>
+        <>
+            <Topbar
+                theme={theme}
+                toggleTheme={toggleTheme}
+                isLoggedIn={isLoggedIn}
+                toggleSidebar={isSidebarAvailable ? toggleSidebar : undefined}
+            />
+
+            <div className={containerClass}>
+                {isSidebarAvailable && (
+                    <Sidebar
+                        isVisible={isSidebarOpen && isSidebarAvailable}
+                        activePath={activePath}
+                        onLogout={handleLogout}
+                    />
+                )}
+
+                <main className="main-content">
+                    {children}
+                </main>
+            </div>
+        </>
     );
 };

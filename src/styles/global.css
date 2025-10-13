@@ -1,26 +1,56 @@
 :root {
     font-size: 16px;
-    --color-bg-primary: #1f232b;
-    --color-text-primary: #e8e8e8;
-    --color-bg-secondary: #2b313d;
-    --color-border-subtle: #3e4451;
-    --color-input-border: #5a6270;
-    --color-placeholder: #a0a8b9;
-    --color-brand-blue: #0078d4;
-    --color-brand-blue-hover: #004578;
-    --color-brand-blue-active: #01386e;
-    --color-input-bg: var(--color-bg-secondary);
     --border-radius-main: 0.7rem;
+    --sidebar-width: 20rem;
+    --upper-header-height: 4rem;
+
+    --color-bg-primary: #1f232b;
+    --color-bg-secondary: #2b313d;
+    --color-bg-tertiary: #3a414e;
+
+    --color-text-primary: #e8e8e8;
+    --color-text-secondary: #a0a8b9;
+    --color-text-subtle: #7f8c8d;
+    --color-text-contrast: #1f232b;
+
+    --color-border-subtle: #3e4451;
+    --color-shadow-subtle: rgba(0, 0, 0, 0.4);
+
+    --color-brand-primary: #6BC2DF;
+    --color-brand-secondary: #4faccc;
+    --color-brand-accent: #0078d4;
+    --color-brand-accent-hover: #004578;
+    --color-brand-accent-active: #01386e;
+
+    --color-highlight-primary: #ff6b6b;
+    --color-highlight-secondary: #e55555;
+    --color-highlight-tertiary: #331a1a;
+
+    --color-input-bg: var(--color-bg-secondary);
+    --color-input-border: #5a6270;
 }
 
 body.light-mode {
     --color-bg-primary: #f0f3f8;
-    --color-text-primary: #1f232b;
     --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #e7e9ed;
+
+    --color-text-primary: #1f232b;
+    --color-text-secondary: #5a6270;
+    --color-text-contrast: #ffffff;
+
     --color-border-subtle: #e0e4eb;
+
     --color-input-bg: #f5f7f9;
     --color-input-border: #ccd0d7;
-    --color-placeholder: #5a6270;
+
+    --color-highlight-tertiary: #ffe3e3;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
@@ -31,22 +61,7 @@ body {
     color: var(--color-text-primary);
     display: flex;
     flex-direction: column;
-    align-items: center;
     min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
-}
-
-main.content a {
-    color: var(--color-brand-blue);
-    text-decoration: underline;
-    transition: color 0.3s;
-}
-
-body.light-mode main.content a {
-    color: #004578;
-}
-
-main.content h1,
-main.content p {
-    color: var(--color-text-primary);
+    min-width: 100%;
 }
