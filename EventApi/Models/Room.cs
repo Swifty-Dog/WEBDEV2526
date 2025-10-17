@@ -1,3 +1,5 @@
+namespace EventApi.Models;
+
 public class Room
 {
     public string RoomNumber { get; set; }

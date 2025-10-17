@@ -1,4 +1,6 @@
-public class Timeslot
+namespace EventApi.Models;
+
+public class TimeSlot
 {
 
     public int Id { get; set; }
@@ -7,7 +9,7 @@ public class Timeslot
 
     public string EndTime { get; set; }
 
-    public Timeslot(int id, string startTime, string endTime)
+    public TimeSlot(int id, string startTime, string endTime)
     {
         Id = id;
         StartTime = startTime;

@@ -1,3 +1,5 @@
+namespace EventApi.Models;
+
 public class User
 {
     public int EmployeeId { get; set; }
