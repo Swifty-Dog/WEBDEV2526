@@ -138,10 +138,29 @@
     outline: none;
 }
 
+.not-found {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    font-size: 1.1rem;
+    max-width: 40rem;
+    text-align: center;
+    margin: 10rem auto;
+    padding: 3rem;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 0.5rem 1.5rem var(--color-highlight-primary);
+}
+
 .button-primary {
+    display: flex;
+    flex-direction: column;
     padding: 1rem 1.5rem;
     font-size: 1.1rem;
     font-weight: 700;
+    width: 50%;
+    margin: 0 auto;
     color: var(--color-text-contrast);
     background-color: var(--color-brand-accent);
     border: none;
@@ -157,6 +176,21 @@
 .button-primary:active {
     background-color: var(--color-brand-accent-active);
     transform: scale(0.98);
+}
+
+.button-primary#button-error {
+    background-color: var(--color-error-primary);
+    color: var(--color-text-contrast);
+}
+
+.button-primary#button-error:hover {
+    background-color: var(--color-error-secondary);
+    color: var(--color-text-contrast);
+}
+
+.button-primary#button-error:active {
+    background-color: var(--color-error-tertiary);
+    color: var(--color-text-contrast);
 }
 
 .events-list {

@@ -26,6 +26,10 @@
     --color-highlight-secondary: #e55555;
     --color-highlight-tertiary: #331a1a;
 
+    --color-error-primary: #dc3545;
+    --color-error-secondary: #a61f2c;
+    --color-error-tertiary: #5d151b;
+
     --color-input-bg: var(--color-bg-secondary);
     --color-input-border: #5a6270;
 }
