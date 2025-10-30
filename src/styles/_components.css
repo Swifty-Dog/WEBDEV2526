@@ -6,12 +6,12 @@
     height: var(--upper-header-height);
     padding: 0 1.5rem;
     background-color: var(--color-bg-secondary);
-    box-shadow: 0 0.125rem 0.5rem var(--color-shadow-subtle);
+    box-shadow: 0 0.2rem 0.5rem var(--color-shadow-subtle);
     z-index: 20;
 }
 
 .upper-border h1 {
-    font-size: 1.5rem;
+    font-size: 4rem;
     font-weight: 600;
     color: var(--color-brand-primary);
     position: absolute;
@@ -27,10 +27,10 @@
 }
 
 .header-button {
-    background: none;
-    border: none;
+    background: var(--color-bg-tertiary);
+    border: var(--color-border-subtle) 1px solid;
     color: var(--color-text-primary);
-    font-size: 1rem;
+    font-size: 1.5rem;
     cursor: pointer;
     padding: 0.5rem 0.75rem;
     border-radius: 0.5rem;
@@ -191,6 +191,19 @@
 .button-primary#button-error:active {
     background-color: var(--color-error-tertiary);
     color: var(--color-text-contrast);
+}
+
+.login-error {
+    color: var(--color-error-primary);
+    font-size: 0.9rem;
+    margin: -0.8rem;
+    text-align: center;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .events-list {

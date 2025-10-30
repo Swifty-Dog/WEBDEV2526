@@ -2,7 +2,7 @@
     font-size: 16px;
     --border-radius-main: 0.7rem;
     --sidebar-width: 20rem;
-    --upper-header-height: 4rem;
+    --upper-header-height: 7rem;
 
     --color-bg-primary: #1f232b;
     --color-bg-secondary: #2b313d;
@@ -26,9 +26,11 @@
     --color-highlight-secondary: #e55555;
     --color-highlight-tertiary: #331a1a;
 
-    --color-error-primary: #dc3545;
-    --color-error-secondary: #a61f2c;
-    --color-error-tertiary: #5d151b;
+    --color-error-primary: #ec6a76;
+    --color-error-secondary: #c64552;
+    --color-error-tertiary: #8b2c34;
+
+
 
     --color-input-bg: var(--color-bg-secondary);
     --color-input-border: #5a6270;
@@ -49,6 +51,10 @@ body.light-mode {
     --color-input-border: #ccd0d7;
 
     --color-highlight-tertiary: #ffe3e3;
+
+    --color-error-primary: #dc3545;
+    --color-error-secondary: #a61f2c;
+    --color-error-tertiary: #5d151b;
 }
 
 * {

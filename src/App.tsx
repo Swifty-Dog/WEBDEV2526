@@ -10,8 +10,7 @@ import './styles/_layout.css';
 import './styles/_components.css';
 
 export function App() {
-    // const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);  // THIS IS NORMAL. CURRENTLY SET TO TRUE FOR EASE OF TESTING
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     return (
         <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}>

@@ -10,10 +10,12 @@ interface LoginProps {
 export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const handleSubmit = (event: FormEvent) => {
-        event.preventDefault(); // Prevents the default browser form submission
+    const handleSubmit = async (event: FormEvent) => {
+        event.preventDefault();
+        setErrorMessage(null);
 
         if (email === '') {
             if (password === '') {
@@ -28,9 +30,24 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
             return;
         }
 
-        // **MOCK SUCCESS**
-        setIsLoggedIn(true);
-        navigate('/dashboard');
+        try {
+            const response = await fetch('http://localhost:5222/api/Employee/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                setIsLoggedIn(true);
+                navigate('/dashboard');
+            } else {
+                const errorData = await response.json().catch(() => null);
+                setErrorMessage(errorData?.message || 'Login failed.');
+            }
+        } catch {
+            setErrorMessage('An error occurred while trying to log in.');
+        }
+
     };
 
     return (
@@ -55,6 +72,8 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
                 onChange={(event) => setPassword(event.target.value)}
                 required
             />
+
+            {errorMessage && <p className="login-error">{errorMessage}</p>}
 
             <button type="submit" className="button-primary">
                 Login
