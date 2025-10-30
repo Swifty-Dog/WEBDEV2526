@@ -5,15 +5,15 @@ export const NotFound: FC = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="login">
+        <div className="not-found">
             <h1>404 - Page Not Found</h1>
             <p>The page you requested could not be found.</p>
-                <button
-                    className="header-button"
-                    onClick={() => navigate('/')}
-                >
-                    Login
-                </button>
+            <button
+                className="button-primary" id="button-error"
+                onClick={() => navigate('/')}
+            >
+                Go to Home
+            </button>
         </div>
     );
 };

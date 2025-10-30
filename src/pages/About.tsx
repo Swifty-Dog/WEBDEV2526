@@ -5,8 +5,7 @@ export function About() {
     <div>
       <h1>About Page</h1>
       <p>This is the About Page.</p>
-        <Link to="/">Go to Home Page</Link><br />
-        <Link to="/login">Go to Login Page</Link>
+        <Link to="/">Go to Home</Link><br />
     </div>
   )
 }

@@ -15,8 +15,20 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault(); // Prevents the default browser form submission
 
-        // **MOCK SUCCESS:**
-        // Assume login was successful (replace with actual API call)
+        if (email === '') {
+            if (password === '') {
+                alert('Email and Password are required');
+                return;
+            }
+            alert('Email is required');
+            return;
+        }
+        else if (password === '') {
+            alert('Password is required');
+            return;
+        }
+
+        // **MOCK SUCCESS**
         setIsLoggedIn(true);
         navigate('/dashboard');
     };
@@ -30,6 +42,8 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
                 placeholder="Email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                onInvalid={(e) => e.currentTarget.setCustomValidity('')}
+                onInput={(e) => e.currentTarget.setCustomValidity('')}
                 required
             />
             <input

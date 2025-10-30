@@ -16,10 +16,19 @@ export function App() {
     return (
         <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}>
             <Routes>
-                <Route path="/" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/404" element={<NotFound />} />
 
+                <Route path="/about" element={<About />} />
+                <Route
+                    path="/login"
+                    element={
+                        isLoggedIn
+                            ? <Navigate to="/" replace />
+                            : <Login setIsLoggedIn={setIsLoggedIn} />
+                    }
+                />
+
+
+                <Route path="/404" element={<NotFound />} />
                 <Route
                     path="/dashboard"
                     element={
@@ -29,6 +38,14 @@ export function App() {
                     }
                 />
 
+                <Route
+                    path="/"
+                    element={
+                        isLoggedIn
+                            ? <Dashboard />
+                            : <Login setIsLoggedIn={setIsLoggedIn} />
+                    }
+                />
                 <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
         </Layout>

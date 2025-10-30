@@ -23,7 +23,7 @@ export const Topbar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn, toggle
     const navigate = useNavigate();
 
     const handleLoginClick = () => {
-        navigate('/login');
+        navigate('/');
     };
 
     return (
