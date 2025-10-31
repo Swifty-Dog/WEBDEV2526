@@ -7,9 +7,10 @@ interface SidebarProps {
     isVisible: boolean;
     activePath: string;
     onLogout: () => void;
+    userRole: string | null;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogout }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogout, userRole }) => {
     const sidebarClass = `sidebar ${isVisible ? 'visible' : ''}`;
 
     const handleLogoutClick = (e: React.MouseEvent) => {
@@ -20,6 +21,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogou
     return (
         <nav className={sidebarClass}>
             <ul className="sidebar-menu">
+                {userRole && (userRole.toLowerCase() === 'admin' || userRole.toLowerCase() === 'manager') && (
+                    <li>
+                        <Link
+                            to="/admin-dashboard"
+                            className={`menu-item ${activePath === '/admin-dashboard' ? 'active' : ''}`}
+                        >
+                            <span className="icon">🛠️</span>
+                            Admin Dashboard
+                        </Link>
+                    </li>
+                )}
+
                 {sidebarMenuItems.map((item: MenuItem) => {
                     const isActive = activePath === item.path;
                     return (
