@@ -1,13 +1,19 @@
-import type {FC, JSX} from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import type {JSX} from "react";
 
-export const ProtectedRoute: FC<{ children: JSX.Element }> = ({ children }) => {
-    const { isAuthenticated } = useAuth();
+interface ProtectedRouteProps {
+    isLoggedIn: boolean;
+    userRole: string | null;
+    allowedRoles: string[];
+    children: JSX.Element;
+}
 
-    if (!isAuthenticated) {
+export const ProtectedRoute = ({ isLoggedIn, userRole, allowedRoles, children }: ProtectedRouteProps) => {
+    if (!isLoggedIn || !userRole || !allowedRoles.includes(userRole.toLowerCase())) {
+        // TODO: Add logout logic here, like clearing backend session if needed.
+        localStorage.removeItem('authToken');
         return <Navigate to="/login" replace />;
-    }
+        }
 
     return children;
 };

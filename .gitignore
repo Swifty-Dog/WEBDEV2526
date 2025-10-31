@@ -38,3 +38,5 @@ packages/react-devtools-fusebox/dist
 packages/react-devtools-inline/dist
 packages/react-devtools-shell/dist
 packages/react-devtools-timeline/dist
+/OfficeCalendar.API/OfficeCalendar.API.Tests/bin
+/OfficeCalendar.API/OfficeCalendar.API.Tests/obj
