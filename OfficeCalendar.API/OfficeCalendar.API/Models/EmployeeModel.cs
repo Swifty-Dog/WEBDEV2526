@@ -34,4 +34,12 @@ public class EmployeeModel
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+
+    public virtual AdminModel? Admin { get; set; }
+    public virtual ICollection<EventModel> CreatedEvents { get; set; } = new HashSet<EventModel>();
+    public virtual ICollection<RoomBookingModel> RoomBookings { get; set; } = new HashSet<RoomBookingModel>();
+    public virtual ICollection<OfficeAttendanceModel> OfficeAttendances { get; set; } = new HashSet<OfficeAttendanceModel>();
+    public virtual ICollection<GroupMembershipModel> GroupMemberships { get; set; } = new HashSet<GroupMembershipModel>();
+    public virtual ICollection<EventParticipationModel> EventParticipations { get; set; } = new HashSet<EventParticipationModel>();
 }
