@@ -9,9 +9,10 @@ interface LayoutProps {
     children: React.ReactNode;
     isLoggedIn: boolean;
     setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+    userRole: string | null;
 }
 
-export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn }) => {
+export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn, userRole }) => {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
     const activePath = useLocation().pathname;
@@ -50,6 +51,7 @@ export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn })
                         isVisible={isSidebarOpen && isSidebarAvailable}
                         activePath={activePath}
                         onLogout={handleLogout}
+                        userRole={userRole}
                     />
                 )}
 

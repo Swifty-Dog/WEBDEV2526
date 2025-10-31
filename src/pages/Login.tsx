@@ -5,9 +5,10 @@ import '../styles/_components.css';
 
 interface LoginProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
+    setUserRole: Dispatch<SetStateAction<string | null>>;
 }
 
-export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
+export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -38,8 +39,21 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn }) => {
             });
 
             if (response.ok) {
+                const data: { employee: { role: string; token: string }; token: string } = await response.json();
+                const token: string = data.token;
+
+                localStorage.setItem('authToken', token);
+                const employeeRole: string = data.employee.role.trim().toLowerCase();
+
                 setIsLoggedIn(true);
-                navigate('/dashboard');
+                setUserRole(employeeRole);
+
+                if (employeeRole === 'admin' || employeeRole === 'manager') {
+                    navigate('/admin-dashboard');
+                } else {
+                    navigate('/dashboard');
+                }
+
             } else {
                 const errorData = await response.json().catch(() => null);
                 setErrorMessage(errorData?.message || 'Login failed.');
