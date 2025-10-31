@@ -39,7 +39,7 @@ export const Topbar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn, toggle
                 <div style={{ width: '4rem', height: '1rem' }} />
             )}
 
-            <h1>Office Calendar</h1>
+            <h1>Calendify</h1>
 
             <div className="top-bar-controls">
                 {!isLoggedIn && (
