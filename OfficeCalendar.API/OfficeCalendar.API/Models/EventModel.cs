@@ -1,28 +1,34 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OfficeCalendar.API.Models;
 
-public class Event
+public class EventModel
 {
     [Key]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     [Required]
+    [MaxLength(100)]
     public string Title { get; set; } = string.Empty;
 
-    [Required]
-    public string Description { get; set; } = string.Empty;
+    [MaxLength(500)]
+    public string? Description { get; set; }
 
     [Required]
-    public int Create { get; set; }
+    public DateTime EventDate { get; set; }
 
     [Required]
-    public int RoomId { get; set; }
+    public long CreatedById { get; set; }
+
+    [ForeignKey(nameof(CreatedById))]
+    public EmployeeModel? CreatedBy { get; set; }
 
     [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public long? RoomId { get; set; }
 
-    [Required]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    [ForeignKey(nameof(RoomId))]
+    public RoomModel? Room { get; set; }
 
+    public virtual ICollection<EventParticipationModel> EventParticipations { get; set; } = new HashSet<EventParticipationModel>();
 }
