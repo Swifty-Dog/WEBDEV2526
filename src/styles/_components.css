@@ -287,7 +287,48 @@
 .week-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; }
 .week-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:0.5rem; }
 .week-day { background: color-mix(in srgb, var(--color-bg-secondary) 15%, transparent); border:1px solid var(--color-border-subtle); border-radius:0.5rem; padding:0.5rem; min-height:110px; cursor:pointer; transition: background 0.2s; }
-.week-day.today { outline: 2px solid var(--color-brand-accent); }
+.week-day.today {
+    /* Subtle highlight for the current day */
+    outline: none;
+    border-color: color-mix(in srgb, var(--color-brand-accent) 40%, var(--color-border-subtle));
+    background: color-mix(in srgb, var(--color-brand-accent) 6%, transparent);
+    font-weight: 600;
+}
+.week-day.selected {
+    /* Strong, contrasty selected state */
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--color-brand-accent) 22%, var(--color-bg-secondary)) 0%,
+        color-mix(in srgb, var(--color-brand-accent) 12%, var(--color-bg-secondary)) 100%);
+    border-color: var(--color-brand-accent);
+    color: var(--color-text-contrast);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--color-brand-accent) 14%, rgba(0,0,0,0.12));
+    transition: background 220ms cubic-bezier(.2,.9,.2,1), transform 160ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+/* ensure text inside selected day is readable */
+.week-day.selected .weekday-name,
+.week-day.selected .weekday-date,
+.week-day.selected .muted,
+.week-day.selected .event-title {
+    color: var(--color-text-contrast);
+}
+
+/* inverted badge for selected state */
+.week-day.selected .badge {
+    background: var(--color-text-contrast);
+    color: var(--color-brand-accent);
+    font-weight: 700;
+}
+
+/* when selected day is also today - slightly stronger ring */
+.week-day.selected.today {
+    border-width: 2px;
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--color-brand-accent) 100%, var(--color-border-subtle));
+    box-shadow: 0 14px 36px color-mix(in srgb, var(--color-brand-accent) 18%, rgba(0,0,0,0.16));
+    transform: translateY(-4px);
+}
 .week-day:hover { background: color-mix(in srgb, var(--color-bg-secondary) 30%, transparent); }
 .week-day-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
 .weekday-name { font-weight:600; }

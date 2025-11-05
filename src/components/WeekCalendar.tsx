@@ -3,6 +3,8 @@ import type { EventItem } from '../pages/AdminDashboard';
 
 interface Props {
     events: EventItem[];
+    // optional external selection (ISO day) so the calendar can reflect outside state
+    selectedDayISO?: string;
     onDaySelect?: (dateISO: string, eventsForDay: EventItem[]) => void;
 }
 
@@ -22,7 +24,7 @@ function toDayKeyISO(d: Date): string {
     return `${y}-${m}-${day}`;
 }
 
-export const WeekCalendar: React.FC<Props> = ({ events, onDaySelect }) => {
+export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect }) => {
     const [anchor, setAnchor] = useState<Date>(() => startOfWeekMonday(new Date()));
 
     const days = useMemo(() => {
@@ -87,8 +89,13 @@ export const WeekCalendar: React.FC<Props> = ({ events, onDaySelect }) => {
                     const key = toDayKeyISO(d);
                     const dayEvents = eventsByDay.get(key) ?? [];
                     const isToday = new Date().toDateString() === d.toDateString();
+                    const isSelected = selectedDayISO === key;
+                    // simpler: prefer prop-based selectedDayISO if provided; fall back to nothing
+                    // Build class string
+                    const className = `week-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`;
+
                     return (
-                        <div key={key} className={`week-day${isToday ? ' today' : ''}`} onClick={() => onDaySelect?.(key, dayEvents)}>
+                        <div key={key} className={className} onClick={() => onDaySelect?.(key, dayEvents)}>
                             <div className="week-day-header">
                                 <span className="weekday-name">{weekdayNames[idx]}</span>
                                 <span className="weekday-date">{d.getDate()}</span>
