@@ -6,7 +6,7 @@ import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
-import { ProtectedRoute} from "./components/ProtectedRoute.tsx";
+import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
@@ -23,12 +23,12 @@ export function App() {
                 <Route
                     path="/login"
                     element={
-                       isLoggedIn
-                           ? (userRole === 'admin' || userRole === 'manager')
-                               ? <Navigate to="/admin-dashboard" replace />
-                               : <Navigate to="/dashboard" replace />
-                           : <Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />
-                   }
+                        isLoggedIn
+                            ? (userRole === 'admin' || userRole === 'manager')
+                                ? <Navigate to="/admin-dashboard" replace />
+                                : <Navigate to="/dashboard" replace />
+                            : <Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />
+                    }
                 />
 
 
@@ -53,7 +53,7 @@ export function App() {
                     >
                         <Dashboard />
                     </ProtectedRoute>
-                    }
+                }
                 />
 
                 <Route

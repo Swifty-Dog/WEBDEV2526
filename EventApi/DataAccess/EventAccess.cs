@@ -17,10 +17,12 @@ public class EventAccess
         return new Event(1, "Sample", "Sample Event");
     }
 
-    public async Task<Event> GetEventById()
+    public async Task<Event?> GetEventById()
     {
         return new Event(1, "Sample", "Sample Event");
     }
+
+
 }
 
 
