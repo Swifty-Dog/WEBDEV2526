@@ -3,7 +3,7 @@ import '../styles/_components.css';
 import { ConfirmDialog } from './ConfirmDialog.tsx';
 
 export type Room = {
-    id?: string;
+    id?: number;
     name: string;
     capacity: number;
     location?: string;
@@ -21,7 +21,6 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
     const [location, setLocation] = useState('');
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Store initial values for dirty-check
     const initialState = {
         name: existing?.name ?? '',
         capacity: existing?.capacity ?? 0,
@@ -38,7 +37,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
             setCapacity(0);
             setLocation('');
         }
-    }, [existing]);
+    }, [existing, initialState.capacity, initialState.location, initialState.name]);
 
     const isDirty = () => {
         return (
@@ -50,7 +49,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
 
     const handleClose = () => {
         if (isDirty()) {
-            setShowConfirm(true); // show confirmation only for unsaved changes
+            setShowConfirm(true);
         } else {
             onClose();
         }
@@ -58,7 +57,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
 
     const submit = (e?: React.FormEvent) => {
         e?.preventDefault();
-        const payload: Omit<Room, 'id'> & { id?: string } = {
+        const payload: Room = {
             id: existing?.id,
             name: name.trim(),
             capacity,
@@ -98,8 +97,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
                             <button type="button" className="btn-sm" onClick={handleClose}>Annuleren</button>
                             <button
                                 type="submit"
-                                className="btn-sm"
-                                style={{ background: 'var(--color-brand-accent)', color: 'white' }}
+                                className="btn-sm btn-primary-accent"
                             >
                                 {existing ? 'Opslaan' : 'Aanmaken'}
                             </button>

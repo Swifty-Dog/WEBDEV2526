@@ -15,7 +15,7 @@ export const ConfirmDialog: React.FC<Props> = ({ title = 'Confirm', message, onC
                 <p>{message}</p>
                 <div className="form-actions">
                     <button className="btn-sm" onClick={onCancel}>Annuleer</button>
-                    <button className="btn-sm btn-danger" onClick={onConfirm}>Verlaat</button>
+                    <button className="btn-sm btn-danger" onClick={onConfirm}>Bevestig</button>
                 </div>
             </div>
         </div>

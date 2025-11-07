@@ -1,25 +1,124 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { RoomListModal } from './RoomListModal';
 import { RoomFormModal, type Room } from './RoomFormModal';
 
 export const AdminRoomManagement: React.FC = () => {
-    const [rooms, setRooms] = useState<Room[]>([
-        { id: '1', name: 'Kamer A', capacity: 20, location: '1e verdieping' },
-        { id: '2', name: 'Kamer B', capacity: 10, location: '2e verdieping' },
-    ]);
+    const [rooms, setRooms] = useState<Room[]>([]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const response = await fetch('http://localhost:5222/api/Room', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (response.ok) {
+                    const dataFromApi = await response.json();
+
+                    const rooms: Room[] = dataFromApi.map((room:
+                         { id: number; roomName: string; capacity: number; location: string; }) => ({
+                        id: room.id,
+                        name: room.roomName,
+                        capacity: room.capacity,
+                        location: room.location
+                    }));
+
+                    setRooms(rooms);
+
+                } else {
+                    console.error('Kamers konden niet worden opgehaald.');
+                }
+            } catch (error) {
+                console.error('Kamers ophalen mislukt', error);
+            }
+        })();
+    }, []);
 
     const [showRoomList, setShowRoomList] = useState<{ open: boolean; mode: 'manage' | 'delete' }>({ open: false, mode: 'manage' });
     const [showRoomForm, setShowRoomForm] = useState(false);
 
-    const handleSaveRoom = (room: Room) => {
-        setRooms(prev => {
-            if (room.id) return prev.map(r => r.id === room.id ? room : r);
-            return [...prev, { ...room, id: Date.now().toString() }];
-        });
+    const fetchRooms = async () => {
+        try {
+            const response = await fetch('http://localhost:5222/api/Room');
+            if (response.ok) {
+                const dataFromApi = await response.json();
+                const rooms: Room[] = dataFromApi.map((room: { id: number; roomName: string; capacity: number; location: string }) => ({
+                    id: room.id,
+                    name: room.roomName,
+                    capacity: room.capacity,
+                    location: room.location
+                }));
+                setRooms(rooms);
+            }
+        } catch (error) {
+            console.error('Kamers ophalen mislukt', error);
+        }
     };
 
-    const handleDeleteRoom = (id: string) => {
-        setRooms(prev => prev.filter(r => r.id !== id));
+    useEffect(() => {
+        fetchRooms();
+    }, []);
+
+    const handleSaveRoom = async (room: Room) => {
+        try {
+            let savedRoom: Room;
+
+            if (room.id) {
+                const response = await fetch(`http://localhost:5222/api/Room/${room.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: room.id,
+                        roomName: room.name,
+                        capacity: room.capacity,
+                        location: room.location
+                    })
+                });
+                if (!response.ok) throw new Error('Failed to update room');
+                savedRoom = await response.json();
+            } else {
+                const response = await fetch(`http://localhost:5222/api/Room`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roomName: room.name,
+                        capacity: room.capacity,
+                        location: room.location
+                    })
+                });
+                if (!response.ok)
+                    throw new Error('Failed to create room');
+                savedRoom = await response.json();
+            }
+
+            setRooms(prev => {
+                if (room.id) return prev.map(r => r.id === savedRoom.id ? savedRoom : r);
+                return [...prev, savedRoom];
+            });
+            await fetchRooms();
+        } catch (error) {
+            console.error('Error saving room', error);
+            alert('Er is iets misgegaan bij het opslaan van de kamer.');
+        }
+    };
+
+    const handleDeleteRoom = async (id: number) => {
+        try {
+            const response = await fetch(`http://localhost:5222/api/Room/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                setRooms(prev => prev.filter(r => r.id !== id));
+            } else {
+                const errorData = await response.json();
+                console.error('Delete error:', errorData);
+                alert(errorData.message || 'Fout bij het verwijderen van de kamer.');
+            }
+        } catch (error) {
+            console.error('Error deleting room', error);
+            alert('Er is iets misgegaan bij het verwijderen van de kamer.');
+        }
     };
 
     return (

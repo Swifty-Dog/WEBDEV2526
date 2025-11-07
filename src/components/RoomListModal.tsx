@@ -8,7 +8,7 @@ interface RoomListModalProps {
     mode: 'manage' | 'delete';
     onClose: () => void;
     onSaveRoom: (room: Room) => void;
-    onDeleteRoom: (id: string) => void;
+    onDeleteRoom: (id: number) => void;
 }
 
 export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClose, onSaveRoom, onDeleteRoom}) => {
@@ -35,7 +35,7 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                     <tbody>
                     {rooms.length === 0 && (
                         <tr>
-                            <td colSpan={5} className="muted">Geen kamers gevonden</td>
+                            <td colSpan={4} className="muted">Geen kamers gevonden</td>
                         </tr>
                     )}
                     {rooms.map(room => (
