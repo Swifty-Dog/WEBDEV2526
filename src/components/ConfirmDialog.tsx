@@ -11,15 +11,14 @@ export const ConfirmDialog: React.FC<Props> = ({ title = 'Confirm', message, onC
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h3 style={{ marginTop: 0 }}>{title}</h3>
+                <h3 className="titling">{title}</h3>
                 <p>{message}</p>
                 <div className="form-actions">
-                    <button className="btn-sm" onClick={onCancel}>Cancel</button>
-                    <button className="btn-sm btn-danger" onClick={onConfirm}>Delete</button>
+                    <button className="btn-sm" onClick={onCancel}>Annuleer</button>
+                    <button className="btn-sm btn-danger" onClick={onConfirm}>Verlaat</button>
                 </div>
             </div>
         </div>
     );
 };
 
-export default ConfirmDialog;

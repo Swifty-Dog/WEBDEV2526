@@ -4,6 +4,7 @@ import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import {Rooms} from "./pages/Rooms.tsx";
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
 import { ProtectedRoute} from "./components/ProtectedRoute.tsx";
@@ -54,6 +55,17 @@ export function App() {
                         <Dashboard />
                     </ProtectedRoute>
                     }
+                />
+
+                <Route path="/kamers" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin', 'manager', 'employee']}
+                    >
+                        <Rooms userRole={userRole ?? ''} />
+                    </ProtectedRoute>
+                }
                 />
 
                 <Route
