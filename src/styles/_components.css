@@ -193,11 +193,28 @@
     color: var(--color-text-contrast);
 }
 
-.button-primary#button-smaller {
-    width: auto;
-    height: auto;
-    font-size: 0.9rem;
+.button-secondary {
+    display: flex;
+    flex-direction: column;
     padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-contrast-accent);
+    background: var(--color-button-interact-bg);
+    border: none;
+    border-radius: var(--border-radius-main);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.button-secondary:hover {
+    transform: translateY(-0.1rem);
+    background: var(--color-button-interact-bg-hover);
+}
+
+.button-secondary:active {
+    transform: translateY(0);
+    background: var(--color-button-interact-bg-active);
 }
 
 .login-error {
@@ -361,15 +378,47 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-top: 1rem;
+    margin-top: 0;
+    min-height: calc(100vh - 10rem);
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.rooms-container > .panel-fancy-borders,
+.rooms-container > .room-actions-grid {
+    width: 100%;
+}
+
+.rooms-container > .panel-fancy-borders:first-child {
+    margin-top: 0;
 }
 
 .panel-fancy-borders {
-    margin-top: 2rem;
-    padding: 1rem;
-    border: 2px solid var(--color-border-subtle);
+    background: linear-gradient(135deg, var(--color-bg-secondary) 0%, color-mix(in srgb, var(--color-bg-secondary) 95%, var(--color-bg-primary)) 100%);
     border-radius: var(--border-radius-main);
-    background-color: color-mix(in srgb, var(--color-bg-secondary) 50%, transparent);
+    box-shadow: 0 0.5rem 2rem color-mix(in srgb, var(--color-brand-primary) 15%, transparent), 0 0.125rem 0.5rem rgba(0,0,0,0.1);
+    border: 1rem solid color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+    grid-row: span 2;
+    position: relative;
+    overflow: hidden;
+    min-height: 25rem;
+    padding: 1rem 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-fancy-borders::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.25rem;
+    background: linear-gradient(90deg, var(--color-brand-primary), var(--color-brand-secondary), var(--color-brand-primary));
+    background-size: 200% 100%;
+    animation: gradientMove 3s ease-in-out infinite;
 }
 
 .admin-actions-list {
@@ -404,10 +453,19 @@
     margin: 0;
 }
 
-.action-content-wrapper .button-primary#button-smaller {
+.action-content-wrapper .button-secondary {
     position: absolute;
     left: 52%;
     top: 50%;
+    transform: translate(0.5rem, -50%);
+    transition: transform 0.1s ease;
+}
+
+.action-content-wrapper .button-secondary:hover {
+    transform: translate(0.5rem, calc(-50% - 0.1rem));
+}
+
+.action-content-wrapper .button-secondary:active {
     transform: translate(0.5rem, -50%);
 }
 

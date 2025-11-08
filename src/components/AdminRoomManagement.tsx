@@ -4,13 +4,17 @@ import { RoomFormModal, type Room } from './RoomFormModal';
 
 export const AdminRoomManagement: React.FC = () => {
     const [rooms, setRooms] = useState<Room[]>([]);
+    const token = localStorage.getItem('authToken');
 
     useEffect(() => {
         (async () => {
             try {
                 const response = await fetch('http://localhost:5222/api/Room', {
                     method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
                 if (response.ok) {
                     const dataFromApi = await response.json();
@@ -66,7 +70,10 @@ export const AdminRoomManagement: React.FC = () => {
             if (room.id) {
                 const response = await fetch(`http://localhost:5222/api/Room/${room.id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({
                         id: room.id,
                         roomName: room.name,
@@ -79,7 +86,10 @@ export const AdminRoomManagement: React.FC = () => {
             } else {
                 const response = await fetch(`http://localhost:5222/api/Room`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({
                         roomName: room.name,
                         capacity: room.capacity,
@@ -128,8 +138,8 @@ export const AdminRoomManagement: React.FC = () => {
                 <li className="list-item">
                     <div className="action-content-wrapper">
                         <p className="action-text">Voeg nieuwe kamer toe</p>
-                        <button className="button-primary" id="button-smaller" onClick={() => setShowRoomForm(true)}>
-                            &gt;
+                        <button className="button-secondary" onClick={() => setShowRoomForm(true)}>
+                            ❯
                         </button>
                     </div>
                 </li>
@@ -137,8 +147,8 @@ export const AdminRoomManagement: React.FC = () => {
                 <li className="list-item">
                     <div className="action-content-wrapper">
                         <p className="action-text">Beheer kamers</p>
-                        <button className="button-primary" id="button-smaller" onClick={() => setShowRoomList({ open: true, mode: 'manage' })}>
-                            &gt;
+                        <button className="button-secondary" onClick={() => setShowRoomList({ open: true, mode: 'manage' })}>
+                            ❯
                         </button>
                     </div>
                 </li>
@@ -146,8 +156,8 @@ export const AdminRoomManagement: React.FC = () => {
                 <li className="list-item">
                     <div className="action-content-wrapper">
                         <p className="action-text">Verwijder kamers</p>
-                        <button className="button-primary" id="button-smaller" onClick={() => setShowRoomList({ open: true, mode: 'delete' })}>
-                            &gt;
+                        <button className="button-secondary" onClick={() => setShowRoomList({ open: true, mode: 'delete' })}>
+                            ❯
                         </button>
                     </div>
                 </li>

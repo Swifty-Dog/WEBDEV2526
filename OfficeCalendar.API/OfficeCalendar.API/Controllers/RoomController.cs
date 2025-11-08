@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.DTOs.Room.Request;
 using OfficeCalendar.API.Services.Interfaces;
@@ -5,6 +6,7 @@ using OfficeCalendar.API.Services.Results.Rooms;
 
 namespace OfficeCalendar.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class RoomController : BaseController

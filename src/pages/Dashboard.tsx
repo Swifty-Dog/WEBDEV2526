@@ -48,7 +48,7 @@ export const Dashboard: React.FC = () => {
 
     return (
         <div className="dashboard-grid">
-            <div className="calendar-section">
+            <div className="panel-fancy-borders">
                 <Calendar events={sampleEvents} onDaySelect={handleDaySelect} />
             </div>
 

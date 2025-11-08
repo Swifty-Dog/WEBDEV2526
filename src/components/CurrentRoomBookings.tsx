@@ -18,7 +18,7 @@ export const CurrentRoomBookings: React.FC = () => {
                 </li>
             </ul>
 
-            <button className="button-primary" id="button-smaller">Bekijk al mijn aankomende boekingen &gt;</button>
+            <button className="button-secondary">Bekijk al mijn aankomende boekingen &gt;</button>
         </div>
     )
 }

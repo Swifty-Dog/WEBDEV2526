@@ -13,9 +13,11 @@ export const Rooms: React.FC<RoomsProps> = ({ userRole }: RoomsProps) => {
 
     return (
         <div className="rooms-container">
-            <div className="panel-fancy-borders">
-                {canManage && <AdminRoomManagement />}
-            </div>
+            {canManage && (
+                <div className="panel-fancy-borders">
+                    <AdminRoomManagement />
+                </div>
+            )}
 
             <div className="room-actions-grid">
                 <div  className="panel-fancy-borders" id="current-bookings">

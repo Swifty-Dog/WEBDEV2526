@@ -172,12 +172,7 @@ export const NewRoomBooking: React.FC = () => {
                 </form>
             </div>
 
-            <button
-                type="submit"
-                className="button-primary"
-                id="button-smaller"
-                form="new-booking-form"
-            >
+            <button type="submit" className="button-secondary" form="new-booking-form">
                 Reserveer kamer
             </button>
         </div>
