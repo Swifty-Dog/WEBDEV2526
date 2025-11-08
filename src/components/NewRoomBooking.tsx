@@ -15,6 +15,7 @@ for (let hour = 8; hour <= 18; hour++) {
     allTimes.push(`${String(hour).padStart(2, '0')}:00`);
     if (hour !== 18) allTimes.push(`${String(hour).padStart(2, '0')}:30`);
 }
+
 const initialStartTime = allTimes.find(time => time > getCurrentTime()) || '08:00';
 
 export const NewRoomBooking: React.FC = () => {
@@ -24,16 +25,19 @@ export const NewRoomBooking: React.FC = () => {
     const [rooms, setRooms] = useState<{ id: number; roomName: string }[]>([]);
     const [loadingRooms, setLoadingRooms] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [fetchError, setFetchError] = useState(false);
 
-    const [bookingDetails, setBookingDetails] = useState({
+    const defaultBookingDetails = {
         roomId: 0,
         date: getTodayDate(),
         startTime: initialStartTime,
         endTime: allTimes[allTimes.indexOf(initialStartTime) + 1] || allTimes[allTimes.length - 1],
         reason: '',
-    });
+    };
 
-    // Fetch rooms
+    const [bookingDetails, setBookingDetails] = useState(defaultBookingDetails);
+
     useEffect(() => {
         const fetchRooms = async () => {
             if (!token) {
@@ -49,6 +53,7 @@ export const NewRoomBooking: React.FC = () => {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
+
                 if (!response.ok) throw new Error('Kon kamers niet ophalen');
 
                 const data = await response.json();
@@ -57,6 +62,7 @@ export const NewRoomBooking: React.FC = () => {
             } catch (error) {
                 console.error('Fout bij ophalen kamers:', error);
                 setErrorMessage('Kon kamers niet ophalen van de server.');
+                setFetchError(true);
             } finally {
                 setLoadingRooms(false);
             }
@@ -65,12 +71,10 @@ export const NewRoomBooking: React.FC = () => {
         fetchRooms();
     }, [token]);
 
-    // Compute available times
     const availableTimes = useMemo(() => {
         const today = getTodayDate();
         const current = getCurrentTime();
-        if (bookingDetails.date > today) return allTimes;
-        return allTimes.filter(time => time >= current);
+        return bookingDetails.date > today ? allTimes : allTimes.filter(time => time >= current);
     }, [bookingDetails.date]);
 
     const startTimesList = useMemo(() => availableTimes.slice(0, -1), [availableTimes]);
@@ -79,19 +83,28 @@ export const NewRoomBooking: React.FC = () => {
         [availableTimes, bookingDetails.startTime]
     );
 
-    // Handle input changes
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        setBookingDetails({
-            ...bookingDetails,
-            [e.target.name]: e.target.value,
+        const { name, value } = e.target;
+
+        setBookingDetails(prev => {
+            const updated = { ...prev, [name]: value };
+
+            if (name === 'startTime') {
+                const nextIndex = allTimes.indexOf(value) + 1;
+                updated.endTime = allTimes[nextIndex] || allTimes[allTimes.length - 1];
+            }
+
+            return updated;
         });
-        setErrorMessage(null); // clear errors on edit
+
+        setErrorMessage(null);
+        setSuccessMessage(null);
     };
 
-    // Submit booking
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
+        setSuccessMessage(null);
 
         if (!employeeId || !token) {
             setErrorMessage('Je bent niet ingelogd.');
@@ -123,12 +136,23 @@ export const NewRoomBooking: React.FC = () => {
             });
 
             if (response.status === 201) {
-                setErrorMessage(null);
-                alert('Kamer succesvol gereserveerd!');
-            } else {
-                const data = await response.json();
-                setErrorMessage(data.message || 'Er is een fout opgetreden.');
+                setSuccessMessage('Kamer succesvol gereserveerd!');
+                setBookingDetails({
+                    ...defaultBookingDetails,
+                    roomId: rooms[0]?.id || 0,
+                });
+                setTimeout(() => setSuccessMessage(null), 5000);
+                return;
             }
+
+            let msg = 'Er is een fout opgetreden.';
+            try {
+                const data = await response.json();
+                if (data?.message) msg = data.message;
+            } catch { /* ignore */ }
+
+            setErrorMessage(msg);
+
         } catch (error) {
             console.error('Booking error:', error);
             setErrorMessage('Kan geen verbinding maken met de server.');
@@ -152,6 +176,7 @@ export const NewRoomBooking: React.FC = () => {
                             value={bookingDetails.roomId}
                             onChange={handleChange}
                             required
+                            disabled={fetchError}
                         >
                             {rooms.map(room => (
                                 <option key={room.id} value={room.id}>
@@ -172,6 +197,7 @@ export const NewRoomBooking: React.FC = () => {
                             onChange={handleChange}
                             min={getTodayDate()}
                             required
+                            disabled={fetchError}
                         />
                     </div>
 
@@ -183,11 +209,11 @@ export const NewRoomBooking: React.FC = () => {
                             className="booking-input"
                             value={bookingDetails.startTime}
                             onChange={handleChange}
+                            required
+                            disabled={fetchError}
                         >
                             {startTimesList.map(time => (
-                                <option key={time} value={time}>
-                                    {time}
-                                </option>
+                                <option key={time} value={time}>{time}</option>
                             ))}
                         </select>
                     </div>
@@ -200,11 +226,11 @@ export const NewRoomBooking: React.FC = () => {
                             className="booking-input"
                             value={bookingDetails.endTime}
                             onChange={handleChange}
+                            required
+                            disabled={fetchError}
                         >
                             {endTimesList.map(time => (
-                                <option key={time} value={time}>
-                                    {time}
-                                </option>
+                                <option key={time} value={time}>{time}</option>
                             ))}
                         </select>
                     </div>
@@ -220,14 +246,20 @@ export const NewRoomBooking: React.FC = () => {
                             value={bookingDetails.reason}
                             onChange={handleChange}
                             required
+                            disabled={fetchError}
                         />
                     </div>
                 </div>
 
                 <div className="form-footer">
                     {errorMessage && <p className="error-message">{errorMessage}</p>}
+                    {successMessage && <p className="success-message">{successMessage}</p>}
 
-                    <button type="submit" className="button-secondary full-width-button">
+                    <button
+                        type="submit"
+                        className="button-secondary full-width-button"
+                        disabled={fetchError}
+                    >
                         Reserveer kamer
                     </button>
                 </div>

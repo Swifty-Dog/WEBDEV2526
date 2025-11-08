@@ -175,7 +175,6 @@
 
 .button-primary:active {
     background-color: var(--color-brand-accent-active);
-    transform: scale(0.98);
 }
 
 .button-primary#button-error {
@@ -208,13 +207,48 @@
 }
 
 .button-secondary:hover {
-    transform: translateY(-0.1rem);
     background: var(--color-button-interact-bg-hover);
 }
 
 .button-secondary:active {
-    transform: translateY(0);
     background: var(--color-button-interact-bg-active);
+}
+
+.button-primary:hover:not(:disabled),
+.button-secondary:hover:not(:disabled) {
+    transform: translateY(-0.1rem);
+}
+
+.button-primary:active:not(:disabled),
+.button-secondary:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+}
+
+button:disabled,
+.button-primary:disabled,
+.button-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-contrast);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.success-message {
+    color: var(--color-success-primary);
+    font-size: 0.9rem;
+    margin: 0;
+    text-align: center;
+    animation: fadeIn 0.2s ease-in-out;
 }
 
 .error-message {
@@ -408,11 +442,9 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-top: 0;
     min-height: calc(100vh - 10rem);
     justify-content: center;
     align-items: center;
-    padding: 2rem;
     box-sizing: border-box;
 }
 

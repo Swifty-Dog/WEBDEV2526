@@ -31,11 +31,13 @@
     --color-highlight-secondary: #e55555;
     --color-highlight-tertiary: #331a1a;
 
+    --color-success-primary: #28a745;
+    --color-success-secondary: #1e7e34;
+    --color-success-tertiary: #155724;
+
     --color-error-primary: #ec6a76;
     --color-error-secondary: #c64552;
     --color-error-tertiary: #8b2c34;
-
-
 
     --color-input-bg: var(--color-bg-secondary);
     --color-input-border: #5a6270;
@@ -56,6 +58,10 @@ body.light-mode {
     --color-input-border: #ccd0d7;
 
     --color-highlight-tertiary: #ffe3e3;
+
+    --color-success-primary: #198754;
+    --color-success-secondary: #146c43;
+    --color-success-tertiary: #0f5132;
 
     --color-error-primary: #dc3545;
     --color-error-secondary: #a61f2c;

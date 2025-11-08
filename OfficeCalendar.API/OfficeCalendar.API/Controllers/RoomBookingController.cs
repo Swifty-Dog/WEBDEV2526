@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.DTOs.RoomBookings;
@@ -21,6 +22,7 @@ public class RoomBookingController : BaseController
     [HttpPost]
     public async Task<IActionResult> CreateRoomBooking([FromBody] CreateRoomBookingRequest request)
     {
+        Console.WriteLine(JsonSerializer.Serialize(request));
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var result = await _roomBookingService.CreateRoomBooking(request);
