@@ -1,4 +1,4 @@
-namespace OfficeCalendar.API.DTOs.Room.Request;
+namespace OfficeCalendar.API.DTOs.Rooms.Request;
 
 public class UpdateRoomRequest
 {

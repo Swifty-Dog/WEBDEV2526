@@ -1,4 +1,4 @@
-using OfficeCalendar.API.DTOs.Room.Request;
+using OfficeCalendar.API.DTOs.Rooms.Request;
 using OfficeCalendar.API.Models;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;

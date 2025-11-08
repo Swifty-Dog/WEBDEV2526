@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OfficeCalendar.API.DTOs.Room.Request;
+using OfficeCalendar.API.DTOs.Rooms.Request;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Rooms;
 

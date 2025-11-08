@@ -2,32 +2,36 @@ import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction }
 import { useNavigate } from 'react-router-dom';
 import '../styles/global.css';
 import '../styles/_components.css';
+import {useAuth} from "../components/UseAuth.tsx";
 
 interface LoginProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     setUserRole: Dispatch<SetStateAction<string | null>>;
 }
 
+interface AuthResponse {
+    employee: {
+        employeeId: number;
+        name: string;
+        email: string;
+        role: string;
+        token: string;
+    };
+}
+
 export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setErrorMessage(null);
 
-        if (email === '') {
-            if (password === '') {
-                alert('Email and Password are required');
-                return;
-            }
-            alert('Email is required');
-            return;
-        }
-        else if (password === '') {
-            alert('Password is required');
+        if (!email || !password) {
+            alert('Email and password are required.');
             return;
         }
 
@@ -35,33 +39,40 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
             const response = await fetch('http://localhost:5222/api/Employee/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
             });
 
-            if (response.ok) {
-                const data: { employee: { role: string; token: string }; token: string } = await response.json();
-                const token: string = data.token;
-
-                localStorage.setItem('authToken', token);
-                const employeeRole: string = data.employee.role.trim().toLowerCase();
-
-                setIsLoggedIn(true);
-                setUserRole(employeeRole);
-
-                if (employeeRole === 'admin' || employeeRole === 'manager') {
-                    navigate('/admin-dashboard');
-                } else {
-                    navigate('/dashboard');
-                }
-
-            } else {
-                const errorData = await response.json().catch(() => null);
-                setErrorMessage(errorData?.message || 'Login failed.');
+            if (!response.ok) {
+                const errData = await response.json().catch(() => null);
+                setErrorMessage(errData?.message || 'Login failed.');
+                return;
             }
-        } catch {
+
+            const data: AuthResponse = await response.json();
+
+            const { employeeId, email: empEmail, role, token } = data.employee;
+
+            if (!employeeId || !token) {
+                throw new Error('Invalid server response.');
+            }
+
+            localStorage.setItem('authToken', token);
+            login(empEmail, employeeId);
+
+            const employeeRole = role?.trim().toLowerCase() || 'user';
+            setIsLoggedIn(true);
+            setUserRole(employeeRole);
+
+            if (employeeRole === 'admin' || employeeRole === 'manager') {
+                navigate('/admin-dashboard');
+            } else {
+                navigate('/dashboard');
+            }
+
+        } catch (err) {
+            console.error('Login error:', err);
             setErrorMessage('An error occurred while trying to log in.');
         }
-
     };
 
     return (
@@ -69,29 +80,25 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
             <input
                 type="email"
                 className="login-input"
-                id="email"
                 placeholder="Email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                onInvalid={(e) => e.currentTarget.setCustomValidity('')}
-                onInput={(e) => e.currentTarget.setCustomValidity('')}
+                onChange={e => setEmail(e.target.value)}
                 required
             />
             <input
                 type="password"
                 className="login-input"
-                id="password"
                 placeholder="Password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
             />
 
-            {errorMessage && <p className="login-error">{errorMessage}</p>}
+            {errorMessage && <p className="error-message" id="login">{errorMessage}</p>}
 
             <button type="submit" className="button-primary">
                 Login
             </button>
         </form>
     );
-}
+};
