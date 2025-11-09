@@ -48,11 +48,10 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
 
         modelBuilder.Entity<RoomBookingModel>(builder =>
         {
-            // Keep your DateOnly conversion if needed (it was commented out, so leave it out for now)
-            // builder.Property(rBooking => rBooking.BookingDate)
-            //     .HasConversion(
-            //         dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
-            //         dateTime => DateOnly.FromDateTime(dateTime));
+            builder.Property(rBooking => rBooking.BookingDate)
+                .HasConversion(
+                    dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
+                    dateTime => DateOnly.FromDateTime(dateTime));
 
             builder.Property(rBooking => rBooking.StartTime)
                 .HasConversion<TimeOnlyToStringConverter>()

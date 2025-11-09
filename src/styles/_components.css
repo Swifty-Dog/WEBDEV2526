@@ -297,6 +297,37 @@ textarea:disabled {
     box-shadow: 0 0.75rem 2rem var(--color-shadow-subtle);
 }
 
+.modal .form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.modal .booking-item {
+    justify-content: stretch;
+}
+
+.modal .booking-content {
+    display: block;
+    width: 100%;
+}
+
+.modal .form-row label {
+    width: auto;
+    flex-shrink: 0;
+}
+
+.modal .form-row span {
+    flex-grow: 1;
+    text-align: right;
+    word-break: break-word;
+}
+
+.modal-list-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
 .events-table {
     width: 100%;
     border-collapse: collapse;
@@ -439,22 +470,18 @@ textarea:disabled {
 }
 
 .rooms-container {
+    justify-content: flex-start;
+    align-items: stretch;
+    min-height: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    min-height: calc(100vh - 10rem);
-    justify-content: center;
-    align-items: center;
+    gap: 0.75rem;
     box-sizing: border-box;
 }
 
 .rooms-container > .panel-fancy-borders,
 .rooms-container > .room-actions-grid {
     width: 100%;
-}
-
-.rooms-container > .panel-fancy-borders:first-child {
-    margin-top: 0;
 }
 
 .panel-fancy-borders {
@@ -466,7 +493,7 @@ textarea:disabled {
     position: relative;
     overflow: hidden;
     min-height: 25rem;
-    padding: 1rem 1rem 0.5rem;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
 }
@@ -542,6 +569,14 @@ textarea:disabled {
 #new-booking {
     flex: 1;
     min-width: 0;
+}
+
+#current-bookings .booking-item {
+    justify-content: flex-start;
+}
+
+#current-bookings .booking-item .booking-content {
+    display: inline-block;
 }
 
 .section-card {

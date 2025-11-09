@@ -1,6 +1,6 @@
-namespace OfficeCalendar.API.DTOs.RoomBookings;
+namespace OfficeCalendar.API.DTOs.RoomBookings.Request;
 
-public class CreateRoomBookingRequest
+public class CreateRoomBookingDto
 {
     public long RoomId { get; set; }
     public long EmployeeId { get; set; }

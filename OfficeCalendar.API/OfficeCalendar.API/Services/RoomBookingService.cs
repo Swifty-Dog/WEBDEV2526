@@ -1,4 +1,4 @@
-using OfficeCalendar.API.DTOs.RoomBookings;
+using OfficeCalendar.API.DTOs.RoomBookings.Request;
 using OfficeCalendar.API.Models;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;
@@ -28,12 +28,12 @@ public class RoomBookingService : IRoomBookingService
         { return new GetRoomBookingResult.Error($"Fout bij het ophalen van de kamerreservering: {ex.Message}"); }
     }
 
-    public async Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingRequest request)
+    public async Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto)
     {
-        if (request.EndTime <= request.StartTime)
+        if (dto.EndTime <= dto.StartTime)
             return new CreateRoomBookingResult.InvalidData("Eindtijd kan niet voor de begintijd zijn.");
 
-        var existingBooking = await GetRoomBookingByDateAndTime(request.BookingDate, request.StartTime, request.EndTime, request.RoomId);
+        var existingBooking = await GetRoomBookingByDateAndTime(dto.BookingDate, dto.StartTime, dto.EndTime, dto.RoomId);
         bool isRoomAvailable = existingBooking is GetRoomBookingResult.NotFound;
         if (!isRoomAvailable)
         {
@@ -44,12 +44,12 @@ public class RoomBookingService : IRoomBookingService
 
         var roomBooking = new RoomBookingModel
         {
-            RoomId = request.RoomId,
-            EmployeeId = request.EmployeeId,
-            BookingDate = request.BookingDate,
-            StartTime = request.StartTime,
-            EndTime = request.EndTime,
-            Purpose = request.Purpose
+            RoomId = dto.RoomId,
+            EmployeeId = dto.EmployeeId,
+            BookingDate = dto.BookingDate,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            Purpose = dto.Purpose
         };
 
         bool created = await _roomBookingRepo.Create(roomBooking);
@@ -58,5 +58,18 @@ public class RoomBookingService : IRoomBookingService
             return new CreateRoomBookingResult.Success(roomBooking);
 
         return new CreateRoomBookingResult.Error("Kamerreservering niet kunnen maken.");
+    }
+
+    public async Task<GetRoomBookingListResult> GetUpcomingRoomBookingsByEmployeeId(long employeeId)
+    {
+        try
+        {
+            var roomBookings = await _roomBookingRepo.GetUpcomingBookingsByEmployeeId(employeeId);
+            return new GetRoomBookingListResult.Success(roomBookings);
+        }
+        catch (Exception ex)
+        {
+            return new GetRoomBookingListResult.Error($"Fout bij het ophalen van kamerreserveringen: {ex.Message}");
+        }
     }
 }

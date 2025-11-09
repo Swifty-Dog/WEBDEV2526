@@ -1,5 +1,5 @@
 using Moq;
-using OfficeCalendar.API.DTOs.RoomBookings;
+using OfficeCalendar.API.DTOs.RoomBookings.Request;
 using OfficeCalendar.API.Models;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services;
@@ -33,7 +33,7 @@ public class RoomBookingServiceTests
         TimeOnly start = TimeOnly.Parse(startTime);
         TimeOnly end = TimeOnly.Parse(endTime);
 
-        var request = new CreateRoomBookingRequest
+        var request = new CreateRoomBookingDto
         {
             RoomId = roomId,
             EmployeeId = employeeId,
@@ -61,7 +61,7 @@ public class RoomBookingServiceTests
     public async Task CreateRoomBooking_EndTimeBeforeStartTime_ReturnsInvalidData()
     {
         // Arrange
-        var request = new CreateRoomBookingRequest
+        var request = new CreateRoomBookingDto
         {
             RoomId = 1,
             EmployeeId = 1,
@@ -82,7 +82,7 @@ public class RoomBookingServiceTests
     public async Task CreateRoomBooking_RoomNotAvailable_ReturnsRoomNotAvailable()
     {
         // Arrange
-        var request = new CreateRoomBookingRequest
+        var request = new CreateRoomBookingDto
         {
             RoomId = 1,
             EmployeeId = 1,
@@ -108,7 +108,7 @@ public class RoomBookingServiceTests
     public async Task CreateRoomBooking_RepositoryThrowsException_ReturnsError()
     {
         // Arrange
-        var request = new CreateRoomBookingRequest
+        var request = new CreateRoomBookingDto
         {
             RoomId = 1,
             EmployeeId = 1,

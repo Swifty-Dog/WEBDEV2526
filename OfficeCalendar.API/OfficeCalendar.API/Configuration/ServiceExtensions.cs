@@ -64,6 +64,7 @@ public static class ServiceExtensions
         AddCorsPolicy(services, configuration, MiddlewareExtensions.CorsPolicyName);
         services.AddOfficeCalendarServices(configuration);
         services.AddSwaggerAuthorization();
+        services.AddSignalR();
 
         return services;
     }
