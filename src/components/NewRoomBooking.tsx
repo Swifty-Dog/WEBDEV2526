@@ -1,123 +1,293 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useAuth } from "./UseAuth.tsx";
 
-const getTodayDate = () => new Date().toISOString().split('T')[0];
-const getCurrentTime = () => {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
-};
+interface Room {
+    id: number;
+    roomName: string;
+}
 
-// Generate times from 08:00 to 18:30
+interface DailyBookingWithRoom {
+    roomId: number;
+    startTime: string;
+    endTime: string;
+}
+
+interface BookingDetails {
+    roomId: number;
+    date: string;
+    startTime: string;
+    endTime: string;
+    reason: string;
+}
+
 const allTimes: string[] = [];
 for (let hour = 8; hour <= 18; hour++) {
     allTimes.push(`${String(hour).padStart(2, '0')}:00`);
     if (hour !== 18) allTimes.push(`${String(hour).padStart(2, '0')}:30`);
 }
 
-const initialStartTime = allTimes.find(time => time > getCurrentTime()) || '08:00';
+const getTodayDate = (): string => new Date().toISOString().split('T')[0];
+
+const getCurrentTime = (): string => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+};
+
+const getInitialStartTime = (): string => {
+    const current = getCurrentTime();
+    return allTimes.find(time => time > current) || allTimes[0];
+};
+
+const getInitialEndTime = (startTime: string): string => {
+    const nextIndex = allTimes.indexOf(startTime) + 1;
+    return allTimes[nextIndex] || allTimes[allTimes.length - 1];
+};
 
 export const NewRoomBooking: React.FC = () => {
     const { employeeId } = useAuth();
     const token = localStorage.getItem('authToken');
 
-    const [rooms, setRooms] = useState<{ id: number; roomName: string }[]>([]);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const [loadingRooms, setLoadingRooms] = useState(true);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [fetchError, setFetchError] = useState(false);
 
-    const defaultBookingDetails = {
-        roomId: 0,
-        date: getTodayDate(),
-        startTime: initialStartTime,
-        endTime: allTimes[allTimes.indexOf(initialStartTime) + 1] || allTimes[allTimes.length - 1],
-        reason: '',
-    };
+    const [allDailyBookings, setAllDailyBookings] = useState<DailyBookingWithRoom[]>([]);
+    const [loadingAvailability, setLoadingAvailability] = useState(false);
 
-    const [bookingDetails, setBookingDetails] = useState(defaultBookingDetails);
+    const [message, setMessage] = useState<{ text: string | null; type: 'success' | 'error' } | null>(null);
+
+    const [bookingDetails, setBookingDetails] = useState<BookingDetails>(() => {
+        const initialStart = getInitialStartTime();
+        return {
+            roomId: 0,
+            date: getTodayDate(),
+            startTime: initialStart,
+            endTime: getInitialEndTime(initialStart),
+            reason: '',
+        };
+    });
 
     useEffect(() => {
         const fetchRooms = async () => {
             if (!token) {
-                setErrorMessage('Je bent niet ingelogd.');
+                setMessage({ text: 'Je bent niet ingelogd.', type: 'error' });
                 setLoadingRooms(false);
+                setFetchError(true);
                 return;
             }
-
             try {
                 const response = await fetch('http://localhost:5222/api/Room', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 });
-
                 if (!response.ok) throw new Error('Kon kamers niet ophalen');
-
-                const data = await response.json();
+                const data: Room[] = await response.json();
                 setRooms(data);
-                setBookingDetails(prev => ({ ...prev, roomId: data[0]?.id || 0 }));
             } catch (error) {
                 console.error('Fout bij ophalen kamers:', error);
-                setErrorMessage('Kon kamers niet ophalen van de server.');
+                setMessage({ text: 'Kon kamers niet ophalen van de server.', type: 'error' });
                 setFetchError(true);
             } finally {
                 setLoadingRooms(false);
             }
         };
-
         fetchRooms();
     }, [token]);
 
-    const availableTimes = useMemo(() => {
+    useEffect(() => {
+        const fetchAvailabilityForDate = async () => {
+            if (!token || !bookingDetails.date) {
+                setAllDailyBookings([]);
+                return;
+            }
+
+            setLoadingAvailability(true);
+            setMessage(null);
+            try {
+                const response = await fetch(
+                    `http://localhost:5222/api/RoomBooking/date/${bookingDetails.date}`,
+                    {
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    }
+                );
+
+                if (!response.ok) throw new Error('Kon boekingstijden niet ophalen');
+
+                const data: { roomId: number, startTime: string, endTime: string }[] = await response.json();
+
+                const formattedData = data.map(b => ({
+                    roomId: b.roomId,
+                    startTime: b.startTime.substring(0, 5),
+                    endTime: b.endTime.substring(0, 5),
+                }));
+
+                setAllDailyBookings(formattedData);
+
+            } catch (error) {
+                console.error('Fout bij ophalen boekingstijden:', error);
+                setMessage({ text: 'Kon de beschikbaarheid van de kamers niet controleren.', type: 'error' });
+                setAllDailyBookings([]);
+            } finally {
+                setLoadingAvailability(false);
+            }
+        };
+
+        fetchAvailabilityForDate();
+    }, [bookingDetails.date, token]);
+
+    const roomBookingMap = useMemo(() => {
+        const map = new Map<number, Set<string>>();
+
+        for (const booking of allDailyBookings) {
+            if (!map.has(booking.roomId)) {
+                map.set(booking.roomId, new Set<string>());
+            }
+            const roomSet = map.get(booking.roomId)!;
+
+            for (const time of allTimes) {
+                if (time >= booking.startTime && time < booking.endTime) {
+                    roomSet.add(time);
+                }
+            }
+        }
+        return map;
+    }, [allDailyBookings]);
+
+    const roomIsFullMap = useMemo(() => {
+        const map = new Map<number, boolean>();
         const today = getTodayDate();
         const current = getCurrentTime();
-        return bookingDetails.date > today ? allTimes : allTimes.filter(time => time >= current);
-    }, [bookingDetails.date]);
 
-    const startTimesList = useMemo(() => availableTimes.slice(0, -1), [availableTimes]);
-    const endTimesList = useMemo(
-        () => availableTimes.filter(time => time > bookingDetails.startTime),
-        [availableTimes, bookingDetails.startTime]
-    );
+        const baseTimes = bookingDetails.date > today
+            ? allTimes
+            : allTimes.filter(time => time >= current);
+
+        for (const room of rooms) {
+            const bookedSlots = roomBookingMap.get(room.id) || new Set<string>();
+
+            const availableStartSlots = baseTimes
+                .filter(time => !bookedSlots.has(time))
+                .slice(0, -1);
+
+            map.set(room.id, availableStartSlots.length === 0);
+        }
+        return map;
+    }, [rooms, roomBookingMap, bookingDetails.date]);
+
+    useEffect(() => {
+        if (loadingAvailability || rooms.length === 0) return;
+
+        const currentRoomIsInvalid = bookingDetails.roomId === 0 || roomIsFullMap.get(bookingDetails.roomId);
+
+        if (currentRoomIsInvalid) {
+            const firstAvailableRoom = rooms.find(room => !roomIsFullMap.get(room.id));
+
+            if (firstAvailableRoom) {
+                setBookingDetails(prev => ({
+                    ...prev,
+                    roomId: firstAvailableRoom.id
+                }));
+            } else {
+                setBookingDetails(prev => ({ ...prev, roomId: 0 }));
+            }
+        }
+    }, [roomIsFullMap, rooms, loadingAvailability, bookingDetails.roomId]);
+
+    const currentRoomBookings = useMemo(() => {
+        return allDailyBookings.filter(b => b.roomId === bookingDetails.roomId);
+    }, [allDailyBookings, bookingDetails.roomId]);
+
+    const bookedTimesSet = useMemo(() => {
+        const set = new Set<string>();
+        if (!currentRoomBookings.length) return set;
+
+        for (const booking of currentRoomBookings) {
+            for (const time of allTimes) {
+                if (time >= booking.startTime && time < booking.endTime) {
+                    set.add(time);
+                }
+            }
+        }
+        return set;
+    }, [currentRoomBookings]);
+
+    const availableStartTimes = useMemo(() => {
+        const today = getTodayDate();
+        const current = getCurrentTime();
+
+        const baseTimes = bookingDetails.date > today
+            ? allTimes
+            : allTimes.filter(time => time >= current);
+
+        return baseTimes
+            .filter(time => !bookedTimesSet.has(time))
+            .slice(0, -1);
+
+    }, [bookingDetails.date, bookedTimesSet]);
+
+    const availableEndTimes = useMemo(() => {
+        const potentialEndTimes = allTimes.filter(time => time > bookingDetails.startTime);
+
+        const validEndTimes: string[] = [];
+        for (const endTime of potentialEndTimes) {
+            let hasConflict: boolean = false;
+            for (const timeSlot of allTimes) {
+                if (timeSlot >= bookingDetails.startTime && timeSlot < endTime) {
+                    if (bookedTimesSet.has(timeSlot)) {
+                        hasConflict = true;
+                        break;
+                    }
+                }
+            }
+            if (hasConflict) break;
+            validEndTimes.push(endTime);
+        }
+        return validEndTimes;
+    }, [bookingDetails.startTime, bookedTimesSet]);
+
+    useEffect(() => {
+        if (availableStartTimes.length > 0 && !availableStartTimes.includes(bookingDetails.startTime)) {
+            setBookingDetails(prev => ({
+                ...prev,
+                startTime: availableStartTimes[0],
+            }));
+        }
+    }, [availableStartTimes, bookingDetails.startTime]);
+
+    useEffect(() => {
+        if (availableEndTimes.length > 0 && !availableEndTimes.includes(bookingDetails.endTime)) {
+            setBookingDetails(prev => ({
+                ...prev,
+                endTime: availableEndTimes[0],
+            }));
+        }
+    }, [availableEndTimes, bookingDetails.endTime]);
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-
-        setBookingDetails(prev => {
-            const updated = { ...prev, [name]: value };
-
-            if (name === 'startTime') {
-                const nextIndex = allTimes.indexOf(value) + 1;
-                updated.endTime = allTimes[nextIndex] || allTimes[allTimes.length - 1];
-            }
-
-            return updated;
-        });
-
-        setErrorMessage(null);
-        setSuccessMessage(null);
+        setBookingDetails(prev => ({
+            ...prev,
+            [name]: name === 'roomId' ? Number(value) : value,
+        }));
+        setMessage(null);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setErrorMessage(null);
-        setSuccessMessage(null);
+        setMessage(null);
 
         if (!employeeId || !token) {
-            setErrorMessage('Je bent niet ingelogd.');
+            setMessage({ text: 'Je bent niet ingelogd.', type: 'error' });
             return;
         }
-
-        if (bookingDetails.startTime >= bookingDetails.endTime) {
-            setErrorMessage('De eindtijd moet na de starttijd liggen.');
+        if (!availableEndTimes.includes(bookingDetails.endTime) || !availableStartTimes.includes(bookingDetails.startTime)) {
+            setMessage({ text: 'De geselecteerde tijden zijn niet (meer) geldig.', type: 'error' });
             return;
         }
 
         const requestBody = {
-            roomId: bookingDetails.roomId,
+            roomId: Number(bookingDetails.roomId),
             employeeId,
             bookingDate: bookingDetails.date,
             startTime: bookingDetails.startTime,
@@ -128,20 +298,46 @@ export const NewRoomBooking: React.FC = () => {
         try {
             const response = await fetch('http://localhost:5222/api/RoomBooking', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(requestBody),
             });
 
             if (response.status === 201) {
-                setSuccessMessage('Kamer succesvol gereserveerd!');
-                setBookingDetails({
-                    ...defaultBookingDetails,
-                    roomId: rooms[0]?.id || 0,
+                setMessage({ text: 'Kamer succesvol gereserveerd!', type: 'success' });
+
+                const newBooking: DailyBookingWithRoom = {
+                    roomId: requestBody.roomId,
+                    startTime: requestBody.startTime,
+                    endTime: requestBody.endTime
+                };
+                setAllDailyBookings(prev => [...prev, newBooking].sort((a, b) => a.startTime.localeCompare(b.startTime)));
+
+                const currentBookedSet = new Set<string>();
+                for(const b of currentRoomBookings) {
+                    for (const time of allTimes) {
+                        if (time >= b.startTime && time < b.endTime) currentBookedSet.add(time);
+                    }
+                }
+                for (const time of allTimes) {
+                    if (time >= newBooking.startTime && time < newBooking.endTime) currentBookedSet.add(time);
+                }
+
+                const baseTimes = bookingDetails.date > getTodayDate() ? allTimes : allTimes.filter(t => t >= getCurrentTime());
+                const nextAvailableStart = baseTimes
+                    .filter(time => !currentBookedSet.has(time))
+                    .find(time => time >= requestBody.endTime);
+
+                setBookingDetails(prev => {
+                    const nextStart = nextAvailableStart || getInitialStartTime();
+                    return {
+                        ...prev,
+                        startTime: nextStart,
+                        endTime: getInitialEndTime(nextStart),
+                        reason: '',
+                    };
                 });
-                setTimeout(() => setSuccessMessage(null), 5000);
+
+                setTimeout(() => setMessage(null), 5000);
                 return;
             }
 
@@ -149,17 +345,22 @@ export const NewRoomBooking: React.FC = () => {
             try {
                 const data = await response.json();
                 if (data?.message) msg = data.message;
-            } catch { /* ignore */ }
-
-            setErrorMessage(msg);
+            } catch { /* negeer json parse error */ }
+            setMessage({ text: msg, type: 'error' });
 
         } catch (error) {
             console.error('Booking error:', error);
-            setErrorMessage('Kan geen verbinding maken met de server.');
+            setMessage({ text: 'Kan geen verbinding maken met de server.', type: 'error' });
         }
     };
 
-    if (loadingRooms) return <p>Kamers laden...</p>;
+    if (loadingRooms) {
+        return <p>Kamers laden...</p>;
+    }
+
+    const timesAreDisabled = loadingAvailability || fetchError || availableStartTimes.length === 0 || bookingDetails.roomId === 0;
+    const formIsDisabled = fetchError || loadingAvailability;
+    const noRoomsAvailable = rooms.every(room => roomIsFullMap.get(room.id));
 
     return (
         <div className="section-card vertical-flex-card">
@@ -167,25 +368,6 @@ export const NewRoomBooking: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="form-container">
                 <div className="form-fields">
-                    <div className="form-row">
-                        <label htmlFor="roomId">Naam kamer</label>
-                        <select
-                            id="roomId"
-                            name="roomId"
-                            className="booking-input"
-                            value={bookingDetails.roomId}
-                            onChange={handleChange}
-                            required
-                            disabled={fetchError}
-                        >
-                            {rooms.map(room => (
-                                <option key={room.id} value={room.id}>
-                                    {room.roomName}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
                     <div className="form-row">
                         <label htmlFor="date">Boekingsdatum</label>
                         <input
@@ -202,6 +384,32 @@ export const NewRoomBooking: React.FC = () => {
                     </div>
 
                     <div className="form-row">
+                        <label htmlFor="roomId">Kamer</label>
+                        <select
+                            id="roomId"
+                            name="roomId"
+                            className="booking-input"
+                            value={bookingDetails.roomId}
+                            onChange={handleChange}
+                            required
+                            disabled={formIsDisabled}
+                        >
+                            <option value={0} disabled>
+                                {loadingAvailability ? "Beschikbaarheid laden..." : "Selecteer een kamer"}
+                            </option>
+
+                            {!loadingAvailability && rooms.map(room => {
+                                const isFull = roomIsFullMap.get(room.id) || false;
+                                return (
+                                    <option key={room.id} value={room.id} disabled={isFull}>
+                                        {room.roomName} {isFull ? "(Vol)" : ""}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+
+                    <div className="form-row">
                         <label htmlFor="startTime">Starttijd</label>
                         <select
                             id="startTime"
@@ -210,9 +418,14 @@ export const NewRoomBooking: React.FC = () => {
                             value={bookingDetails.startTime}
                             onChange={handleChange}
                             required
-                            disabled={fetchError}
+                            disabled={timesAreDisabled}
                         >
-                            {startTimesList.map(time => (
+                            {loadingAvailability && <option>Laden...</option>}
+                            {!loadingAvailability && noRoomsAvailable && <option>Alle kamers vol</option>}
+                            {!loadingAvailability && bookingDetails.roomId === 0 && <option>Selecteer kamer</option>}
+                            {!loadingAvailability && bookingDetails.roomId !== 0 && availableStartTimes.length === 0 && <option>Geen tijden beschikbaar</option>}
+
+                            {availableStartTimes.map(time => (
                                 <option key={time} value={time}>{time}</option>
                             ))}
                         </select>
@@ -227,9 +440,12 @@ export const NewRoomBooking: React.FC = () => {
                             value={bookingDetails.endTime}
                             onChange={handleChange}
                             required
-                            disabled={fetchError}
+                            disabled={timesAreDisabled || availableEndTimes.length === 0}
                         >
-                            {endTimesList.map(time => (
+                            {loadingAvailability && <option>Laden...</option>}
+                            {!loadingAvailability && availableEndTimes.length === 0 && <option>Selecteer starttijd</option>}
+
+                            {availableEndTimes.map(time => (
                                 <option key={time} value={time}>{time}</option>
                             ))}
                         </select>
@@ -246,21 +462,24 @@ export const NewRoomBooking: React.FC = () => {
                             value={bookingDetails.reason}
                             onChange={handleChange}
                             required
-                            disabled={fetchError}
+                            disabled={formIsDisabled || bookingDetails.roomId === 0}
                         />
                     </div>
                 </div>
 
                 <div className="form-footer">
-                    {errorMessage && <p className="error-message">{errorMessage}</p>}
-                    {successMessage && <p className="success-message">{successMessage}</p>}
+                    {message?.text && (
+                        <p className={message.type === 'error' ? 'error-message' : 'success-message'}>
+                            {message.text}
+                        </p>
+                    )}
 
                     <button
                         type="submit"
                         className="button-secondary full-width-button"
-                        disabled={fetchError}
+                        disabled={formIsDisabled || availableEndTimes.length === 0 || bookingDetails.roomId === 0}
                     >
-                        Reserveer kamer
+                        {loadingAvailability ? "Beschikbaarheid controleren..." : "Reserveer kamer"}
                     </button>
                 </div>
             </form>

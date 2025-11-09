@@ -72,4 +72,17 @@ public class RoomBookingService : IRoomBookingService
             return new GetRoomBookingListResult.Error($"Fout bij het ophalen van kamerreserveringen: {ex.Message}");
         }
     }
+
+    public async Task<GetRoomBookingListResult> GetRoomBookingsByDate(DateOnly date)
+    {
+        try
+        {
+            var roomBookings = await _roomBookingRepo.GetBookingsByDate(date);
+            return new GetRoomBookingListResult.Success(roomBookings);
+        }
+        catch (Exception ex)
+        {
+            return new GetRoomBookingListResult.Error($"Fout bij ophalen van reserveringen op datum: {ex.Message}");
+        }
+    }
 }

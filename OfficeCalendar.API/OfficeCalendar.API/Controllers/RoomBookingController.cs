@@ -75,4 +75,25 @@ public class RoomBookingController : BaseController
                 new { message = "Een onverwachte fout is opgetreden bij het ophalen van de kamerreserveringen." })
         };
     }
+
+    [HttpGet("date/{date}")]
+    public async Task<IActionResult> GetRoomBookingsByDate(DateOnly date)
+    {
+        var result = await _roomBookingService.GetRoomBookingsByDate(date);
+
+        return result switch
+        {
+            GetRoomBookingListResult.Success s => Ok(s.RoomBookings.Select(booking => new RoomBookingDateDto
+            {
+                RoomId = booking.RoomId,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime
+            }).ToList()),
+
+            GetRoomBookingListResult.Error error =>
+                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError,
+                new { message = "Een onverwachte fout is opgetreden." })
+        };
+    }
 }

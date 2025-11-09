@@ -35,4 +35,12 @@ public class RoomBookingRepository : Repository<RoomBookingModel>, IRoomBookingR
             .ThenBy(rb => rb.StartTime)
             .ToListAsync();
     }
+
+    public Task<List<RoomBookingModel>> GetBookingsByDate(DateOnly date)
+    {
+        return DbSet
+            .Include(rb => rb.Room)
+            .Where(rb => rb.BookingDate == date)
+            .ToListAsync();
+    }
 }

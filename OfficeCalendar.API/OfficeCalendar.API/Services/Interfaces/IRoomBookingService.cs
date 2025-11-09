@@ -7,4 +7,5 @@ public interface IRoomBookingService
 {
     Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto);
     Task<GetRoomBookingListResult> GetUpcomingRoomBookingsByEmployeeId(long employeeId);
+    Task<GetRoomBookingListResult> GetRoomBookingsByDate(DateOnly date);
 }
