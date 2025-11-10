@@ -1,15 +1,15 @@
-import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction } from 'react';
+import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/global.css';
+import { ApiRequest } from '../components/ApiRequest';
 import '../styles/_components.css';
-import {useAuth} from "../components/UseAuth.tsx";
+import '../styles/global.css';
 
 interface LoginProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     setUserRole: Dispatch<SetStateAction<string | null>>;
 }
 
-interface AuthResponse {
+interface LoginResponse {
     employee: {
         employeeId: number;
         name: string;
@@ -20,58 +20,51 @@ interface AuthResponse {
 }
 
 export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const navigate = useNavigate();
-    const { login } = useAuth();
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setErrorMessage(null);
 
-        if (!email || !password) {
-            alert('Email and password are required.');
+        if (email === '') {
+            if (password === '') {
+                alert('Email and Password are required');
+                return;
+            }
+            alert('Email is required');
+            return;
+        }
+        else if (password === '') {
+            alert('Password is required');
             return;
         }
 
         try {
-            const response = await fetch('http://localhost:5222/api/Employee/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+            const token = localStorage.getItem('authToken');
+            const data: LoginResponse = await ApiRequest<LoginResponse>(
+                'http://localhost:5222/api/Employee/login',
+                'POST',
+                { email, password },
+                token ? { Authorization: `Bearer ${token}` } : undefined
+            );
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => null);
-                setErrorMessage(errData?.message || 'Login failed.');
-                return;
-            }
+            localStorage.setItem('authToken', data.employee.token);
+            const employeeRole: string = data.employee.role.trim().toLowerCase();
 
-            const data: AuthResponse = await response.json();
-
-            const { employeeId, email: empEmail, role, token } = data.employee;
-
-            if (!employeeId || !token) {
-                throw new Error('Invalid server response.');
-            }
-
-            localStorage.setItem('authToken', token);
-            login(empEmail, employeeId);
-
-            const employeeRole = role?.trim().toLowerCase() || 'user';
             setIsLoggedIn(true);
             setUserRole(employeeRole);
 
-            if (employeeRole === 'admin' || employeeRole === 'manager') {
-                navigate('/admin-dashboard');
-            } else {
-                navigate('/dashboard');
-            }
+            navigate(employeeRole === 'admin' || employeeRole === 'manager' ? '/admin-dashboard' : '/dashboard');
 
-        } catch (err) {
-            console.error('Login error:', err);
-            setErrorMessage('An error occurred while trying to log in.');
+        } catch (error) {
+            if (error instanceof Error) {
+                setErrorMessage(error.message);
+            } else {
+                setErrorMessage('An unknown error occurred.');
+            }
         }
     };
 
@@ -80,25 +73,29 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
             <input
                 type="email"
                 className="login-input"
+                id="email"
                 placeholder="Email"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
+                onInvalid={(e) => e.currentTarget.setCustomValidity('')}
+                onInput={(e) => e.currentTarget.setCustomValidity('')}
                 required
             />
             <input
                 type="password"
                 className="login-input"
+                id="password"
                 placeholder="Password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(event) => setPassword(event.target.value)}
                 required
             />
 
-            {errorMessage && <p className="error-message" id="login">{errorMessage}</p>}
+            {errorMessage && <p className="login-error">{errorMessage}</p>}
 
             <button type="submit" className="button-primary">
                 Login
             </button>
         </form>
     );
-};
+}
