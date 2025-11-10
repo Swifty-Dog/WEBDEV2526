@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { months, capitalize } from '../utils/months';
+import { months, capitalize } from '../utils/months.ts';
 import '../styles/calendar.css';
 
 interface Events {

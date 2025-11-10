@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/_components.css';
-import { ConfirmDialog } from './ConfirmDialog.tsx';
-
-export type Room = {
-    id?: number;
-    name: string;
-    capacity: number;
-    location?: string;
-};
+import '../../styles/_components.css';
+import { ConfirmDialog } from '../ConfirmDialog.tsx';
+import { type Room } from '../../utils/types.ts';
 
 type RoomFormModalProps = {
     existing?: Room;
@@ -22,7 +16,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
     const [showConfirm, setShowConfirm] = useState(false);
 
     const initialState = {
-        name: existing?.name ?? '',
+        name: existing?.roomName ?? '',
         capacity: existing?.capacity ?? 0,
         location: existing?.location ?? ''
     };
@@ -58,8 +52,8 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
     const submit = (e?: React.FormEvent) => {
         e?.preventDefault();
         const payload: Room = {
-            id: existing?.id,
-            name: name.trim(),
+            id: existing?.id ?? 1,
+            roomName: name.trim(),
             capacity,
             location: location.trim(),
         };

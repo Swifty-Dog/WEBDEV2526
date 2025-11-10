@@ -1,6 +1,6 @@
 import React from 'react';
-import type { Booking } from './CurrentRoomBookings';
-import { formatDate, formatTimeUntil } from './CurrentRoomBookings';
+import { type Booking } from '../../utils/types.ts';
+import { formatDate, formatTimeUntil } from '../../utils/date.ts';
 
 type RoomBookingsModalProps = {
     bookings: Booking[];

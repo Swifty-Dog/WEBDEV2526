@@ -1,8 +1,8 @@
 import React from 'react';
 import '../styles/_components.css';
-import { AdminRoomManagement } from '../components/AdminRoomManagement';
-import { CurrentRoomBookings} from "../components/CurrentRoomBookings.tsx";
-import { NewRoomBooking } from '../components/NewRoomBooking';
+import { AdminRoomManagement } from '../components/Room/AdminRoomManagement.tsx';
+import { CurrentRoomBookings} from "../components/Room/CurrentRoomBookings.tsx";
+import { NewRoomBooking } from '../components/Room/NewRoomBooking.tsx';
 
 interface RoomsProps {
     userRole: 'admin' | 'manager' | 'employee' | string;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import type { Room } from './RoomFormModal';
-import { RoomFormModal } from './RoomFormModal';
-import { ConfirmDialog } from './ConfirmDialog';
+import type { Room } from '../../utils/types.ts';
+import { RoomFormModal } from './RoomFormModal.tsx';
+import { ConfirmDialog } from '../ConfirmDialog.tsx';
 
 interface RoomListModalProps {
     rooms: Room[];
@@ -40,7 +40,7 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                     )}
                     {rooms.map(room => (
                         <tr key={room.id}>
-                            <td>{room.name}</td>
+                            <td>{room.roomName}</td>
                             <td>{room.capacity}</td>
                             <td>{room.location || '-'}</td>
                             <td className="table-actions">
@@ -99,7 +99,7 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                 {confirmDeleteRoom && (
                     <ConfirmDialog
                         title="Verwijder kamer"
-                        message={`Weet je zeker dat je "${confirmDeleteRoom.name}" wilt verwijderen? Dit kan niet ongedaan worden.`}
+                        message={`Weet je zeker dat je "${confirmDeleteRoom.roomName}" wilt verwijderen? Dit kan niet ongedaan worden.`}
                         onCancel={() => setConfirmDeleteRoom(undefined)}
                         onConfirm={() => {
                             if (confirmDeleteRoom.id) {

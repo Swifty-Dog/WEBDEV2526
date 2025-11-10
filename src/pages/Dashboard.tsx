@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useCallback } from 'react';
 import { Calendar } from '../components/Calendar';
-import { months } from '../utils/months';
+import { months } from '../utils/months.ts';
 
 interface Event {
     title: string;

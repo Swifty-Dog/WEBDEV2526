@@ -1,6 +1,6 @@
 import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ApiRequest } from '../components/ApiRequest';
+import { ApiPost } from '../components/ApiRequest';
 import '../styles/_components.css';
 import '../styles/global.css';
 
@@ -44,9 +44,8 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
 
         try {
             const token = localStorage.getItem('authToken');
-            const data: LoginResponse = await ApiRequest<LoginResponse>(
-                'http://localhost:5222/api/Employee/login',
-                'POST',
+            const data: LoginResponse = await ApiPost<LoginResponse>(
+                '/Employee/login',
                 { email, password },
                 token ? { Authorization: `Bearer ${token}` } : undefined
             );
