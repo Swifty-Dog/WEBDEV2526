@@ -1,6 +1,6 @@
 namespace OfficeCalendar.API.DTOs.Rooms.Request;
 
-public class UpdateRoomRequest
+public class UpdateRoomDto
 {
     public long Id { get; set; }
     public string RoomName { get; set; } = string.Empty;

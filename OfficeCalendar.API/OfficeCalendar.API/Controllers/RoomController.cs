@@ -37,11 +37,11 @@ public class RoomController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequest request)
+    public async Task<IActionResult> CreateRoom([FromBody] CreateRoomDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await _roomService.CreateRoom(request);
+        var result = await _roomService.CreateRoom(dto);
         return result switch
         {
             CreateRoomResult.Success success =>
@@ -70,14 +70,14 @@ public class RoomController : BaseController
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateRoom(long id, [FromBody] UpdateRoomRequest request)
+    public async Task<IActionResult> UpdateRoom(long id, [FromBody] UpdateRoomDto dto)
     {
-        if (id != request.Id)
+        if (id != dto.Id)
             return BadRequest(new { message = "URL ID en body ID komen niet overeen." });
 
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await _roomService.UpdateRoom(request);
+        var result = await _roomService.UpdateRoom(dto);
         return result switch
         {
             UpdateRoomResult.Success success =>

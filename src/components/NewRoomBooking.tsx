@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useAuth } from "./UseAuth.tsx";
+import { ApiRequest } from "./ApiRequest.tsx";
 
 interface Room {
     id: number;
@@ -28,6 +28,12 @@ for (let hour = 8; hour <= 18; hour++) {
 
 const getTodayDate = (): string => new Date().toISOString().split('T')[0];
 
+const getNextDate = (): string => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+}
+
 const getCurrentTime = (): string => {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -40,13 +46,17 @@ const getInitialStartTime = (): string => {
     return allTimes.find(time => time > current) || allTimes[0];
 };
 
+const getInitialBookingDate = (): string => {
+    const currentTime = getCurrentTime();
+    return currentTime >= '18:00' ? getNextDate() : getTodayDate();
+};
+
 const getInitialEndTime = (startTime: string): string => {
     const nextIndex = allTimes.indexOf(startTime) + 1;
     return allTimes[nextIndex] || allTimes[allTimes.length - 1];
 };
 
 export const NewRoomBooking: React.FC = () => {
-    const { employeeId } = useAuth();
     const token = localStorage.getItem('authToken');
 
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -59,10 +69,11 @@ export const NewRoomBooking: React.FC = () => {
     const [message, setMessage] = useState<{ text: string | null; type: 'success' | 'error' } | null>(null);
 
     const [bookingDetails, setBookingDetails] = useState<BookingDetails>(() => {
-        const initialStart = getInitialStartTime();
+        const initialDate: string = getInitialBookingDate();
+        const initialStart: string = getInitialStartTime();
         return {
             roomId: 0,
-            date: getTodayDate(),
+            date: initialDate,
             startTime: initialStart,
             endTime: getInitialEndTime(initialStart),
             reason: '',
@@ -77,15 +88,16 @@ export const NewRoomBooking: React.FC = () => {
                 setFetchError(true);
                 return;
             }
+
             try {
-                const response = await fetch('http://localhost:5222/api/Room', {
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                });
-                if (!response.ok) throw new Error('Kon kamers niet ophalen');
-                const data: Room[] = await response.json();
+                const data: Room[] = await ApiRequest<Room[]>(
+                    'http://localhost:5222/api/Room',
+                    'GET',
+                    null,
+                    { Authorization: `Bearer ${token}` }
+                );
                 setRooms(data);
-            } catch (error) {
-                console.error('Fout bij ophalen kamers:', error);
+            } catch {
                 setMessage({ text: 'Kon kamers niet ophalen van de server.', type: 'error' });
                 setFetchError(true);
             } finally {
@@ -105,27 +117,21 @@ export const NewRoomBooking: React.FC = () => {
             setLoadingAvailability(true);
             setMessage(null);
             try {
-                const response = await fetch(
+                const data = await ApiRequest<{ roomId: number; startTime: string; endTime: string }[]>(
                     `http://localhost:5222/api/RoomBooking/date/${bookingDetails.date}`,
-                    {
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    }
+                    'GET',
+                    null,
+                    { Authorization: `Bearer ${token}` }
                 );
 
-                if (!response.ok) throw new Error('Kon boekingstijden niet ophalen');
-
-                const data: { roomId: number, startTime: string, endTime: string }[] = await response.json();
-
-                const formattedData = data.map(b => ({
+                const formattedData: DailyBookingWithRoom[] = data.map(b => ({
                     roomId: b.roomId,
                     startTime: b.startTime.substring(0, 5),
                     endTime: b.endTime.substring(0, 5),
                 }));
 
                 setAllDailyBookings(formattedData);
-
-            } catch (error) {
-                console.error('Fout bij ophalen boekingstijden:', error);
+            } catch {
                 setMessage({ text: 'Kon de beschikbaarheid van de kamers niet controleren.', type: 'error' });
                 setAllDailyBookings([]);
             } finally {
@@ -277,10 +283,6 @@ export const NewRoomBooking: React.FC = () => {
         e.preventDefault();
         setMessage(null);
 
-        if (!employeeId || !token) {
-            setMessage({ text: 'Je bent niet ingelogd.', type: 'error' });
-            return;
-        }
         if (!availableEndTimes.includes(bookingDetails.endTime) || !availableStartTimes.includes(bookingDetails.startTime)) {
             setMessage({ text: 'De geselecteerde tijden zijn niet (meer) geldig.', type: 'error' });
             return;
@@ -288,7 +290,6 @@ export const NewRoomBooking: React.FC = () => {
 
         const requestBody = {
             roomId: Number(bookingDetails.roomId),
-            employeeId,
             bookingDate: bookingDetails.date,
             startTime: bookingDetails.startTime,
             endTime: bookingDetails.endTime,
@@ -296,61 +297,54 @@ export const NewRoomBooking: React.FC = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5222/api/RoomBooking', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(requestBody),
-            });
+            await ApiRequest(
+                'http://localhost:5222/api/RoomBooking',
+                'POST',
+                requestBody,
+                { Authorization: `Bearer ${token}` }
+            );
 
-            if (response.status === 201) {
-                setMessage({ text: 'Kamer succesvol gereserveerd!', type: 'success' });
+            setMessage({ text: 'Kamer succesvol gereserveerd!', type: 'success' });
 
-                const newBooking: DailyBookingWithRoom = {
-                    roomId: requestBody.roomId,
-                    startTime: requestBody.startTime,
-                    endTime: requestBody.endTime
-                };
-                setAllDailyBookings(prev => [...prev, newBooking].sort((a, b) => a.startTime.localeCompare(b.startTime)));
+            const newBooking: DailyBookingWithRoom = {
+                roomId: requestBody.roomId,
+                startTime: requestBody.startTime,
+                endTime: requestBody.endTime
+            };
+            setAllDailyBookings(prev => [...prev, newBooking].sort((a, b) => a.startTime.localeCompare(b.startTime)));
 
-                const currentBookedSet = new Set<string>();
-                for(const b of currentRoomBookings) {
-                    for (const time of allTimes) {
-                        if (time >= b.startTime && time < b.endTime) currentBookedSet.add(time);
-                    }
-                }
+            const currentBookedSet = new Set<string>();
+            for (const b of currentRoomBookings) {
                 for (const time of allTimes) {
-                    if (time >= newBooking.startTime && time < newBooking.endTime) currentBookedSet.add(time);
+                    if (time >= b.startTime && time < b.endTime) currentBookedSet.add(time);
                 }
-
-                const baseTimes = bookingDetails.date > getTodayDate() ? allTimes : allTimes.filter(t => t >= getCurrentTime());
-                const nextAvailableStart = baseTimes
-                    .filter(time => !currentBookedSet.has(time))
-                    .find(time => time >= requestBody.endTime);
-
-                setBookingDetails(prev => {
-                    const nextStart = nextAvailableStart || getInitialStartTime();
-                    return {
-                        ...prev,
-                        startTime: nextStart,
-                        endTime: getInitialEndTime(nextStart),
-                        reason: '',
-                    };
-                });
-
-                setTimeout(() => setMessage(null), 5000);
-                return;
+            }
+            for (const time of allTimes) {
+                if (time >= newBooking.startTime && time < newBooking.endTime) currentBookedSet.add(time);
             }
 
-            let msg = 'Er is een fout opgetreden.';
-            try {
-                const data = await response.json();
-                if (data?.message) msg = data.message;
-            } catch { /* negeer json parse error */ }
-            setMessage({ text: msg, type: 'error' });
+            const baseTimes = bookingDetails.date > getTodayDate() ? allTimes : allTimes.filter(t => t >= getCurrentTime());
+            const nextAvailableStart = baseTimes
+                .filter(time => !currentBookedSet.has(time))
+                .find(time => time >= requestBody.endTime);
 
+            setBookingDetails(prev => {
+                const nextStart = nextAvailableStart || getInitialStartTime();
+                return {
+                    ...prev,
+                    startTime: nextStart,
+                    endTime: getInitialEndTime(nextStart),
+                    reason: '',
+                };
+            });
+
+            setTimeout(() => setMessage(null), 5000);
         } catch (error) {
-            console.error('Booking error:', error);
-            setMessage({ text: 'Kan geen verbinding maken met de server.', type: 'error' });
+            if (error instanceof Error) {
+                setMessage({ text: error.message, type: 'error' });
+            } else {
+                setMessage({ text: 'Kan geen verbinding maken met de server.', type: 'error' });
+            }
         }
     };
 
@@ -377,7 +371,7 @@ export const NewRoomBooking: React.FC = () => {
                             className="booking-input"
                             value={bookingDetails.date}
                             onChange={handleChange}
-                            min={getTodayDate()}
+                            min={getCurrentTime() >= '18:00' ? getNextDate() : getTodayDate()}
                             required
                             disabled={fetchError}
                         />

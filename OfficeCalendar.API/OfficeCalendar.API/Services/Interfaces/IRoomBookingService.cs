@@ -5,7 +5,7 @@ namespace OfficeCalendar.API.Services.Interfaces;
 
 public interface IRoomBookingService
 {
-    Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto);
+    Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto, long id);
     Task<GetRoomBookingListResult> GetUpcomingRoomBookingsByEmployeeId(long employeeId);
     Task<GetRoomBookingListResult> GetRoomBookingsByDate(DateOnly date);
 }

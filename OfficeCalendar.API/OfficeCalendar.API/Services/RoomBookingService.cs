@@ -28,7 +28,7 @@ public class RoomBookingService : IRoomBookingService
         { return new GetRoomBookingResult.Error($"Fout bij het ophalen van de kamerreservering: {ex.Message}"); }
     }
 
-    public async Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto)
+    public async Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto, long id)
     {
         if (dto.EndTime <= dto.StartTime)
             return new CreateRoomBookingResult.InvalidData("Eindtijd kan niet voor de begintijd zijn.");
@@ -45,7 +45,7 @@ public class RoomBookingService : IRoomBookingService
         var roomBooking = new RoomBookingModel
         {
             RoomId = dto.RoomId,
-            EmployeeId = dto.EmployeeId,
+            EmployeeId = id,
             BookingDate = dto.BookingDate,
             StartTime = dto.StartTime,
             EndTime = dto.EndTime,

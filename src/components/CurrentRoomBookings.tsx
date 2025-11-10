@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from './UseAuth.tsx';
 import * as signalR from '@microsoft/signalr';
 import { RoomBookingsModal } from "./RoomBookingsModal.tsx";
 
@@ -44,7 +43,6 @@ export const formatDate = (isoDate: string) => {
 };
 
 export const CurrentRoomBookings: React.FC = () => {
-    const { employeeId } = useAuth();
     const token = localStorage.getItem('authToken');
 
     const [bookings, setBookings] = useState<Booking[]>([]);
@@ -53,14 +51,14 @@ export const CurrentRoomBookings: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     const fetchBookings = async () => {
-        if (!token || !employeeId) {
+        if (!token) {
             setError('Je bent niet ingelogd.');
             setLoading(false);
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:5222/api/RoomBooking/Employee/${employeeId}`, {
+            const response = await fetch(`http://localhost:5222/api/RoomBooking/Employee/current`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -107,7 +105,7 @@ export const CurrentRoomBookings: React.FC = () => {
         return () => {
             connection.stop();
         };
-    }, [token, employeeId]);
+    }, [fetchBookings, token]);
 
     useEffect(() => {
         const interval = setInterval(() => {

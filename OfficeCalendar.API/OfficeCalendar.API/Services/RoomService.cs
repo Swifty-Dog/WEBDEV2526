@@ -1,4 +1,5 @@
 using OfficeCalendar.API.DTOs.Rooms.Request;
+using OfficeCalendar.API.DTOs.Rooms.Response;
 using OfficeCalendar.API.Models;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;
@@ -29,19 +30,19 @@ public class RoomService : IRoomService
         { return new GetRoomResult.Error($"Er is een fout opgetreden tijdens het ophalen van de kamer: {ex.Message}"); }
     }
 
-    public async Task<CreateRoomResult> CreateRoom(CreateRoomRequest request)
+    public async Task<CreateRoomResult> CreateRoom(CreateRoomDto dto)
     {
         try
         {
-            var existingRoom = await GetRoomByName(request.RoomName);
+            var existingRoom = await GetRoomByName(dto.RoomName);
             if (existingRoom is GetRoomResult.Success)
-                return new CreateRoomResult.DuplicateRoom($"Kamer met de naam {request.RoomName} bestaat al.");
+                return new CreateRoomResult.DuplicateRoom($"Kamer met de naam {dto.RoomName} bestaat al.");
 
             var newRoom = new RoomModel
             {
-                RoomName = request.RoomName,
-                Capacity = request.Capacity,
-                Location = request.Location
+                RoomName = dto.RoomName,
+                Capacity = dto.Capacity,
+                Location = dto.Location
             };
 
             bool created = await _roomRepo.Create(newRoom);
@@ -73,36 +74,45 @@ public class RoomService : IRoomService
     {
         try
         {
-            var rooms = await _roomRepo.GetAll();
-            return new GetRoomsListResult.Success(rooms.ToList());
+            var roomModels = await _roomRepo.GetAll();
+            List<RoomNameDto> rooms = [];
+            rooms.AddRange(roomModels.Select(room => new RoomNameDto
+            {
+                Id = room.Id,
+                RoomName = room.RoomName,
+                Capacity = room.Capacity,
+                Location = room.Location
+            }));
+
+            return new GetRoomsListResult.Success(rooms);
         }
         catch (Exception ex)
         { return new GetRoomsListResult.Error($"Er is een fout opgetreden tijdens het ophalen van de kamers: {ex.Message}"); }
     }
 
-    public async Task<UpdateRoomResult> UpdateRoom(UpdateRoomRequest request)
+    public async Task<UpdateRoomResult> UpdateRoom(UpdateRoomDto dto)
     {
         try
         {
-            var roomResult = await GetRoomById(request.Id);
+            var roomResult = await GetRoomById(dto.Id);
             if (roomResult is not GetRoomResult.Success roomSuccess)
                 return new UpdateRoomResult.RoomNotFound();
 
             var roomToUpdate = roomSuccess.Room;
 
-            if (roomToUpdate.RoomName != request.RoomName)
+            if (roomToUpdate.RoomName != dto.RoomName)
             {
-                var existingRoomResult = await GetRoomByName(request.RoomName);
+                var existingRoomResult = await GetRoomByName(dto.RoomName);
                 if (existingRoomResult is GetRoomResult.Success existingRoomSuccess && existingRoomSuccess.Room.Id != roomToUpdate.Id)
-                    return new UpdateRoomResult.InvalidData($"Kamer met de naam {request.RoomName} bestaat al.");
+                    return new UpdateRoomResult.InvalidData($"Kamer met de naam {dto.RoomName} bestaat al.");
 
-                roomToUpdate.RoomName = request.RoomName;
+                roomToUpdate.RoomName = dto.RoomName;
             }
 
-            if (roomToUpdate.Capacity != request.Capacity)
-                roomToUpdate.Capacity = request.Capacity;
-            if (roomToUpdate.Location != request.Location)
-                roomToUpdate.Location = request.Location;
+            if (roomToUpdate.Capacity != dto.Capacity)
+                roomToUpdate.Capacity = dto.Capacity;
+            if (roomToUpdate.Location != dto.Location)
+                roomToUpdate.Location = dto.Location;
 
             bool updated = await _roomRepo.Update(roomToUpdate);
             if (updated)

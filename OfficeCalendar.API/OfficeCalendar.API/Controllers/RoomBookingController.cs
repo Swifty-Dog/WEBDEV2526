@@ -31,12 +31,27 @@ public class RoomBookingController : BaseController
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await _roomBookingService.CreateRoomBooking(dto);
+        var employee = await GetCurrentUserAsync();
+        if (employee is null) return Unauthorized(new { message = "Ongeldige of verlopen gebruikerssessie." });
+
+        if (dto.RoomId <= 0) return BadRequest(new { message = "Ongeldige kamer geselecteerd." });
+
+        var result = await _roomBookingService.CreateRoomBooking(dto, employee.Id);
 
         if (result is CreateRoomBookingResult.Success success)
         {
             await _hubContext.Clients.All.SendAsync("BookingChanged");
-            return CreatedAtAction(nameof(CreateRoomBooking), new { id = success.RoomBooking.Id }, success.RoomBooking);
+            var dtoResult = new UpcomingRoomBookingsDto
+            {
+                Id = success.RoomBooking.Id,
+                RoomName = success.RoomBooking.Room?.RoomName ?? "Unknown",
+                BookingDate = success.RoomBooking.BookingDate,
+                StartTime = success.RoomBooking.StartTime,
+                EndTime = success.RoomBooking.EndTime,
+                Purpose = success.RoomBooking.Purpose
+            };
+
+            return CreatedAtAction(nameof(CreateRoomBooking), new { id = success.RoomBooking.Id }, dtoResult);
         }
 
         return result switch
@@ -52,10 +67,13 @@ public class RoomBookingController : BaseController
         };
     }
 
-    [HttpGet("employee/{employeeId}")]
-    public async Task<IActionResult> GetUpcomingRoomBookingsByEmployeeId(long employeeId)
+    [HttpGet("employee/current")]
+    public async Task<IActionResult> GetUpcomingRoomBookingsByEmployeeId()
     {
-        var result = await _roomBookingService.GetUpcomingRoomBookingsByEmployeeId(employeeId);
+        var employee = await GetCurrentUserAsync();
+        if (employee is null) return Unauthorized(new { message = "Ongeldige of verlopen gebruikerssessie." });
+
+        var result = await _roomBookingService.GetUpcomingRoomBookingsByEmployeeId(employee.Id);
 
         return result switch
         {

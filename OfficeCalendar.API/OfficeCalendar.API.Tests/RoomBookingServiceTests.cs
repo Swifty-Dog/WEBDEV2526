@@ -36,7 +36,6 @@ public class RoomBookingServiceTests
         var request = new CreateRoomBookingDto
         {
             RoomId = roomId,
-            EmployeeId = employeeId,
             BookingDate = date,
             StartTime = start,
             EndTime = end,
@@ -46,7 +45,7 @@ public class RoomBookingServiceTests
         _roomBookingRepoMock.Setup(repo => repo.Create(It.IsAny<RoomBookingModel>())).ReturnsAsync(true);
 
         // Act
-        var result = await _roomBookingService.CreateRoomBooking(request);
+        var result = await _roomBookingService.CreateRoomBooking(request, employeeId);
 
         // Assert
         Assert.IsType<CreateRoomBookingResult.Success>(result);
@@ -64,7 +63,6 @@ public class RoomBookingServiceTests
         var request = new CreateRoomBookingDto
         {
             RoomId = 1,
-            EmployeeId = 1,
             BookingDate = DateOnly.Parse("2025-11-08"),
             StartTime = TimeOnly.Parse("11:00"),
             EndTime = TimeOnly.Parse("10:00"),
@@ -72,7 +70,7 @@ public class RoomBookingServiceTests
         };
 
         // Act
-        var result = await _roomBookingService.CreateRoomBooking(request);
+        var result = await _roomBookingService.CreateRoomBooking(request, 1);
 
         // Assert
         Assert.IsType<CreateRoomBookingResult.InvalidData>(result);
@@ -85,7 +83,6 @@ public class RoomBookingServiceTests
         var request = new CreateRoomBookingDto
         {
             RoomId = 1,
-            EmployeeId = 1,
             BookingDate = DateOnly.Parse("2025-11-08"),
             StartTime = TimeOnly.Parse("10:00"),
             EndTime = TimeOnly.Parse("11:00"),
@@ -98,7 +95,7 @@ public class RoomBookingServiceTests
             .ReturnsAsync(new RoomBookingModel());
 
         // Act
-        var result = await _roomBookingService.CreateRoomBooking(request);
+        var result = await _roomBookingService.CreateRoomBooking(request, 1);
 
         // Assert
         Assert.IsType<CreateRoomBookingResult.RoomNotAvailable>(result);
@@ -111,7 +108,6 @@ public class RoomBookingServiceTests
         var request = new CreateRoomBookingDto
         {
             RoomId = 1,
-            EmployeeId = 1,
             BookingDate = DateOnly.Parse("2025-11-08"),
             StartTime = TimeOnly.Parse("10:00"),
             EndTime = TimeOnly.Parse("11:00"),
@@ -124,7 +120,7 @@ public class RoomBookingServiceTests
             .ThrowsAsync(new Exception("Database error"));
 
         // Act
-        var result = await _roomBookingService.CreateRoomBooking(request);
+        var result = await _roomBookingService.CreateRoomBooking(request, 1);
 
         // Assert
         Assert.IsType<CreateRoomBookingResult.Error>(result);

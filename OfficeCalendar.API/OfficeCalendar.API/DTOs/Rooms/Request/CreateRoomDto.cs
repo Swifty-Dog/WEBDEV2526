@@ -1,6 +1,6 @@
 namespace OfficeCalendar.API.DTOs.Rooms.Request;
 
-public class CreateRoomRequest
+public class CreateRoomDto
 {
     public string RoomName { get; set; } = string.Empty;
     public int Capacity { get; set; }
