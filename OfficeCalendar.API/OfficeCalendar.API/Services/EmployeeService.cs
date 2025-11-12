@@ -6,6 +6,7 @@ using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.Services.Results.Tokens;
+using OfficeCalendar.API.DTOs.Employees.Request;
 
 namespace OfficeCalendar.API.Services;
 
@@ -103,6 +104,37 @@ public class EmployeeService : IEmployeeService
         catch (Exception ex)
         {
             return new LoginResult.Error($"An error occurred while validating login: {ex.Message}");
+        }
+    }
+
+    public async Task<bool> RegisterEmployee(RegisterDto employee)
+    {
+        if (employee is null)
+            return false;
+
+        employee.Password = _hasher.HashPassword(null, employee.Password);
+
+        foreach (var existingEmployee in await _employeeRepo.GetAll())
+        {
+            if (employee.Email == existingEmployee.Email)
+                return false;
+        }
+        
+        try
+        {
+            var newEmployee = new EmployeeModel
+            {
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+                PasswordHash = employee.Password
+            };
+
+            return await _employeeRepo.Create(newEmployee);
+        }
+        catch
+        {
+            return false;
         }
     }
 }
