@@ -236,8 +236,7 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<long>("EmployeeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("EndTime")
-                        .IsRequired()
+                    b.Property<TimeSpan>("EndTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Purpose")
@@ -248,8 +247,7 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<long>("RoomId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("StartTime")
-                        .IsRequired()
+                    b.Property<TimeSpan>("StartTime")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -270,9 +268,6 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -281,9 +276,6 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<string>("RoomName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using OfficeCalendar.API.Hubs;
 
 namespace OfficeCalendar.API.Configuration;
 
@@ -27,7 +26,6 @@ public static class MiddlewareExtensions
         app.UseCors(CorsPolicyName);
 
         app.MapControllers();
-        app.MapHub<RoomBookingHub>("/hubs/roomBookings");
 
         return app;
     }

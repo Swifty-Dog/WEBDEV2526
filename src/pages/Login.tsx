@@ -1,23 +1,15 @@
-import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
+import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ApiPost } from '../components/ApiRequest';
-import '../styles/_components.css';
+import { ApiRequest } from '../components/ApiRequest';
 import '../styles/global.css';
+import '../styles/_components.css';
 
 interface LoginProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     setUserRole: Dispatch<SetStateAction<string | null>>;
 }
 
-interface LoginResponse {
-    employee: {
-        employeeId: number;
-        name: string;
-        email: string;
-        role: string;
-        token: string;
-    };
-}
+type LoginResponse = { employee: { role: string; token: string } };
 
 export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
     const [email, setEmail] = useState<string>('');
@@ -44,8 +36,9 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
 
         try {
             const token = localStorage.getItem('authToken');
-            const data: LoginResponse = await ApiPost<LoginResponse>(
-                '/Employee/login',
+            const data: LoginResponse = await ApiRequest<LoginResponse>(
+                'http://localhost:5222/api/Employee/login',
+                'POST',
                 { email, password },
                 token ? { Authorization: `Bearer ${token}` } : undefined
             );

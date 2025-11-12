@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -52,19 +51,9 @@ public static class ServiceExtensions
                 };
             });
 
-        services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.Converters.Add(new JsonDateOnlyConverter());
-                options.JsonSerializerOptions.Converters.Add(new JsonTimeOnlyConverter());
-            });
-
-
         AddCorsPolicy(services, configuration, MiddlewareExtensions.CorsPolicyName);
         services.AddOfficeCalendarServices(configuration);
         services.AddSwaggerAuthorization();
-        services.AddSignalR();
 
         return services;
     }

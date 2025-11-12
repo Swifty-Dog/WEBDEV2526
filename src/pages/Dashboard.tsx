@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useCallback } from 'react';
 import { Calendar } from '../components/Calendar';
-import { months } from '../utils/months.ts';
+import { months } from '../utils/months';
 
 interface Event {
     title: string;
@@ -48,7 +48,7 @@ export const Dashboard: React.FC = () => {
 
     return (
         <div className="dashboard-grid">
-            <div className="panel-fancy-borders">
+            <div className="calendar-section">
                 <Calendar events={sampleEvents} onDaySelect={handleDaySelect} />
             </div>
 
