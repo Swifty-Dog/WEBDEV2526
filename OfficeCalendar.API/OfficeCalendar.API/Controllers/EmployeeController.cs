@@ -21,7 +21,7 @@ public class EmployeeController : BaseController
         return result switch
         {
             LoginResult.Success success =>
-                Ok( new { Employee = success.Dto, success.Dto.Token }),
+                Ok( new { Employee = success.Dto} ),
             LoginResult.InvalidCredentials invalidCredentials =>
                 Unauthorized( new { message = invalidCredentials.Message }),
             LoginResult.NotFound =>

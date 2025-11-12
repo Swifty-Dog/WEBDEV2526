@@ -12,6 +12,7 @@
     --color-text-secondary: #a0a8b9;
     --color-text-subtle: #7f8c8d;
     --color-text-contrast: #1f232b;
+    --color-text-contrast-accent: #ffffff;
 
     --color-border-subtle: #3e4451;
     --color-shadow-subtle: rgba(0, 0, 0, 0.4);
@@ -22,15 +23,21 @@
     --color-brand-accent-hover: #004578;
     --color-brand-accent-active: #01386e;
 
+    --color-button-interact-bg: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-secondary) 100%);
+    --color-button-interact-bg-hover: linear-gradient(135deg, color-mix(in srgb, var(--color-brand-primary) 80%, black) 0%, color-mix(in srgb, var(--color-brand-secondary) 80%, black) 100%);
+    --color-button-interact-bg-active: linear-gradient(135deg, color-mix(in srgb, var(--color-brand-primary) 60%, black) 0%, color-mix(in srgb, var(--color-brand-secondary) 60%, black) 100%);
+
     --color-highlight-primary: #ff6b6b;
     --color-highlight-secondary: #e55555;
     --color-highlight-tertiary: #331a1a;
 
+    --color-success-primary: #28a745;
+    --color-success-secondary: #1e7e34;
+    --color-success-tertiary: #155724;
+
     --color-error-primary: #ec6a76;
     --color-error-secondary: #c64552;
     --color-error-tertiary: #8b2c34;
-
-
 
     --color-input-bg: var(--color-bg-secondary);
     --color-input-border: #5a6270;
@@ -52,6 +59,10 @@ body.light-mode {
 
     --color-highlight-tertiary: #ffe3e3;
 
+    --color-success-primary: #198754;
+    --color-success-secondary: #146c43;
+    --color-success-tertiary: #0f5132;
+
     --color-error-primary: #dc3545;
     --color-error-secondary: #a61f2c;
     --color-error-tertiary: #5d151b;
@@ -61,6 +72,11 @@ body.light-mode {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
 body {
@@ -74,4 +90,5 @@ body {
     min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
     min-width: 100%;
+    justify-content: center;
 }

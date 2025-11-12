@@ -61,3 +61,10 @@
     gap: 0.5rem;
     margin-top: 0.5rem;
 }
+
+.titling {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
