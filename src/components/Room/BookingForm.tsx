@@ -42,7 +42,7 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         name="date"
                         type="date"
                         className="booking-input"
-                        value={bookingDetails.date}
+                        value={bookingDetails.bookingDate}
                         onChange={onChange}
                         min={getTodayDate()}
                         required
@@ -116,14 +116,14 @@ export const BookingForm: React.FC<BookingFormProps> = (
                 </div>
 
                 <div className="form-row">
-                    <label htmlFor="reason">Reden</label>
+                    <label htmlFor="purpose">Reden</label>
                     <input
-                        id="reason"
-                        name="reason"
+                        id="purpose"
+                        name="purpose"
                         type="text"
                         className="booking-input"
                         placeholder="Kort overleg, presentatie..."
-                        value={bookingDetails.reason}
+                        value={bookingDetails.purpose}
                         onChange={onChange}
                         required
                         disabled={formIsDisabled || bookingDetails.roomId === 0}

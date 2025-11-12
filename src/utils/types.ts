@@ -16,10 +16,10 @@ export interface Booking {
 
 export interface BookingDetails {
     roomId: number;
-    date: string;
+    bookingDate: string;
     startTime: string;
     endTime: string;
-    reason: string;
+    purpose: string;
 }
 
 export interface DailyBookingWithRoom {
