@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { months, capitalize } from '../utils/months';
+import { months, capitalize } from '../utils/months.ts';
 import '../styles/calendar.css';
 
 interface Events {
@@ -108,14 +108,14 @@ export const Calendar: React.FC<CalendarProps> = ({ events, onDaySelect }) => {
     return (
         <div className="calendar">
             <div className="calendar-header">
-                <button id="prevMonth" className="nav-btn" title="Vorige maand" onClick={previousMonth}>
+                <button id="prevMonth" className="button-secondary" title="Vorige maand" onClick={previousMonth}>
                     <span>❮</span>
                 </button>
                 <div className="month-year-container">
                     <h3 id="monthYear">{monthYearTitle}</h3>
                     <div className="calendar-subtitle">{subtitle}</div>
                 </div>
-                <button id="nextMonth" className="nav-btn" title="Volgende maand" onClick={nextMonth}>
+                <button id="nextMonth" className="button-secondary" title="Volgende maand" onClick={nextMonth}>
                     <span>❯</span>
                 </button>
             </div>
