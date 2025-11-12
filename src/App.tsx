@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
+import { Events } from './pages/Events.tsx';
 
 export function App() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -67,6 +68,16 @@ export function App() {
                     }
                 />
                 <Route path="*" element={<Navigate to="/404" replace />} />
+
+                <Route path="/events" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin', 'manager', 'employee']}
+                    >
+                        <Events />
+                    </ProtectedRoute>}
+                />
             </Routes>
         </Layout>
     );
