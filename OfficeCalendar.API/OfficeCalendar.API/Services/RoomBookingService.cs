@@ -35,9 +35,9 @@ public class RoomBookingService : IRoomBookingService
         if (dto.EndTime <= dto.StartTime)
             return new CreateRoomBookingResult.InvalidData("Eindtijd kan niet voor de begintijd zijn.");
 
-        var roomModel = await _roomRepo.GetByName(dto.RoomName);
+        var roomModel = await _roomRepo.GetById(dto.RoomId);
         if (roomModel is null)
-            return new CreateRoomBookingResult.Error($"Kamer met naam {dto.RoomName} niet gevonden.");
+            return new CreateRoomBookingResult.InvalidData("Kamer niet gevonden.");
 
         var existingBooking = await GetRoomBookingByDateAndTime(dto.BookingDate, dto.StartTime, dto.EndTime, roomModel.Id);
         bool isRoomAvailable = existingBooking is GetRoomBookingResult.NotFound;
@@ -50,7 +50,7 @@ public class RoomBookingService : IRoomBookingService
 
         var roomBooking = new RoomBookingModel
         {
-            RoomId = roomModel.Id,
+            RoomId = dto.RoomId,
             Room = roomModel,
             EmployeeId = id,
             BookingDate = dto.BookingDate,

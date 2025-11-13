@@ -16,6 +16,7 @@ export interface Booking {
 
 export interface BookingDetails {
     roomId: number;
+    roomName?: string;
     bookingDate: string;
     startTime: string;
     endTime: string;
