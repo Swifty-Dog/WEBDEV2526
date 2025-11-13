@@ -30,7 +30,6 @@ export const BookingForm: React.FC<BookingFormProps> = (
     }) => {
     const timesAreDisabled = loadingAvailability || fetchError || availableStartTimes.length === 0 || bookingDetails.roomId === 0;
     const formIsDisabled = fetchError || loadingAvailability;
-    const noRoomsAvailable = rooms.every(room => roomIsFullMap.get(room.id));
 
     return (
         <form onSubmit={onSubmit} className="form-container">
