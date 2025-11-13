@@ -36,10 +36,10 @@ export const BookingForm: React.FC<BookingFormProps> = (
         <form onSubmit={onSubmit} className="form-container">
             <div className="form-fields">
                 <div className="form-row">
-                    <label htmlFor="date">Boekingsdatum</label>
+                    <label htmlFor="bookingDate">Boekingsdatum</label>
                     <input
-                        id="date"
-                        name="date"
+                        id="bookingDate"
+                        name="bookingDate"
                         type="date"
                         className="booking-input"
                         value={bookingDetails.bookingDate}

@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
-import type { DailyBookingWithRoom } from "../utils/types.ts";
-import { ApiGet } from "../components/ApiRequest.tsx";
+import type { DailyBookingWithRoom } from "../../utils/types.ts";
+import { ApiGet } from "../../components/ApiRequest.tsx";
 
 export const useDailyBookings = (date: string | null) => {
     const [bookings, setBookings] = useState<DailyBookingWithRoom[]>([]);
@@ -19,6 +19,7 @@ export const useDailyBookings = (date: string | null) => {
             try {
                 const data = await ApiGet<DailyBookingWithRoom[]>(`/RoomBooking/date/${date}`, { Authorization: `Bearer ${localStorage.getItem('authToken')}` });
                 setBookings(data.map(b => ({
+                    id: b.id,
                     roomId: b.roomId,
                     startTime: b.startTime.substring(0, 5),
                     endTime: b.endTime.substring(0, 5),

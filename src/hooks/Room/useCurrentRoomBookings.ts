@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as signalR from '@microsoft/signalr';
-import { ApiGet } from '../components/ApiRequest';
-import { type Booking } from '../utils/types';
+import { ApiGet } from '../../components/ApiRequest.tsx';
+import { type Booking } from '../../utils/types.ts';
 
 export const useCurrentRoomBookings = () => {
     const token = localStorage.getItem('authToken');

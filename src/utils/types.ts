@@ -23,6 +23,7 @@ export interface BookingDetails {
 }
 
 export interface DailyBookingWithRoom {
+    id: number;
     roomId: number;
     startTime: string;
     endTime: string;

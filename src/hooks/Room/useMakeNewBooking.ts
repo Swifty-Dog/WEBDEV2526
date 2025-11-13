@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import type { BookingDetails } from '../utils/types';
-import { ApiPost } from '../components/ApiRequest';
+import type { BookingDetails } from '../../utils/types.ts';
+import { ApiPost } from '../../components/ApiRequest.tsx';
 
 export const useMakeNewBooking = (
     bookingDetails: BookingDetails,

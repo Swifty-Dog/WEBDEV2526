@@ -9,10 +9,12 @@ namespace OfficeCalendar.API.Services;
 public class RoomBookingService : IRoomBookingService
 {
     private readonly IRoomBookingRepository _roomBookingRepo;
+    private readonly IRoomRepository _roomRepo;
 
-    public RoomBookingService(IRoomBookingRepository roomBookingRepo)
+    public RoomBookingService(IRoomBookingRepository roomBookingRepo, IRoomRepository roomRepo)
     {
         _roomBookingRepo = roomBookingRepo;
+        _roomRepo = roomRepo;
     }
 
     public async Task<GetRoomBookingResult> GetRoomBookingByDateAndTime(DateOnly bookingDate, TimeOnly startTime, TimeOnly endTime, long roomId)
@@ -33,7 +35,11 @@ public class RoomBookingService : IRoomBookingService
         if (dto.EndTime <= dto.StartTime)
             return new CreateRoomBookingResult.InvalidData("Eindtijd kan niet voor de begintijd zijn.");
 
-        var existingBooking = await GetRoomBookingByDateAndTime(dto.BookingDate, dto.StartTime, dto.EndTime, dto.RoomId);
+        var roomModel = await _roomRepo.GetByName(dto.RoomName);
+        if (roomModel is null)
+            return new CreateRoomBookingResult.Error($"Kamer met naam {dto.RoomName} niet gevonden.");
+
+        var existingBooking = await GetRoomBookingByDateAndTime(dto.BookingDate, dto.StartTime, dto.EndTime, roomModel.Id);
         bool isRoomAvailable = existingBooking is GetRoomBookingResult.NotFound;
         if (!isRoomAvailable)
         {
@@ -44,7 +50,7 @@ public class RoomBookingService : IRoomBookingService
 
         var roomBooking = new RoomBookingModel
         {
-            RoomId = dto.RoomId,
+            RoomId = roomModel.Id,
             EmployeeId = id,
             BookingDate = dto.BookingDate,
             StartTime = dto.StartTime,
@@ -83,6 +89,59 @@ public class RoomBookingService : IRoomBookingService
         catch (Exception ex)
         {
             return new GetRoomBookingListResult.Error($"Fout bij ophalen van reserveringen op datum: {ex.Message}");
+        }
+    }
+
+    public async Task<UpdateRoomBookingResult> UpdateRoomBooking(long id, CreateRoomBookingDto dto, long employeeId)
+    {
+        try
+        {
+            var rb = await _roomBookingRepo.GetById(id);
+            if (rb is null)
+                return new UpdateRoomBookingResult.NotFound($"Kamerreservering met ID {dto.Id} niet gevonden.");
+
+            var roomModel = await _roomRepo.GetByName(dto.RoomName);
+            if (roomModel is null)
+                return new UpdateRoomBookingResult.Error($"Kamer met naam {dto.RoomName} niet gevonden.");
+
+            rb.Id = id;
+            rb.RoomId = roomModel.Id;
+            rb.BookingDate = dto.BookingDate;
+            rb.StartTime = dto.StartTime;
+            rb.EndTime = dto.EndTime;
+            rb.Purpose = dto.Purpose;
+            rb.EmployeeId = employeeId;
+
+
+            bool updated = await _roomBookingRepo.Update(rb);
+            if (updated)
+                return new UpdateRoomBookingResult.Success(rb);
+
+            return new UpdateRoomBookingResult.Error("Kamerreservering kon niet worden bijgewerkt.");
+        }
+        catch (Exception ex)
+        {
+            return new UpdateRoomBookingResult.Error($"Fout bij het bijwerken van de kamerreservering: {ex.Message}");
+        }
+    }
+
+    public async Task<DeleteRoomBookingResult> DeleteRoomBooking(long id)
+    {
+        try
+        {
+            var rb = await _roomBookingRepo.GetById(id);
+            if (rb is null)
+                return new DeleteRoomBookingResult.NotFound($"Kamerreservering met ID {id} niet gevonden.");
+
+            bool deleted = await _roomBookingRepo.Delete(rb);
+            if (deleted)
+                return new DeleteRoomBookingResult.Success();
+
+            return new DeleteRoomBookingResult.Error("Kamerreservering kon niet worden verwijderd.");
+        }
+        catch (Exception ex)
+        {
+            return new DeleteRoomBookingResult.Error($"Fout bij het verwijderen van de kamerreservering: {ex.Message}");
         }
     }
 }
