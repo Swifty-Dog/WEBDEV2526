@@ -1,13 +1,20 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { BookingForm } from './BookingForm';
 import { useRooms } from '../../hooks/Room/useRooms.ts';
 import { useMakeNewBooking } from '../../hooks/Room/useMakeNewBooking.ts';
 import { useBookingFormLogic } from '../../hooks/Room/useBookingFormLogic.ts';
 import { getInitialBookingDate } from '../../utils/date';
-import { getInitialStartTime, getInitialEndTime } from '../../utils/time';
 
 export const NewRoomBooking: React.FC = () => {
     const { rooms, loading: loadingRooms, error: roomsError } = useRooms();
+
+    const initialBookingDetails = useMemo(() => ({
+        roomId: 0,
+        bookingDate: getInitialBookingDate(),
+        startTime: '',
+        endTime: '',
+        purpose: '',
+    }), []);
 
     const {
         bookingDetails,
@@ -15,19 +22,28 @@ export const NewRoomBooking: React.FC = () => {
         message,
         setMessage,
         handleChange,
+        availableStartTimes,
+        availableEndTimes,
+        roomIsFullMap,
         ...formProps
-    } = useBookingFormLogic(rooms);
+    } = useBookingFormLogic(
+        rooms,
+        initialBookingDetails
+    );
+
+    useEffect(() => {
+        if (bookingDetails.endTime && !availableEndTimes.includes(bookingDetails.endTime)) {
+            setBookingDetails(prev => ({
+                ...prev,
+                endTime: ''
+            }));
+        }
+    }, [availableEndTimes, bookingDetails.endTime, setBookingDetails]);
 
     const onBookingSuccess = useCallback(() => {
         setMessage({ text: 'Boeking succesvol gemaakt!', type: 'success' });
-        setBookingDetails({
-            roomId: 0,
-            bookingDate: getInitialBookingDate(),
-            startTime: getInitialStartTime(),
-            endTime: getInitialEndTime(getInitialStartTime()),
-            purpose: '',
-        });
-    }, [setMessage, setBookingDetails]);
+        setBookingDetails(initialBookingDetails);
+    }, [setMessage, setBookingDetails, initialBookingDetails]);
 
     const onBookingError = useCallback((errorMessage: string) => {
         setMessage({ text: errorMessage, type: 'error' });
@@ -63,6 +79,9 @@ export const NewRoomBooking: React.FC = () => {
                 message={messageToShow}
                 fetchError={hasError}
                 loadingAvailability={isLoading}
+                availableStartTimes={availableStartTimes}
+                availableEndTimes={availableEndTimes}
+                roomIsFullMap={roomIsFullMap}
             />
         </div>
     );

@@ -45,6 +45,15 @@ export const useBookingFormLogic = (
         editingBookingId
     );
 
+    useEffect(() => {
+        if (bookingDetails.endTime && !availableEndTimes.includes(bookingDetails.endTime)) {
+            setBookingDetails(prev => ({
+                ...prev,
+                endTime: ''
+            }));
+        }
+    }, [availableEndTimes, bookingDetails.endTime, setBookingDetails]);
+
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         if (message) {
             setMessage(null);

@@ -86,10 +86,7 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         required
                         disabled={timesAreDisabled}
                     >
-                        {loadingAvailability && <option>Laden...</option>}
-                        {!loadingAvailability && noRoomsAvailable && <option>Alle kamers vol</option>}
-                        {!loadingAvailability && bookingDetails.roomId === 0 && <option>Selecteer kamer</option>}
-                        {!loadingAvailability && bookingDetails.roomId !== 0 && availableStartTimes.length === 0 && <option>Geen tijden beschikbaar</option>}
+                        <option value="" disabled>Selecteer een starttijd</option>
                         {availableStartTimes.map(time => (
                             <option key={time} value={time}>{time}</option>
                         ))}
@@ -107,8 +104,7 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         required
                         disabled={timesAreDisabled || availableEndTimes.length === 0}
                     >
-                        {loadingAvailability && <option>Laden...</option>}
-                        {!loadingAvailability && availableEndTimes.length === 0 && <option>Selecteer starttijd</option>}
+                        <option value="" disabled>Selecteer een eindtijd</option>
                         {availableEndTimes.map(time => (
                             <option key={time} value={time}>{time}</option>
                         ))}
