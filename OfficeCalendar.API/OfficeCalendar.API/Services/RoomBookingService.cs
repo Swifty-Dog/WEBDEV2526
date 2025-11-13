@@ -51,6 +51,7 @@ public class RoomBookingService : IRoomBookingService
         var roomBooking = new RoomBookingModel
         {
             RoomId = roomModel.Id,
+            Room = roomModel,
             EmployeeId = id,
             BookingDate = dto.BookingDate,
             StartTime = dto.StartTime,
