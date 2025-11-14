@@ -41,3 +41,13 @@ export const getInitialBookingDate = (): string => {
     const currentTime = getCurrentTime();
     return currentTime >= '18:00' ? getNextDate() : getTodayDate();
 };
+
+export const isBookingInPast = (bookingDate: string, startTime: string): boolean => {
+    try {
+        const bookingStartDateTime = new Date(`${bookingDate}T${startTime}`);
+        return bookingStartDateTime < new Date();
+
+    } catch {
+        return true;
+    }
+};

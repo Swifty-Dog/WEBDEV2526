@@ -51,6 +51,7 @@ body.light-mode {
     --color-text-primary: #1f232b;
     --color-text-secondary: #5a6270;
     --color-text-contrast: #ffffff;
+    --color-text-contrast-accent: #b7b7b7;
 
     --color-border-subtle: #e0e4eb;
 
@@ -91,4 +92,8 @@ body {
     transition: background-color 0.3s, color 0.3s;
     min-width: 100%;
     justify-content: center;
+}
+
+button:disabled {
+    cursor: not-allowed;
 }

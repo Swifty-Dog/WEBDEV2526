@@ -198,7 +198,7 @@
     padding: 0.75rem 1.25rem;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--color-text-contrast-accent);
+    color: var(--color-text-contrast);
     background: var(--color-button-interact-bg);
     border: none;
     border-radius: var(--border-radius-main);
@@ -227,7 +227,6 @@
 button:disabled,
 .button-primary:disabled,
 .button-secondary:disabled {
-    cursor: not-allowed;
     opacity: 0.55;
     transform: none;
     background-color: var(--color-bg-tertiary);
@@ -239,7 +238,6 @@ select:disabled,
 textarea:disabled {
     background-color: var(--color-input-bg);
     color: var(--color-text-primary);
-    cursor: not-allowed;
     opacity: 0.6;
 }
 
@@ -277,7 +275,6 @@ textarea:disabled {
     flex-grow: 1;
 }
 
-/* Simple modal + table styles for admin dashboard */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -363,6 +360,12 @@ textarea:disabled {
     cursor: pointer;
 }
 
+.btn-sm:disabled {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-contrast-accent);
+    border-color: var(--color-border-subtle);
+}
+
 .btn-danger {
     background: var(--color-error-primary);
     color: var(--color-text-contrast);
@@ -377,9 +380,15 @@ textarea:disabled {
     background: var(--color-error-tertiary);
 }
 
+.btn-danger:disabled {
+    background: var(--color-error-tertiary);
+    color: var(--color-text-contrast-accent);
+    border-color: var(--color-border-subtle);
+}
+
 .btn-primary-accent {
     background: var(--color-brand-accent);
-    color: var(--color-text-contrast-accent);
+    color: var(--color-text-contrast);
 }
 
 .btn-primary-accent:hover {
@@ -632,6 +641,13 @@ textarea:disabled {
 .booking-input:focus {
     border-color: var(--color-brand-primary);
     outline: var(--color-brand-primary) 0.2rem solid;
+}
+
+.booking-actions {
+    display: flex;
+    flex-direction: column;
+    margin-left: 1rem;
+    gap: 0.5rem;
 }
 
 .vertical-flex-card {

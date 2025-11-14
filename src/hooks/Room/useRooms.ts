@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../components/ApiRequest';
-import type { Room } from '../utils/types';
+import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../components/ApiRequest.tsx';
+import type { Room } from '../../utils/types.ts';
 
 export const useRooms = () => {
     const [rooms, setRooms] = useState<Room[]>([]);
