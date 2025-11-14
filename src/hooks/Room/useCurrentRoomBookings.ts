@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import * as signalR from '@microsoft/signalr';
 import { ApiGet } from '../../components/ApiRequest.tsx';
 import { type Booking } from '../../utils/types.ts';
+import { onBookingChanged, startRoomBookings } from "../../utils/signalR/roomBookingHub"
 
 export const useCurrentRoomBookings = () => {
     const token = localStorage.getItem('authToken');
@@ -15,17 +15,27 @@ export const useCurrentRoomBookings = () => {
             setLoading(false);
             return;
         }
+
         try {
-            const data = await ApiGet<Booking[]>('/RoomBooking/Employee/current', { Authorization: `Bearer ${token}` });
+            const data = await ApiGet<Booking[]>(
+                '/RoomBooking/Employee/current',
+                { Authorization: `Bearer ${token}` }
+            );
+
             data.sort(
                 (a: Booking, b: Booking) =>
                     new Date(`${a.bookingDate}T${a.startTime}`).getTime() -
                     new Date(`${b.bookingDate}T${b.startTime}`).getTime()
             );
+
             setBookings(data);
             setError(null);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Fout bij ophalen boekingen.');
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Fout bij ophalen boekingen.'
+            );
         } finally {
             setLoading(false);
         }
@@ -33,18 +43,15 @@ export const useCurrentRoomBookings = () => {
 
     useEffect(() => {
         void fetchBookings();
-
         if (!token) return;
 
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl('http://localhost:5222/hubs/roomBookings', { accessTokenFactory: () => token })
-            .withAutomaticReconnect()
-            .build();
+        startRoomBookings();
 
-        connection.start().catch(console.error);
-        connection.on('BookingChanged', () => { void fetchBookings(); });
+        const unsubscribe = onBookingChanged(() => {
+            void fetchBookings();
+        });
 
-        return () => { void connection.stop(); };
+        return () => unsubscribe();
     }, [token, fetchBookings]);
 
     useEffect(() => {
