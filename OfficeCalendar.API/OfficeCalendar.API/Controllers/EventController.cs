@@ -7,7 +7,7 @@ namespace OfficeCalendar.API.Controllers;
 
 public class EventController : BaseController
 {
-    public EventController() : base() { }
+
 }
 
 
