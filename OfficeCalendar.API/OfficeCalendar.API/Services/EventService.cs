@@ -13,6 +13,7 @@ public class EventService : IEventService
 {
     public async Task<CreateEventResult> CreateEvent(CreateEventDto newEventDto)
     {
+
         throw new NotImplementedException();
     }
 
