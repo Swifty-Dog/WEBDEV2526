@@ -15,15 +15,15 @@ namespace OfficeCalendar.API.Controllers;
 public class RoomBookingController : BaseController
 {
     private readonly IRoomBookingService _roomBookingService;
-    private readonly IHubContext<RoomBookingHub> _hubContext;
+    private readonly IHubContext<GenericHub> _genericHub;
 
     public RoomBookingController(
         IRoomBookingService roomBookingService,
         IEmployeeService employeeService,
-        IHubContext<RoomBookingHub> hubContext) : base(employeeService)
+        IHubContext<GenericHub> genericHub) : base(employeeService)
     {
         _roomBookingService = roomBookingService;
-        _hubContext = hubContext;
+        _genericHub = genericHub;
     }
 
     [HttpPost]
@@ -38,7 +38,7 @@ public class RoomBookingController : BaseController
 
         if (result is CreateRoomBookingResult.Success success)
         {
-            await _hubContext.Clients.All.SendAsync("BookingChanged");
+            await _genericHub.BroadcastEvent("BookingChanged");
             var dtoResult = new UpcomingRoomBookingsDto
             {
                 Id = success.RoomBooking.Id,
@@ -124,7 +124,8 @@ public class RoomBookingController : BaseController
 
         if (result is UpdateRoomBookingResult.Success success)
         {
-            await _hubContext.Clients.All.SendAsync("BookingChanged");
+            await _genericHub.BroadcastEvent("BookingChanged");
+
             var dtoResult = new UpcomingRoomBookingsDto
             {
                 Id = success.RoomBooking.Id,
@@ -156,7 +157,7 @@ public class RoomBookingController : BaseController
 
         if (result is DeleteRoomBookingResult.Success)
         {
-            await _hubContext.Clients.All.SendAsync("BookingChanged");
+            await _genericHub.BroadcastEvent("BookingChanged");
             return NoContent();
         }
 

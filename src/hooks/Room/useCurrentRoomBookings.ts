@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ApiGet } from '../../components/ApiRequest.tsx';
 import { type Booking } from '../../utils/types.ts';
-import { onBookingChanged, startRoomBookings } from "../../utils/signalR/roomBookingHub"
+import { startGenericHub, onEvent } from '../../utils/signalR/genericHub';
 
 export const useCurrentRoomBookings = () => {
     const token = localStorage.getItem('authToken');
@@ -45,9 +45,9 @@ export const useCurrentRoomBookings = () => {
         void fetchBookings();
         if (!token) return;
 
-        startRoomBookings();
+        startGenericHub();
 
-        const unsubscribe = onBookingChanged(() => {
+        const unsubscribe = onEvent("BookingChanged", () => {
             void fetchBookings();
         });
 

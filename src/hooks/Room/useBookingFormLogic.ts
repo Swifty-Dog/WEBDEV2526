@@ -78,12 +78,6 @@ export const useBookingFormLogic = (
         }));
     }, [message]);
 
-    useEffect(() => {
-        if (initialData) {
-            setBookingDetails(prev => ({ ...prev, ...initialData }));
-        }
-    }, [initialData]);
-
     const messageToShow = message || (availabilityError ? { text: availabilityError, type: 'error' } : null);
 
     return {

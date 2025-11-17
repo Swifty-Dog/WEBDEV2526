@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import type { DailyBookingWithRoom } from "../../utils/types.ts";
 import { ApiGet } from "../../components/ApiRequest.tsx";
-import { onBookingChanged, startRoomBookings } from "../../utils/signalR/roomBookingHub";
+import { startGenericHub, onEvent, stopGenericHub } from "../../utils/signalR/genericHub";
 
 export const useDailyBookings = (date: string | null) => {
     const [bookings, setBookings] = useState<DailyBookingWithRoom[]>([]);
@@ -56,13 +56,16 @@ export const useDailyBookings = (date: string | null) => {
 
         if (!token) return;
 
-        startRoomBookings();
+        startGenericHub();
 
-        const unsubscribe = onBookingChanged(() => {
+        const unsubscribe = onEvent("BookingChanged", () => {
             void fetchBookings();
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribe();
+            stopGenericHub();
+        };
     }, [token, fetchBookings]);
 
     return { bookings, loading, error };
