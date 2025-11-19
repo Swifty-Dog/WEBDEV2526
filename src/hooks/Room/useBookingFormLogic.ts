@@ -61,7 +61,7 @@ export const useBookingFormLogic = (
         const { name, value } = e.target;
 
         if (name === 'bookingDate') {
-            const defaultStart = getInitialStartTime(); // Jouw logica
+            const defaultStart = getInitialStartTime();
             setBookingDetails(prev => ({
                 ...prev,
                 roomId: 0,
