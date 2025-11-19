@@ -108,12 +108,7 @@ export const AdminDashboard: React.FC = () => {
                     <RegisterButton style={{ marginLeft: '0.5rem' }} />
                 </div>
             </div>
-
-            {/* <section style={{marginTop: '0.5rem'}}>
-                <h2>Register</h2>
-                <button className='register-button' onClick={openNew}>Register</button>
-            </section> */}
-
+            
             <section style={{ marginTop: '1rem' }}>
                 <h2 style={{ margin: '0 0 0.5rem 0' }}>Week view</h2>
                 {selectedDayISO && (
