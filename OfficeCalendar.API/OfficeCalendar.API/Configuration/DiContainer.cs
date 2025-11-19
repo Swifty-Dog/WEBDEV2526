@@ -18,6 +18,8 @@ public static class DiContainer
 
         // Repository: Scoped. New instance per HTTP request.
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped<IRoomRepository, RoomRepository>();
+        services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
 
         // JWT Token Generator: Must be Singleton as it is stateless and reads configuration.
         services.AddSingleton<ITokenService, TokenService>();
@@ -27,6 +29,8 @@ public static class DiContainer
 
         // Business Logic Services: Scoped to manage state per request.
         services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IRoomBookingService, RoomBookingService>();
 
     }
 }

@@ -25,6 +25,12 @@ export const sidebarMenuItems: MenuItem[] = [
         path: '/events',
     },
     {
+        id: 'rooms',
+        label: 'Kamers',
+        icon: '🗄️',
+        path: '/kamers'
+    },
+    {
         id: 'settings',
         label: 'Instellingen',
         icon: '⚙️',

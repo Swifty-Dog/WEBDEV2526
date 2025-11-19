@@ -175,7 +175,6 @@
 
 .button-primary:active {
     background-color: var(--color-brand-accent-active);
-    transform: scale(0.98);
 }
 
 .button-primary#button-error {
@@ -193,12 +192,75 @@
     color: var(--color-text-contrast);
 }
 
-.login-error {
-    color: var(--color-error-primary);
+.button-secondary {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-contrast-accent);
+    background: var(--color-button-interact-bg);
+    border: none;
+    border-radius: var(--border-radius-main);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.button-secondary:hover {
+    background: var(--color-button-interact-bg-hover);
+}
+
+.button-secondary:active {
+    background: var(--color-button-interact-bg-active);
+}
+
+.button-primary:hover:not(:disabled),
+.button-secondary:hover:not(:disabled) {
+    transform: translateY(-0.1rem);
+}
+
+.button-primary:active:not(:disabled),
+.button-secondary:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+}
+
+button:disabled,
+.button-primary:disabled,
+.button-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-contrast);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.success-message {
+    color: var(--color-success-primary);
     font-size: 0.9rem;
-    margin: -0.8rem;
+    margin: 0;
     text-align: center;
     animation: fadeIn 0.2s ease-in-out;
+}
+
+.error-message {
+    color: var(--color-error-primary);
+    font-size: 0.9rem;
+    margin: 0;
+    text-align: center;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.error-message#login {
+    margin: -0.8rem;
 }
 
 @keyframes fadeIn {
@@ -235,6 +297,37 @@
     box-shadow: 0 0.75rem 2rem var(--color-shadow-subtle);
 }
 
+.modal .form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.modal .booking-item {
+    justify-content: stretch;
+}
+
+.modal .booking-content {
+    display: block;
+    width: 100%;
+}
+
+.modal .form-row label {
+    width: auto;
+    flex-shrink: 0;
+}
+
+.modal .form-row span {
+    flex-grow: 1;
+    text-align: right;
+    word-break: break-word;
+}
+
+.modal-list-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
 .events-table {
     width: 100%;
     border-collapse: collapse;
@@ -266,6 +359,7 @@
     border-radius: 0.4rem;
     border: 1px solid var(--color-border-subtle);
     background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
     cursor: pointer;
 }
 
@@ -275,7 +369,54 @@
     border-color: transparent;
 }
 
+.btn-danger:hover {
+    background: var(--color-error-secondary);
+}
+
+.btn-danger:active {
+    background: var(--color-error-tertiary);
+}
+
+.btn-primary-accent {
+    background: var(--color-brand-accent);
+    color: var(--color-text-contrast-accent);
+}
+
+.btn-primary-accent:hover {
+    background: var(--color-brand-accent-hover);
+}
+
+.btn-primary-accent:active {
+    background: var(--color-brand-accent-active);
+}
+
 .muted { color: var(--color-text-secondary); }
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.75rem;;
+}
+
+.form-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.full-width-button {
+    width: 100%;
+    margin-top: auto;
+}
 
 .form-row { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.75rem; }
 .form-row label { width:120px; font-weight:600; color:var(--color-text-secondary); }
@@ -326,4 +467,184 @@
     background-color: transparent;
     text-align: center;
     padding: 20px;
+}
+
+.rooms-container {
+    justify-content: flex-start;
+    align-items: stretch;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-sizing: border-box;
+}
+
+.rooms-container > .panel-fancy-borders,
+.rooms-container > .room-actions-grid {
+    width: 100%;
+}
+
+.panel-fancy-borders {
+    background: linear-gradient(135deg, var(--color-bg-secondary) 0%, color-mix(in srgb, var(--color-bg-secondary) 95%, var(--color-bg-primary)) 100%);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 0.5rem 2rem color-mix(in srgb, var(--color-brand-primary) 15%, transparent), 0 0.125rem 0.5rem rgba(0,0,0,0.1);
+    border: 1rem solid color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+    grid-row: span 2;
+    position: relative;
+    overflow: hidden;
+    min-height: 25rem;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-fancy-borders::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0.25rem;
+    background: linear-gradient(90deg, var(--color-brand-primary), var(--color-brand-secondary), var(--color-brand-primary));
+    background-size: 200% 100%;
+    animation: gradientMove 3s ease-in-out infinite;
+}
+
+.admin-actions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.list-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
+    width: 100%;
+    margin: 0.5rem auto 0.5rem auto;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.action-content-wrapper {
+    position: relative;
+    width: 100%;
+    height: 3rem;
+}
+
+.action-text {
+    position: absolute;
+    right: 48%;
+    top: 50%;
+    transform: translate(-0.5rem, -50%);
+    text-align: right;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.action-content-wrapper .button-secondary {
+    position: absolute;
+    left: 52%;
+    top: 50%;
+    transform: translate(0.5rem, -50%);
+    transition: transform 0.1s ease;
+}
+
+.action-content-wrapper .button-secondary:hover {
+    transform: translate(0.5rem, calc(-50% - 0.1rem));
+}
+
+.action-content-wrapper .button-secondary:active {
+    transform: translate(0.5rem, -50%);
+}
+
+.room-actions-grid {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+#current-bookings,
+#new-booking {
+    flex: 1;
+    min-width: 0;
+}
+
+#current-bookings .booking-item {
+    justify-content: flex-start;
+}
+
+#current-bookings .booking-item .booking-content {
+    display: inline-block;
+}
+
+.section-card {
+    padding: 1.5rem;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 0.25rem 0.5rem var(--color-shadow-subtle);
+}
+
+.booking-items-list {
+    padding-left: 0;
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.booking-item {
+    display: flex;
+    justify-content: center;
+    border-bottom: none;
+    padding: 0.2rem 0.5rem;
+}
+
+.booking-content {
+    display: inline-block;
+    border-bottom: 0.1rem dashed var(--color-border-subtle);
+    padding-bottom: 0.5rem;
+}
+
+.booking-item:last-child .booking-content {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.section-card > .button-primary#button-smaller {
+    margin: 1rem auto 0 auto;
+}
+
+.booking-input {
+    padding: 1rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: 0.5rem;
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.booking-input::placeholder {
+    color: var(--color-text-subtle);
+
+}
+
+.booking-input:focus {
+    border-color: var(--color-brand-primary);
+    outline: var(--color-brand-primary) 0.2rem solid;
+}
+
+.vertical-flex-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.flex-fill {
+    flex-grow: 1;
+    margin-bottom: 1rem;
+}
+
+.section-card > .button-primary#button-smaller {]
+    margin: 0 auto;
 }
