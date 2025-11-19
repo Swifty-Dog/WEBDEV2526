@@ -8,8 +8,6 @@ export const useUpdateBooking = (
 ) => {
     const updateBooking = useCallback(async (bookingToUpdate: Booking) => {
         try {
-            console.log(bookingToUpdate);
-
             await ApiPut(`/RoomBooking/${bookingToUpdate.id}`, bookingToUpdate, {
                 Authorization: `Bearer ${localStorage.getItem('authToken')}`,
             });

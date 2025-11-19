@@ -64,9 +64,9 @@ export const BookingForm: React.FC<BookingFormProps> = (
                             {loadingAvailability ? "Beschikbaarheid laden..." : "Selecteer een kamer"}
                         </option>
                         {rooms.map(room => {
-                            const isFull = roomIsFullMap.get(room.id) || false;
+                            const isFull = roomIsFullMap.get(room.id ?? 0) || false;
                             return (
-                                <option key={room.id} value={room.id} disabled={isFull}>
+                                <option key={room.id} value={room.id ?? undefined } disabled={isFull}>
                                     {room.roomName} {isFull ? "(Vol)" : ""}
                                 </option>
                             );

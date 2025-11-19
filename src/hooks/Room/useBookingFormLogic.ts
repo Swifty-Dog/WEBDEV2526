@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {useState, useCallback, useEffect, useMemo} from 'react';
 import type { BookingDetails, Room } from '../../utils/types.ts';
 import { useDailyBookings } from './useDailyBookings.ts';
 import { useRoomAvailability } from './useRoomAvailability.ts';
@@ -36,9 +36,23 @@ export const useBookingFormLogic = (
         error: availabilityError
     } = useDailyBookings(bookingDetails.bookingDate);
 
+    const bookingsForAvailability = useMemo(() => {
+        if (!editingBookingId) {
+            return allDailyBookings;
+        }
+        return allDailyBookings.filter(b => {
+            const isCurrentBooking =
+                (b.id !== undefined && b.id !== null && b.id === editingBookingId) ||
+                (b.startTime === initialData?.startTime && b.endTime === initialData?.endTime);
+
+            return !isCurrentBooking;
+        });
+
+    }, [allDailyBookings, editingBookingId, initialData]);
+
     const { roomIsFullMap, availableStartTimes, availableEndTimes } = useRoomAvailability(
         rooms,
-        allDailyBookings,
+        bookingsForAvailability,
         bookingDetails.bookingDate,
         bookingDetails.startTime,
         bookingDetails.roomId,

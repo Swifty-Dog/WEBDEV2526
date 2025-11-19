@@ -16,16 +16,18 @@ export const useRoomAvailability = (
         const map = new Map<number, Set<string>>();
 
         const bookingsToUse = editingBookingId
-            ? allDailyBookings.filter(b => Number(b.id) !== Number(editingBookingId))
+            ? allDailyBookings.filter(b => b.id !== editingBookingId)
             : allDailyBookings;
 
         for (const booking of bookingsToUse) {
             if (!map.has(booking.roomId)) map.set(booking.roomId, new Set());
             const set = map.get(booking.roomId)!;
+
             for (const time of allTimes) {
                 if (time >= booking.startTime && time < booking.endTime) set.add(time);
             }
         }
+
         return map;
     }, [allDailyBookings, editingBookingId]);
 
@@ -37,7 +39,7 @@ export const useRoomAvailability = (
         const allPossibleStartTimes = allTimes.slice(0, -1);
 
         for (const room of rooms) {
-            const bookedSlots = roomBookingMap.get(room.id) || new Set();
+            const bookedSlots = roomBookingMap.get(room.id ?? 0) || new Set();
 
             let availableSlots = allPossibleStartTimes.filter(time => !bookedSlots.has(time));
 
@@ -45,7 +47,7 @@ export const useRoomAvailability = (
                 availableSlots = availableSlots.filter(time => time >= current);
             }
 
-            map.set(room.id, availableSlots.length === 0);
+            map.set(room.id ?? 0, availableSlots.length === 0);
         }
         return map;
     }, [rooms, roomBookingMap, selectedDate, editingBookingId]);
@@ -65,7 +67,7 @@ export const useRoomAvailability = (
 
         return availableTimes;
 
-    }, [selectedRoomId, roomBookingMap, selectedDate, editingBookingId]);
+    }, [roomBookingMap, selectedRoomId, editingBookingId, selectedDate]);
 
     const availableEndTimes = useMemo(() => {
         if (!selectedStartTime) return [];

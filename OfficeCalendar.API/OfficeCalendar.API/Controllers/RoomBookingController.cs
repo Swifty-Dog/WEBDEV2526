@@ -101,6 +101,7 @@ public class RoomBookingController : BaseController
         {
             GetRoomBookingListResult.Success s => Ok(s.RoomBookings.Select(booking => new RoomBookingDateDto
             {
+                Id = booking.Id,
                 RoomId = booking.RoomId,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime

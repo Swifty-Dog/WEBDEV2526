@@ -1,19 +1,17 @@
 import React, { useMemo, useCallback } from 'react';
-import type {Booking, Room, BookingDetails, DailyBookingWithRoom} from '../../utils/types';
+import type {Booking, Room, BookingDetails} from '../../utils/types';
 import { BookingForm } from './BookingForm';
 import { useBookingFormLogic } from '../../hooks/Room/useBookingFormLogic';
 import { useUpdateBooking } from '../../hooks/Room/useUpdateBooking';
-import { useRoomAvailability } from "../../hooks/Room/useRoomAvailability";
 
 type EditRoomBookingFormProps = {
     booking: Booking;
     rooms: Room[];
-    allDailyBookings: DailyBookingWithRoom[];
     onClose: () => void;
     onSave: (updatedBooking: Booking) => void;
 };
 
-export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking, rooms, allDailyBookings, onClose, onSave}) => {
+export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking, rooms, onClose, onSave}) => {
 
     const initialDetails = useMemo((): BookingDetails => {
         const roomId = rooms.find(r => r.roomName === booking.roomName)?.id;
@@ -28,7 +26,7 @@ export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking
             startTime: booking.startTime,
             endTime: booking.endTime,
             purpose: booking.purpose,
-            roomId: roomId,
+            roomId: roomId ?? 0,
         };
     }, [rooms, booking]);
 
@@ -37,6 +35,9 @@ export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking
         message,
         setMessage,
         handleChange,
+        availableStartTimes,
+        availableEndTimes,
+        roomIsFullMap,
         ...formProps
     } = useBookingFormLogic(
         rooms,
@@ -44,14 +45,6 @@ export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking
         booking.id
     );
 
-    const { roomIsFullMap, availableStartTimes, availableEndTimes } = useRoomAvailability(
-        rooms,
-        allDailyBookings,
-        bookingDetails.bookingDate,
-        bookingDetails.startTime,
-        bookingDetails.roomId,
-        booking.id
-    );
 
     const onUpdate = (updatedBooking: Booking) => {
         onSave(updatedBooking);
