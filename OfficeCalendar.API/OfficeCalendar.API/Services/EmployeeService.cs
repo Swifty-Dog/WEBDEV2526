@@ -7,6 +7,7 @@ using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.Services.Results.Tokens;
 using OfficeCalendar.API.DTOs.Employees.Request;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace OfficeCalendar.API.Services;
 
@@ -107,17 +108,17 @@ public class EmployeeService : IEmployeeService
         }
     }
 
-    public async Task<bool> RegisterEmployee(RegisterDto employee)
+    public async Task<RegisterResult> RegisterEmployee(RegisterDto employee)
     {
         if (employee is null)
-            return false;
+            return new RegisterResult.InvalidData("Employee data is required.");
 
         employee.Password = _hasher.HashPassword(null, employee.Password);
 
         foreach (var existingEmployee in await _employeeRepo.GetAll())
         {
             if (employee.Email == existingEmployee.Email)
-                return false;
+                return new RegisterResult.EmailAlreadyExists();
         }
         
         try
@@ -130,11 +131,47 @@ public class EmployeeService : IEmployeeService
                 PasswordHash = employee.Password
             };
 
-            return await _employeeRepo.Create(newEmployee);
+            var result = await _employeeRepo.Create(newEmployee);
+
+            return result ? new RegisterResult.Success(newEmployee) : new RegisterResult.Error("Failed to register employee.");
         }
         catch
         {
-            return false;
+            return new RegisterResult.Error("An error occurred while registering the employee.");
         }
     }
+
+//     public async Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId)
+//     {
+//         if (employeeId <= 0)
+//             return new PromoteDemoteResult.InvalidData("The employee ID must be greater than zero.");
+
+//         try
+//         {
+//             var employee = await GetEmployeeById(employeeId);
+
+//             if (employee is GetEmployeeResult.Success sEmployee)
+//             {
+//                 var emp = sEmployee.Employee;
+//                 var empRole = emp.Role.Trim().ToLower();
+
+//                 if (empRole == "admin")
+//                     return new PromoteDemoteResult.InvalidData("Cannot change role of an admin employee.");
+
+//                 emp.Role = empRole == "user" ? "Manager" : "User";
+//                 var result = await _employeeRepo.Update(emp);
+
+//                 if (result)
+//                     return new PromoteDemoteResult.Success(emp);
+//                 else
+//                     return new PromoteDemoteResult.Error("Failed to update employee role.");
+//             }
+            
+//             return new PromoteDemoteResult.NotFound();
+//         }
+//         catch
+//         {
+//             return new PromoteDemoteResult.Error("An error occurred while updating the employee role.");
+//         }
+//     }
 }

@@ -42,11 +42,34 @@ public class EmployeeController : BaseController
 
         return result switch
         {
-            true =>
+            RegisterResult.Success =>
                 Ok(new { message = "Employee registered successfully." }),
-            false =>
-                BadRequest(new { message = "Failed to register employee." }),
-            // _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred during registration." })
+            RegisterResult.EmailAlreadyExists =>
+                BadRequest(new { message = "Email already exists." }),
+            RegisterResult.InvalidData invalidData =>
+                BadRequest(new { message = invalidData.Message }),
+            RegisterResult.Error error =>
+                BadRequest(new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred during registration." })
+        };
+    }
+
+    [HttpGet("promote-demote/{employeeId}")]
+    public async Task<IActionResult> PromoteDemoteEmployee([FromRoute] long employeeId)
+    {
+        var result = await EmployeeService.PromoteDemoteEmployee(employeeId);
+
+        return result switch
+        {
+            PromoteDemoteResult.Success =>
+                Ok(new { message = "Role updated successfully." }),
+            PromoteDemoteResult.NotFound =>
+                NotFound(new { message = "Employee not found." }),
+            PromoteDemoteResult.InvalidData invalidData =>
+                BadRequest(new { message = invalidData.Message }),
+            PromoteDemoteResult.Error error =>
+                BadRequest(new { message = error.Message }),
+             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred during role update." })
         };
     }
 }

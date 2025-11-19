@@ -8,6 +8,7 @@ export const Register: React.FC = () => {
     const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [passwordconfirm, setPasswordConfirm] = useState('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -55,6 +56,12 @@ export const Register: React.FC = () => {
             return;
         }
 
+        if (password !== passwordconfirm)
+        {
+            alert('Passwords do not match');
+            return;
+        }
+
         setIsLoading(true);
         try {
             const resp = await fetch('http://localhost:5222/api/Employee/register', {
@@ -77,6 +84,7 @@ export const Register: React.FC = () => {
             setPassword('');
             setFirstName('');
             setLastName('');
+            setPasswordConfirm('');
         } catch (err) {
             console.error('Fetch error:', err);
             setErrorMessage((err as Error).message ?? 'Network error');
@@ -99,12 +107,15 @@ export const Register: React.FC = () => {
                 <input id="password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
                 className="login-input" placeholder="Password" />
 
+                <input id="password-confirm" name="password-confirm" type="password" value={passwordconfirm} onChange={e => setPasswordConfirm(e.target.value)}
+                className="login-input" placeholder="Password confirmation" />
+
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
                 {successMessage && <div className="success-message">{successMessage}</div>}
 
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <button type="submit" className="header-button" disabled={isLoading}>{isLoading ? 'Registering...' : 'Register'}</button>
-                    <button type="button" className="header-button" onClick={() => navigate(-1)}>Cancel</button>
+                    <button type="submit" className="button-primary" disabled={isLoading}>{isLoading ? 'Registering...' : 'Register'}</button>
+                    <button type="button" className="button-primary" onClick={() => navigate(-1)}>Cancel</button>
                 </div>
         </form>
     );
