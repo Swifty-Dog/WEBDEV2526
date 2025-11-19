@@ -140,38 +140,4 @@ public class EmployeeService : IEmployeeService
             return new RegisterResult.Error("An error occurred while registering the employee.");
         }
     }
-
-//     public async Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId)
-//     {
-//         if (employeeId <= 0)
-//             return new PromoteDemoteResult.InvalidData("The employee ID must be greater than zero.");
-
-//         try
-//         {
-//             var employee = await GetEmployeeById(employeeId);
-
-//             if (employee is GetEmployeeResult.Success sEmployee)
-//             {
-//                 var emp = sEmployee.Employee;
-//                 var empRole = emp.Role.Trim().ToLower();
-
-//                 if (empRole == "admin")
-//                     return new PromoteDemoteResult.InvalidData("Cannot change role of an admin employee.");
-
-//                 emp.Role = empRole == "user" ? "Manager" : "User";
-//                 var result = await _employeeRepo.Update(emp);
-
-//                 if (result)
-//                     return new PromoteDemoteResult.Success(emp);
-//                 else
-//                     return new PromoteDemoteResult.Error("Failed to update employee role.");
-//             }
-            
-//             return new PromoteDemoteResult.NotFound();
-//         }
-//         catch
-//         {
-//             return new PromoteDemoteResult.Error("An error occurred while updating the employee role.");
-//         }
-//     }
 }

@@ -53,23 +53,4 @@ public class EmployeeController : BaseController
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred during registration." })
         };
     }
-
-    [HttpGet("promote-demote/{employeeId}")]
-    public async Task<IActionResult> PromoteDemoteEmployee([FromRoute] long employeeId)
-    {
-        var result = await EmployeeService.PromoteDemoteEmployee(employeeId);
-
-        return result switch
-        {
-            PromoteDemoteResult.Success =>
-                Ok(new { message = "Role updated successfully." }),
-            PromoteDemoteResult.NotFound =>
-                NotFound(new { message = "Employee not found." }),
-            PromoteDemoteResult.InvalidData invalidData =>
-                BadRequest(new { message = invalidData.Message }),
-            PromoteDemoteResult.Error error =>
-                BadRequest(new { message = error.Message }),
-             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred during role update." })
-        };
-    }
 }

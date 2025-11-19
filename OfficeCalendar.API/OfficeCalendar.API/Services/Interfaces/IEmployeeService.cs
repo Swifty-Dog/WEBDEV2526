@@ -9,5 +9,4 @@ public interface IEmployeeService
     Task<GetEmployeeResult> GetEmployeeById(long id);
     Task<LoginResult> ValidateLogin(LoginRequest dto);
     Task<RegisterResult> RegisterEmployee(RegisterDto employee);
-    // Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId);
 }
