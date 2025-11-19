@@ -4,6 +4,7 @@ import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { Register } from './components/Register';
 import {Rooms} from "./pages/Rooms.tsx";
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
@@ -35,6 +36,16 @@ export function App() {
 
 
                 <Route path="/404" element={<NotFound />} />
+
+                <Route path="/admin/register" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin', 'manager']}
+                    >
+                        <Register />
+                    </ProtectedRoute>
+                } />
 
                 <Route path="/admin-dashboard" element={
                     <ProtectedRoute

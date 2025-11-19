@@ -6,6 +6,8 @@ using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.Services.Results.Tokens;
+using OfficeCalendar.API.DTOs.Employees.Request;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace OfficeCalendar.API.Services;
 
@@ -103,6 +105,39 @@ public class EmployeeService : IEmployeeService
         catch (Exception ex)
         {
             return new LoginResult.Error($"An error occurred while validating login: {ex.Message}");
+        }
+    }
+
+    public async Task<RegisterResult> RegisterEmployee(RegisterDto employee)
+    {
+        if (employee is null)
+            return new RegisterResult.InvalidData("Employee data is required.");
+
+        employee.Password = _hasher.HashPassword(null, employee.Password);
+
+        foreach (var existingEmployee in await _employeeRepo.GetAll())
+        {
+            if (employee.Email == existingEmployee.Email)
+                return new RegisterResult.EmailAlreadyExists();
+        }
+        
+        try
+        {
+            var newEmployee = new EmployeeModel
+            {
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                Email = employee.Email,
+                PasswordHash = employee.Password
+            };
+
+            var result = await _employeeRepo.Create(newEmployee);
+
+            return result ? new RegisterResult.Success(newEmployee) : new RegisterResult.Error("Failed to register employee.");
+        }
+        catch
+        {
+            return new RegisterResult.Error("An error occurred while registering the employee.");
         }
     }
 }
