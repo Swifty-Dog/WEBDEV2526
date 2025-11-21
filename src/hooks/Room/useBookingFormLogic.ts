@@ -40,15 +40,9 @@ export const useBookingFormLogic = (
         if (!editingBookingId) {
             return allDailyBookings;
         }
-        return allDailyBookings.filter(b => {
-            const isCurrentBooking =
-                (b.id !== undefined && b.id !== null && b.id === editingBookingId) ||
-                (b.startTime === initialData?.startTime && b.endTime === initialData?.endTime);
+        return allDailyBookings.filter(b => b.id !== editingBookingId);
 
-            return !isCurrentBooking;
-        });
-
-    }, [allDailyBookings, editingBookingId, initialData]);
+    }, [allDailyBookings, editingBookingId]);
 
     const { roomIsFullMap, availableStartTimes, availableEndTimes } = useRoomAvailability(
         rooms,
