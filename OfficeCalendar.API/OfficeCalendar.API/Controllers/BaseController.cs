@@ -26,7 +26,7 @@ public abstract class BaseController : ControllerBase
         return userId;
     }
 
-    protected async Task<EmployeeModel> GetCurrentUserAsync()
+    protected async Task<EmployeeModel?> GetCurrentUserAsync()
     {
         var userId = GetCurrentUserId();
         var userResult = await EmployeeService.GetEmployeeById(userId);

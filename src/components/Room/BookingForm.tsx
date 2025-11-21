@@ -30,16 +30,15 @@ export const BookingForm: React.FC<BookingFormProps> = (
     }) => {
     const timesAreDisabled = loadingAvailability || fetchError || availableStartTimes.length === 0 || bookingDetails.roomId === 0;
     const formIsDisabled = fetchError || loadingAvailability;
-    const noRoomsAvailable = rooms.every(room => roomIsFullMap.get(room.id));
 
     return (
         <form onSubmit={onSubmit} className="form-container">
             <div className="form-fields">
                 <div className="form-row">
-                    <label htmlFor="date">Boekingsdatum</label>
+                    <label htmlFor="bookingDate">Boekingsdatum</label>
                     <input
-                        id="date"
-                        name="date"
+                        id="bookingDate"
+                        name="bookingDate"
                         type="date"
                         className="booking-input"
                         value={bookingDetails.bookingDate}
@@ -65,9 +64,9 @@ export const BookingForm: React.FC<BookingFormProps> = (
                             {loadingAvailability ? "Beschikbaarheid laden..." : "Selecteer een kamer"}
                         </option>
                         {rooms.map(room => {
-                            const isFull = roomIsFullMap.get(room.id) || false;
+                            const isFull = roomIsFullMap.get(room.id ?? 0) || false;
                             return (
-                                <option key={room.id} value={room.id} disabled={isFull}>
+                                <option key={room.id} value={room.id ?? undefined } disabled={isFull}>
                                     {room.roomName} {isFull ? "(Vol)" : ""}
                                 </option>
                             );
@@ -86,10 +85,7 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         required
                         disabled={timesAreDisabled}
                     >
-                        {loadingAvailability && <option>Laden...</option>}
-                        {!loadingAvailability && noRoomsAvailable && <option>Alle kamers vol</option>}
-                        {!loadingAvailability && bookingDetails.roomId === 0 && <option>Selecteer kamer</option>}
-                        {!loadingAvailability && bookingDetails.roomId !== 0 && availableStartTimes.length === 0 && <option>Geen tijden beschikbaar</option>}
+                        <option value="" disabled>Selecteer een starttijd</option>
                         {availableStartTimes.map(time => (
                             <option key={time} value={time}>{time}</option>
                         ))}
@@ -107,8 +103,7 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         required
                         disabled={timesAreDisabled || availableEndTimes.length === 0}
                     >
-                        {loadingAvailability && <option>Laden...</option>}
-                        {!loadingAvailability && availableEndTimes.length === 0 && <option>Selecteer starttijd</option>}
+                        <option value="" disabled>Selecteer een eindtijd</option>
                         {availableEndTimes.map(time => (
                             <option key={time} value={time}>{time}</option>
                         ))}

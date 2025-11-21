@@ -11,6 +11,6 @@ public class RoomRepository : Repository<RoomModel>, IRoomRepository
     public async Task<RoomModel?> GetByName(string roomName)
     {
         return await Context.Rooms
-            .FirstOrDefaultAsync(room => room.RoomName.Equals(roomName, StringComparison.OrdinalIgnoreCase));
+            .FirstOrDefaultAsync(room => EF.Functions.Like(room.RoomName.ToLower(), roomName.ToLower()));
     }
 }

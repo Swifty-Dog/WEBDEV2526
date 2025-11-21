@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using OfficeCalendar.API.DTOs.Rooms.Request;
+using OfficeCalendar.API.Hubs;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Rooms;
 
@@ -12,10 +14,14 @@ namespace OfficeCalendar.API.Controllers;
 public class RoomController : BaseController
 {
     private readonly IRoomService _roomService;
+    private readonly IHubContext<GenericHub> _genericHub;
 
-    public RoomController(IRoomService roomService, IEmployeeService employeeService) : base(employeeService)
+    public RoomController(IRoomService roomService,
+        IHubContext<GenericHub> genericHub,
+        IEmployeeService employeeService) : base(employeeService)
     {
         _roomService = roomService;
+        _genericHub = genericHub;
     }
 
     [HttpGet("{id:int}")]
@@ -42,6 +48,8 @@ public class RoomController : BaseController
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var result = await _roomService.CreateRoom(dto);
+        await _genericHub.BroadcastEvent("RoomChanged");
+
         return result switch
         {
             CreateRoomResult.Success success =>
@@ -78,6 +86,8 @@ public class RoomController : BaseController
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var result = await _roomService.UpdateRoom(dto);
+        await _genericHub.BroadcastEvent("RoomChanged");
+
         return result switch
         {
             UpdateRoomResult.Success success =>
@@ -97,6 +107,7 @@ public class RoomController : BaseController
     public async Task<IActionResult> DeleteRoom(int id)
     {
         var result = await _roomService.DeleteRoom(id);
+        await _genericHub.BroadcastEvent("RoomChanged");
 
         return result switch
         {

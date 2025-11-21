@@ -52,7 +52,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
     const submit = (e?: React.FormEvent) => {
         e?.preventDefault();
         const payload: Room = {
-            id: existing?.id ?? 1,
+            id: existing?.id || null,
             roomName: name.trim(),
             capacity,
             location: location.trim(),
