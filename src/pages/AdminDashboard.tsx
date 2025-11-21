@@ -114,7 +114,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="admin-header">
                 <div>
                     <h1>Admin Dashboard</h1>
-                    <p className="muted">Manage calendar events — create, edit, delete and view attendees.</p>
+                    {/* <p className="muted">Manage calendar events — create, edit, delete and view attendees.</p> */}
                 </div>
                 <div>
                     <button className="header-button" onClick={openNew}>+ New Event</button>
