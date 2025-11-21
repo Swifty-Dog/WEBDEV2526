@@ -3,13 +3,14 @@ import type { EventItem } from '../pages/AdminDashboard';
 
 interface Props {
     events: EventItem[];
+    selectedDayISO?: string;
     onDaySelect?: (dateISO: string, eventsForDay: EventItem[]) => void;
 }
 
 function startOfWeekMonday(date: Date): Date {
     const d = new Date(date);
-    const day = d.getDay(); // 0 Sun .. 6 Sat
-    const diff = (day === 0 ? -6 : 1 - day); // move to Monday
+    const day = d.getDay(); 
+    const diff = (day === 0 ? -6 : 1 - day); 
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
     return d;
@@ -22,7 +23,7 @@ function toDayKeyISO(d: Date): string {
     return `${y}-${m}-${day}`;
 }
 
-export const WeekCalendar: React.FC<Props> = ({ events, onDaySelect }) => {
+export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect }) => {
     const [anchor, setAnchor] = useState<Date>(() => startOfWeekMonday(new Date()));
 
     const days = useMemo(() => {
@@ -82,16 +83,37 @@ export const WeekCalendar: React.FC<Props> = ({ events, onDaySelect }) => {
                     <button className="nav-btn" onClick={nextWeek} title="Next week">❯</button>
                 </div>
             </div>
-            <div className="week-grid">
+            <div className={selectedDayISO ? 'week-grid has-selection' : 'week-grid'}>
                 {days.map((d, idx) => {
                     const key = toDayKeyISO(d);
                     const dayEvents = eventsByDay.get(key) ?? [];
                     const isToday = new Date().toDateString() === d.toDateString();
+                    const isSelected = selectedDayISO === key;
+                    const className = `week-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`;
+
+                    const dayTitle = dayEvents.length > 0 ? dayEvents.map(ev => ev.title).join(', ') : undefined;
+
                     return (
-                        <div key={key} className={`week-day${isToday ? ' today' : ''}`} onClick={() => onDaySelect?.(key, dayEvents)}>
+                        <div
+                            key={key}
+                            className={className}
+                            title={dayTitle}
+                            onClick={() => onDaySelect?.(key, dayEvents)}
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={isSelected}
+                            aria-current={isToday ? 'date' : undefined}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDaySelect?.(key, dayEvents); } }}
+                        >
                             <div className="week-day-header">
                                 <span className="weekday-name">{weekdayNames[idx]}</span>
                                 <span className="weekday-date">{d.getDate()}</span>
+                                {isToday && (
+                                    <span className="day-chip today-chip" aria-hidden="true">Today</span>
+                                )}
+                                {isSelected && (
+                                    <span className="day-chip selected-chip" aria-hidden="true">Selected</span>
+                                )}
                                 {dayEvents.length > 0 && (
                                     <span className="badge">{dayEvents.length}</span>
                                 )}
