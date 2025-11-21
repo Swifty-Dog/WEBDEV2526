@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction } from 'react';
+import { useState, type FormEvent } from 'react';
 
 export const Register: React.FC = () => {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ export const Register: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-            
+
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         setErrorMessage(null);
@@ -42,8 +42,8 @@ export const Register: React.FC = () => {
         }
 
         else if (firstName === '') {
-            if (lastName === '') 
-                { 
+            if (lastName === '')
+                {
                     alert('First Name and Last Name are required');
                     return;
                 }
@@ -77,7 +77,7 @@ export const Register: React.FC = () => {
                 setIsLoading(false);
                 return;
             }
-            
+
             setSuccessMessage('Registration successful!');
 
             setEmail('');
@@ -101,7 +101,7 @@ export const Register: React.FC = () => {
                 <input id="lastName" name="lastName" value={lastName} onChange={e => setLastName(e.target.value)}
                 className="login-input" placeholder="Last name" />
 
-                <input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} 
+                <input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
                 className="login-input" placeholder="Email"/>
 
                 <input id="password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)}

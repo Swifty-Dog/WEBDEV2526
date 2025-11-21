@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using OfficeCalendar.API.DTOs.Settings.Request;
+using OfficeCalendar.API.DTOs.Settings.Response;
 using OfficeCalendar.API.Models;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;
@@ -40,9 +41,20 @@ public class SettingsService : ISettingsService
         try
         {
             var settings = await _settings.GetById(employeeId);
-            return settings is not null
-                ? new GetSettingsResult.Success(settings)
-                : new GetSettingsResult.NotFound();
+
+            if (settings is null)
+                return new GetSettingsResult.NotFound();
+
+            var settingsDto = new SettingsDto
+            {
+                SiteTheme = settings.SiteTheme,
+                UserTheme = settings.UserTheme,
+                FontSize = settings.FontSize,
+                DefaultCalendarView = settings.DefaultCalendarView,
+                Language = settings.Language
+            };
+
+            return new GetSettingsResult.Success(settingsDto);
         }
         catch (Exception ex)
         {

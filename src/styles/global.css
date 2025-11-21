@@ -1,20 +1,12 @@
 :root {
     font-size: 16px;
+
     --border-radius-main: 0.7rem;
     --sidebar-width: 20rem;
     --upper-header-height: 7rem;
 
-    --color-bg-primary: #1f232b;
-    --color-bg-secondary: #2b313d;
-    --color-bg-tertiary: #3a414e;
-
-    --color-text-primary: #e8e8e8;
-    --color-text-secondary: #a0a8b9;
     --color-text-subtle: #7f8c8d;
-    --color-text-contrast: #1f232b;
-    --color-text-contrast-accent: #ffffff;
 
-    --color-border-subtle: #3e4451;
     --color-shadow-subtle: rgba(0, 0, 0, 0.4);
 
     --color-brand-primary: #6BC2DF;
@@ -29,21 +21,9 @@
 
     --color-highlight-primary: #ff6b6b;
     --color-highlight-secondary: #e55555;
-    --color-highlight-tertiary: #331a1a;
-
-    --color-success-primary: #28a745;
-    --color-success-secondary: #1e7e34;
-    --color-success-tertiary: #155724;
-
-    --color-error-primary: #ec6a76;
-    --color-error-secondary: #c64552;
-    --color-error-tertiary: #8b2c34;
-
-    --color-input-bg: var(--color-bg-secondary);
-    --color-input-border: #5a6270;
 }
 
-body.light-mode {
+body.Light {
     --color-bg-primary: #f0f3f8;
     --color-bg-secondary: #ffffff;
     --color-bg-tertiary: #e7e9ed;
@@ -67,6 +47,32 @@ body.light-mode {
     --color-error-primary: #dc3545;
     --color-error-secondary: #a61f2c;
     --color-error-tertiary: #5d151b;
+}
+
+body.Dark {
+    --color-bg-primary: #1f232b;
+    --color-bg-secondary: #2b313d;
+    --color-bg-tertiary: #3a414e;
+
+    --color-text-primary: #e8e8e8;
+    --color-text-secondary: #a0a8b9;
+    --color-text-contrast: #1f232b;
+    --color-text-contrast-accent: #ffffff;
+
+    --color-border-subtle: #3e4451;
+
+    --color-input-bg: var(--color-bg-secondary);
+    --color-input-border: #5a6270;
+
+    --color-highlight-tertiary: #331a1a;
+
+    --color-success-primary: #28a745;
+    --color-success-secondary: #1e7e34;
+    --color-success-tertiary: #155724;
+
+    --color-error-primary: #ec6a76;
+    --color-error-secondary: #c64552;
+    --color-error-tertiary: #8b2c34;
 }
 
 * {

@@ -20,7 +20,7 @@ export const Rooms: React.FC<RoomsProps> = ({ userRole }: RoomsProps) => {
             )}
 
             <div className="room-actions-grid">
-                <div  className="panel-fancy-borders" id="current-bookings">
+                <div className="panel-fancy-borders" id="current-bookings">
                     <CurrentRoomBookings />
                 </div>
 

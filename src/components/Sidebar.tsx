@@ -1,5 +1,5 @@
 import React from 'react';
-import { sidebarMenuItems, type MenuItem } from '../data/SidebarData';
+import { sidebarMenuItems, type MenuItem } from '../data/SidebarData.ts';
 import { Link } from 'react-router-dom';
 import '../styles/_layout.css';
 
