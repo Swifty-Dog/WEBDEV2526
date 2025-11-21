@@ -46,4 +46,53 @@ public class TokenService : ITokenService
 
         return new CreateJwtResult.Success(new JwtSecurityTokenHandler().WriteToken(token));
     }
+
+    public ClaimsPrincipal? ValidateToken(string token)
+    {
+        var secretKey = _config["Jwt:Key"];
+        var issuer = _config["Jwt:Issuer"];
+        var audience = _config["Jwt:Audience"];
+
+        if (string.IsNullOrEmpty(secretKey))
+            return null;
+
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(secretKey);
+
+            var parameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
+
+                ValidateAudience = true,
+                ValidAudience = audience,
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(1)
+            };
+
+            return tokenHandler.ValidateToken(token, parameters, out _);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public long? GetEmployeeIdFromToken(string token)
+    {
+        var principal = ValidateToken(token);
+
+        var claim = principal?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+        if (claim != null && long.TryParse(claim.Value, out var employeeId))
+            return employeeId;
+
+        return null;
+    }
 }

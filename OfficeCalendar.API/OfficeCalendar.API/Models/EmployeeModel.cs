@@ -36,6 +36,7 @@ public class EmployeeModel
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 
+    public SettingsModel Settings { get; set; } = null!;
     public virtual AdminModel? Admin { get; set; }
     public virtual ICollection<EventModel> CreatedEvents { get; set; } = new HashSet<EventModel>();
     public virtual ICollection<RoomBookingModel> RoomBookings { get; set; } = new HashSet<RoomBookingModel>();

@@ -2,26 +2,32 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using OfficeCalendar.API.DTOs.Employees.Response;
 using OfficeCalendar.API.Models;
-using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.Services.Results.Tokens;
 using OfficeCalendar.API.DTOs.Employees.Request;
-using Microsoft.AspNetCore.Http.HttpResults;
+using OfficeCalendar.API.Models.Repositories;
+using OfficeCalendar.API.Models.Repositories.Interfaces;
+using OfficeCalendar.API.Services.Results.Settings;
 
 namespace OfficeCalendar.API.Services;
 
 public class EmployeeService : IEmployeeService
 {
-    private readonly IEmployeeRepository _employeeRepo;
+    private readonly IRepository<EmployeeModel> _employeeRepo;
     private readonly ITokenService _tokens;
     private readonly IPasswordHasher<EmployeeModel> _hasher;
+    private readonly ISettingsService _settings;
 
-    public EmployeeService(IEmployeeRepository employeeRepo, ITokenService tokens, IPasswordHasher<EmployeeModel> hasher)
+    public EmployeeService(IRepository<EmployeeModel> employeeRepo,
+        ITokenService tokens,
+        IPasswordHasher<EmployeeModel> hasher,
+        ISettingsService settings)
     {
         _employeeRepo = employeeRepo;
         _tokens = tokens;
         _hasher = hasher;
+        _settings = settings;
     }
 
     public async Task<GetEmployeeResult> GetEmployeeById(long id)
@@ -49,7 +55,7 @@ public class EmployeeService : IEmployeeService
 
         try
         {
-            var employee = await _employeeRepo.GetByEmail(email);
+            var employee = await _employeeRepo.GetSingle(e => e.Email == email);
             if (employee is null)
                 return new GetEmployeeResult.NotFound();
             return new GetEmployeeResult.Success(employee);
@@ -110,34 +116,44 @@ public class EmployeeService : IEmployeeService
 
     public async Task<RegisterResult> RegisterEmployee(RegisterDto employee)
     {
-        if (employee is null)
-            return new RegisterResult.InvalidData("Employee data is required.");
+        var hashedPassword = _hasher.HashPassword(null, employee.Password);
 
-        employee.Password = _hasher.HashPassword(null, employee.Password);
-
-        foreach (var existingEmployee in await _employeeRepo.GetAll())
-        {
-            if (employee.Email == existingEmployee.Email)
-                return new RegisterResult.EmailAlreadyExists();
-        }
-        
         try
         {
-            var newEmployee = new EmployeeModel
+            var newEmployee = await _employeeRepo.ExecuteInTransaction(async _ =>
             {
-                FirstName = employee.FirstName,
-                LastName = employee.LastName,
-                Email = employee.Email,
-                PasswordHash = employee.Password
-            };
+                var existing = await GetEmployeeByEmail(employee.Email);
+                if (existing is GetEmployeeResult.Success)
+                    throw new InvalidOperationException("Email already exists.");
 
-            var result = await _employeeRepo.Create(newEmployee);
+                var createdEmployee = new EmployeeModel
+                {
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName,
+                    Email = employee.Email,
+                    PasswordHash = hashedPassword
+                };
 
-            return result ? new RegisterResult.Success(newEmployee) : new RegisterResult.Error("Failed to register employee.");
+                var created = await _employeeRepo.Create(createdEmployee);
+                if (!created) throw new Exception("Failed to create employee.");
+
+                var settingsResult = await _settings.CreateSettingsForNewUser(createdEmployee.Id);
+                if (settingsResult is CreateSettingsResult.Error error)
+                    throw new Exception($"Failed to create settings: {error.Message}");
+
+                return createdEmployee;
+            });
+
+            return new RegisterResult.Success(newEmployee);
         }
-        catch
+        catch (InvalidOperationException)
         {
-            return new RegisterResult.Error("An error occurred while registering the employee.");
+            return new RegisterResult.EmailAlreadyExists();
+        }
+
+        catch (Exception ex)
+        {
+            return new RegisterResult.Error($"An error occurred while registering the employee: {ex.Message}");
         }
     }
 }
