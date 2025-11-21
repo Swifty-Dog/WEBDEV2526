@@ -17,7 +17,7 @@ public static class DiContainer
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
         // Repository: Scoped. New instance per HTTP request.
-        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
 
@@ -31,6 +31,6 @@ public static class DiContainer
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IRoomBookingService, RoomBookingService>();
-
+        services.AddScoped<ISettingsService, SettingsService>();
     }
 }
