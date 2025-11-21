@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/_components.css';
+import '../styles/admin-dashboard.css';
 import { EventsTable } from '../components/EventsTable';
 import { EventFormModal } from '../components/EventFormModal';
 import { AttendeesModal } from '../components/AttendeesModal';
@@ -50,6 +51,19 @@ export const AdminDashboard: React.FC = () => {
         return `${y}-${m}-${day}`;
     };
 
+    const formatISOToDisplay = (iso?: string | null) => {
+        if (!iso) return '';
+        const parts = iso.split('-').map(p => Number(p));
+        if (parts.length < 3 || parts.some(isNaN)) {
+            // fallback: try Date parse
+            const d = new Date(iso);
+            return isNaN(d.getTime()) ? iso : new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+        }
+        const [y, m, day] = parts;
+        const d = new Date(y, m - 1, day);
+        return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+    };
+
     const filteredEvents = selectedDayISO
         ? events.filter(ev => toDayKeyISO(new Date(ev.date)) === selectedDayISO)
         : events;
@@ -98,33 +112,34 @@ export const AdminDashboard: React.FC = () => {
 
     return (
         <div className="admin-dashboard page-content">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="admin-header">
                 <div>
                     <h1>Admin Dashboard</h1>
-                    <p className="muted">Manage calendar events — create, edit, delete and view attendees.</p>
+                    {/* <p className="muted">Manage calendar events — create, edit, delete and view attendees.</p> */}
                 </div>
                 <div>
                     <button className="header-button" onClick={openNew}>+ New Event</button>
                     <RegisterButton style={{ marginLeft: '0.5rem' }} />
                 </div>
             </div>
-            
-            <section style={{ marginTop: '1rem' }}>
-                <h2 style={{ margin: '0 0 0.5rem 0' }}>Week view</h2>
+
+            <section className="section section--compact">
+                <h2 className="section-title">Week view</h2>
                 {selectedDayISO && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.25rem 0 0.75rem 0' }}>
+                    <div className="filter-row">
                         <span className="muted">Filtered day:</span>
-                        <span style={{ background: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border-subtle)', padding: '0.15rem 0.5rem', borderRadius: '0.35rem' }}>{selectedDayISO}</span>
+                        <span className="filter-pill">{formatISOToDisplay(selectedDayISO)}</span>
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>Clear filter</button>
                     </div>
                 )}
                 <WeekCalendar
                     events={events}
+                    selectedDayISO={selectedDayISO ?? undefined}
                     onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
                 />
             </section>
 
-            <section style={{ marginTop: '1.5rem' }}>
+            <section className="section section--spacious">
                 <EventsTable
                     events={filteredEvents}
                     onEdit={handleEdit}
