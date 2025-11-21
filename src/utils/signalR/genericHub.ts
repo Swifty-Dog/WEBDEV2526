@@ -1,0 +1,16 @@
+import { API_BASE_HUB } from "../../config/api";
+import { startConnection, subscribe, stopConnection } from "./signalRService";
+
+const GENERIC_HUB_URL = `${API_BASE_HUB}/genericHub`;
+
+export function startGenericHub() {
+    return startConnection(GENERIC_HUB_URL);
+}
+
+export function onEvent(eventName: string, callback: (...args: any[]) => void) {
+    return subscribe(GENERIC_HUB_URL, eventName, callback);
+}
+
+export function stopGenericHub() {
+    return stopConnection(GENERIC_HUB_URL);
+}

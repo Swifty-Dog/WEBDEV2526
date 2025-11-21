@@ -11,12 +11,14 @@ public class RoomBookingServiceTests
 {
     #region Setup
     private readonly Mock<IRoomBookingRepository> _roomBookingRepoMock;
+    private readonly Mock<IRoomRepository> _roomRepoMock;
     private readonly RoomBookingService _roomBookingService;
 
     public RoomBookingServiceTests()
     {
         _roomBookingRepoMock = new Mock<IRoomBookingRepository>();
-        _roomBookingService = new RoomBookingService(_roomBookingRepoMock.Object);
+        _roomRepoMock = new Mock<IRoomRepository>();
+        _roomBookingService = new RoomBookingService(_roomBookingRepoMock.Object, _roomRepoMock.Object);
     }
 
     #endregion
@@ -24,9 +26,9 @@ public class RoomBookingServiceTests
     #region Create
 
     [Theory]
-    [InlineData(1, 1, "2025-11-08", "10:00", "11:00")]
-    [InlineData(2, 3, "2025-11-08", "14:00", "15:30")]
-    public async Task CreateRoomBooking_ValidRequest_ReturnsSuccess(long roomId, long employeeId, string bookingDate, string startTime, string endTime)
+    [InlineData("Room A", 1, "2025-11-08", "10:00", "11:00")]
+    [InlineData("Room B", 3, "2025-11-08", "14:00", "15:30")]
+    public async Task CreateRoomBooking_ValidRequest_ReturnsSuccess(string roomName, long employeeId, string bookingDate, string startTime, string endTime)
     {
         // Arrange
         DateOnly date = DateOnly.Parse(bookingDate);
@@ -35,22 +37,32 @@ public class RoomBookingServiceTests
 
         var request = new CreateRoomBookingDto
         {
-            RoomId = roomId,
+            RoomName = roomName,
             BookingDate = date,
             StartTime = start,
             EndTime = end,
             Purpose = "Team Meeting"
         };
 
-        _roomBookingRepoMock.Setup(repo => repo.Create(It.IsAny<RoomBookingModel>())).ReturnsAsync(true);
+        _roomRepoMock.Setup(r => r.GetByName(roomName)).ReturnsAsync(new RoomModel { Id = 1, RoomName = roomName });
 
-        // Act
+        _roomBookingRepoMock
+            .Setup(r => r.GetOverlappingBooking(
+                It.IsAny<DateOnly>(),
+                It.IsAny<TimeOnly>(),
+                It.IsAny<TimeOnly>(),
+                It.IsAny<int>()))
+            .ReturnsAsync((RoomBookingModel?)null);
+
+        _roomBookingRepoMock
+            .Setup(repo => repo.Create(It.IsAny<RoomBookingModel>()))
+            .ReturnsAsync(true);
+
         var result = await _roomBookingService.CreateRoomBooking(request, employeeId);
 
         // Assert
-        Assert.IsType<CreateRoomBookingResult.Success>(result);
-        var successResult = result as CreateRoomBookingResult.Success;
-        Assert.Equal(roomId, successResult!.RoomBooking.RoomId);
+        var successResult = Assert.IsType<CreateRoomBookingResult.Success>(result);
+        Assert.Equal(roomName, successResult.RoomBooking.Room.RoomName);
         Assert.Equal(employeeId, successResult.RoomBooking.EmployeeId);
         Assert.Equal(start, successResult.RoomBooking.StartTime);
         Assert.Equal(end, successResult.RoomBooking.EndTime);
@@ -62,7 +74,7 @@ public class RoomBookingServiceTests
         // Arrange
         var request = new CreateRoomBookingDto
         {
-            RoomId = 1,
+            RoomName = "Room A",
             BookingDate = DateOnly.Parse("2025-11-08"),
             StartTime = TimeOnly.Parse("11:00"),
             EndTime = TimeOnly.Parse("10:00"),
@@ -82,16 +94,17 @@ public class RoomBookingServiceTests
         // Arrange
         var request = new CreateRoomBookingDto
         {
-            RoomId = 1,
+            RoomName = "Room A",
             BookingDate = DateOnly.Parse("2025-11-08"),
             StartTime = TimeOnly.Parse("10:00"),
             EndTime = TimeOnly.Parse("11:00"),
             Purpose = "Team Meeting"
         };
 
+        _roomRepoMock.Setup(r => r.GetByName("Room A")).ReturnsAsync(new RoomModel { Id = 1, RoomName = "Room A" });
         _roomBookingRepoMock
             .Setup(repo =>
-                repo.GetOverlappingBooking(request.BookingDate, request.StartTime, request.EndTime, request.RoomId))
+                repo.GetOverlappingBooking(request.BookingDate, request.StartTime, request.EndTime, 1))
             .ReturnsAsync(new RoomBookingModel());
 
         // Act
@@ -107,7 +120,7 @@ public class RoomBookingServiceTests
         // Arrange
         var request = new CreateRoomBookingDto
         {
-            RoomId = 1,
+            RoomName = "Room A",
             BookingDate = DateOnly.Parse("2025-11-08"),
             StartTime = TimeOnly.Parse("10:00"),
             EndTime = TimeOnly.Parse("11:00"),
@@ -116,7 +129,7 @@ public class RoomBookingServiceTests
 
         _roomBookingRepoMock
             .Setup(repo =>
-                repo.GetOverlappingBooking(request.BookingDate, request.StartTime, request.EndTime, request.RoomId))
+                repo.GetOverlappingBooking(request.BookingDate, request.StartTime, request.EndTime, It.IsAny<long>()))
             .ThrowsAsync(new Exception("Database error"));
 
         // Act

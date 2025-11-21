@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { RoomActions } from './RoomActions.tsx';
 import { RoomListModal } from './RoomListModal.tsx';
 import { RoomFormModal } from './RoomFormModal.tsx';
-import { useRooms } from '../../hooks/useRooms.ts';
+import { useRooms } from '../../hooks/Room/useRooms.ts';
 
 export const AdminRoomManagement: React.FC = () => {
     const { rooms, saveRoom, deleteRoom } = useRooms();
