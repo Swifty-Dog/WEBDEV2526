@@ -121,9 +121,6 @@ export const AdminDashboard: React.FC = () => {
                 <div>
                     <button className="header-button" onClick={openNew}>+ New Event</button>
                     <RegisterButton style={{ marginLeft: '0.5rem' }} />
-                </div>
-                <div>
-                    <button className="header-button" onClick={openNew}>+ New Event</button>
                     <PromoteDemoteButton style={{ marginLeft: '0.5rem' }} />
                 </div>
             </div>
