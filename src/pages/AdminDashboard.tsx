@@ -113,7 +113,7 @@ export const AdminDashboard: React.FC = () => {
                     <PromoteDemoteButton style={{ marginLeft: '0.5rem' }} />
                 </div>
             </div>
-
+            
             <section style={{ marginTop: '1rem' }}>
                 <h2 style={{ margin: '0 0 0.5rem 0' }}>Week view</h2>
                 {selectedDayISO && (
