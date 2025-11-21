@@ -1,11 +1,22 @@
-import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction } from 'react';
+import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/global.css';
+import { ApiPost } from '../components/ApiRequest';
 import '../styles/_components.css';
+import '../styles/global.css';
 
 interface LoginProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     setUserRole: Dispatch<SetStateAction<string | null>>;
+}
+
+interface LoginResponse {
+    employee: {
+        employeeId: number;
+        name: string;
+        email: string;
+        role: string;
+        token: string;
+    };
 }
 
 export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
@@ -32,36 +43,28 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
         }
 
         try {
-            const response = await fetch('http://localhost:5222/api/Employee/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            const token = localStorage.getItem('authToken');
+            const data: LoginResponse = await ApiPost<LoginResponse>(
+                '/Employee/login',
+                { email, password },
+                token ? { Authorization: `Bearer ${token}` } : undefined
+            );
 
-            if (response.ok) {
-                const data: { employee: { role: string; token: string }; token: string } = await response.json();
-                const token: string = data.token;
+            localStorage.setItem('authToken', data.employee.token);
+            const employeeRole: string = data.employee.role.trim().toLowerCase();
 
-                localStorage.setItem('authToken', token);
-                const employeeRole: string = data.employee.role.trim().toLowerCase();
+            setIsLoggedIn(true);
+            setUserRole(employeeRole);
 
-                setIsLoggedIn(true);
-                setUserRole(employeeRole);
+            navigate(employeeRole === 'admin' || employeeRole === 'manager' ? '/admin-dashboard' : '/dashboard');
 
-                if (employeeRole === 'admin' || employeeRole === 'manager') {
-                    navigate('/admin-dashboard');
-                } else {
-                    navigate('/dashboard');
-                }
-
+        } catch (error) {
+            if (error instanceof Error) {
+                setErrorMessage(error.message);
             } else {
-                const errorData = await response.json().catch(() => null);
-                setErrorMessage(errorData?.message || 'Login failed.');
+                setErrorMessage('An unknown error occurred.');
             }
-        } catch {
-            setErrorMessage('An error occurred while trying to log in.');
         }
-
     };
 
     return (

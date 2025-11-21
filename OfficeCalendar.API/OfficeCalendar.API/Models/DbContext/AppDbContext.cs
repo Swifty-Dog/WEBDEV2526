@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using OfficeCalendar.API.Configuration;
 
 namespace OfficeCalendar.API.Models.DbContext;
 
@@ -53,14 +54,12 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
                     dateTime => DateOnly.FromDateTime(dateTime));
 
             builder.Property(rBooking => rBooking.StartTime)
-                .HasConversion(
-                    timeOnly => timeOnly.ToTimeSpan(),
-                    timeSpan => TimeOnly.FromTimeSpan(timeSpan));
+                .HasConversion<TimeOnlyToStringConverter>()
+                .Metadata.SetValueComparer(new TimeOnlyComparer());
 
             builder.Property(rb => rb.EndTime)
-                .HasConversion(
-                    timeOnly => timeOnly.ToTimeSpan(),
-                    timeSpan => TimeOnly.FromTimeSpan(timeSpan));
+                .HasConversion<TimeOnlyToStringConverter>()
+                .Metadata.SetValueComparer(new TimeOnlyComparer());
         });
     }
 }
