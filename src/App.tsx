@@ -4,7 +4,7 @@ import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { Register } from './components/Register';
+import { Register } from './pages/Register.tsx';
 import {Rooms} from "./pages/Rooms.tsx";
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
