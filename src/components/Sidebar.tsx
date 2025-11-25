@@ -1,6 +1,7 @@
 import React from 'react';
 import { sidebarMenuItems, type MenuItem } from '../data/SidebarData.ts';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../config/ThemeContext';
 import '../styles/_layout.css';
 
 interface SidebarProps {
@@ -11,10 +12,13 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogout, userRole }) => {
+    const { setTheme } = useTheme();
     const sidebarClass = `sidebar ${isVisible ? 'visible' : ''}`;
 
     const handleLogoutClick = (e: React.MouseEvent) => {
-        e.preventDefault(); // Prevent default link behavior
+        e.preventDefault();
+        setTheme('Light');
+
         onLogout();
     };
 
