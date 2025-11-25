@@ -1,16 +1,18 @@
 import {type FC, type ReactNode, useState, useEffect, useCallback} from 'react';
-import { SettingsContext, type UserSettings, type FontSize, type AccentColor } from './SettingsContext';
+import { SettingsContext, type UserSettings, type FontSizeLabel, type AccentColor } from './SettingsContext';
+import { LANGUAGE_MAP } from '../data/SettingsOptions';
+import i18n from '../utils/i18n';
 
 interface Props {
     children: ReactNode;
     initialSettings?: Partial<UserSettings>;
 }
 
-const FONT_SCALES: Record<FontSize, string> = {
+const FONT_SCALES: Record<FontSizeLabel, string> = {
     Small: '14px',
     Medium: '16px',
     Large: '18px',
-    ExtraLarge: '20px'
+    "Extra Large": '20px'
 };
 
 const COLOR_PALETTES: Record<AccentColor, { primary: string; secondary: string; accent: string }> = {
@@ -52,6 +54,13 @@ export const SettingsProvider: FC<Props> = ({ children, initialSettings }) => {
             root.setProperty('--color-brand-accent', palette.accent);
         }
     }, [settings.accentColor]);
+
+    useEffect(() => {
+        const i18nCode = LANGUAGE_MAP[settings.language];
+        if (i18nCode) {
+            void i18n.changeLanguage(i18nCode);
+        }
+    }, [settings.language]);
 
     return (
         <SettingsContext.Provider value={{ ...settings, updateSettings }}>

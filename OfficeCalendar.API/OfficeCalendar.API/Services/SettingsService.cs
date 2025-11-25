@@ -49,7 +49,7 @@ public class SettingsService : ISettingsService
             {
                 SiteTheme = settings.SiteTheme,
                 AccentColor = settings.AccentColor,
-                FontSize = settings.FontSize,
+                FontSize = (int)settings.FontSize,
                 DefaultCalendarView = settings.DefaultCalendarView,
                 Language = settings.Language
             };

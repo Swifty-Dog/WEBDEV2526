@@ -12,3 +12,7 @@ export type DefaultCalendarViewOption = typeof DefaultCalendarViewOption[number]
 
 export const LanguageOption = ['English', 'Dutch'] as const;
 export type LanguageOption = typeof LanguageOption[number];
+export const LANGUAGE_MAP: Record<string, string> = {
+    'English': 'en',
+    'Dutch': 'nl'
+};

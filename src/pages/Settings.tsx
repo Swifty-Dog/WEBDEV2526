@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import { type SettingsResponse, useFetchSettings } from '../hooks/Settings/useFetchSettings';
 import { useSaveSettings } from '../hooks/Settings/useSaveSettings';
-import { type AccentColor, type FontSize, mapFontSizeToLabel, useSettings } from '../config/SettingsContext.ts';
+import { type AccentColor, type FontSizeLabel, mapFontSizeToLabel, useSettings } from '../config/SettingsContext.ts';
 import { useNavigationBlocker } from '../hooks/Settings/useNavigationBlocker';
 import { UnsavedChangesDialog } from '../components/Settings/UnsavedChangesDialog';
 import { SiteThemeOption, AccentColorOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../data/SettingsOptions';
@@ -12,9 +12,9 @@ export const Settings: React.FC = () => {
     const token = localStorage.getItem('authToken');
     const navigate = useNavigate();
 
-    const {settings, loading, error} = useFetchSettings(token);
+    const { settings, loading, error } = useFetchSettings(token);
     const [originalSettings, setOriginalSettings] = useState<SettingsResponse | null>(null);
-    const {saveSettings, loading: saving, error: saveError, success} = useSaveSettings(token);
+    const { saveSettings, loading: saving, error: saveError, success } = useSaveSettings(token);
     const { updateSettings } = useSettings();
 
     const [dirtySettings, setDirtySettings] = useState(false);
@@ -114,101 +114,120 @@ export const Settings: React.FC = () => {
     return (
         <div className="panel-fancy-borders">
             <div className="section-card">
-                <h1 className="titling" style={{marginTop: 0}}>Instellingen</h1>
+                <h1 className="titling" style={{ marginTop: 0 }}>Instellingen</h1>
 
-                {saveError && <p className="error-message">{saveError}</p>}
-                {success && <p className="success-message">{success}</p>}
+                <div className="form-container">
+                    <div className="form-fields">
 
-                <div className="settings-row">
-                    <label>Site Theme:</label>
-                    <select
-                        value={siteTheme}
-                        onChange={e => {
-                            const newTheme = e.target.value as SiteThemeOption;
-                            setSiteTheme(newTheme);
-                            updateSettings({ theme: newTheme });
-                            setDirtySettings(true);
-                        }}
-                    >
-                        {SiteThemeOption.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
+                        <div className="form-row">
+                            <label htmlFor="siteTheme">Site Theme</label>
+                            <select
+                                id="siteTheme"
+                                className="booking-input"
+                                value={siteTheme}
+                                onChange={e => {
+                                    const newTheme = e.target.value as SiteThemeOption;
+                                    setSiteTheme(newTheme);
+                                    updateSettings({ theme: newTheme });
+                                    setDirtySettings(true);
+                                }}
+                            >
+                                {SiteThemeOption.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="form-row">
+                            <label htmlFor="accentColor">User Theme</label>
+                            <select
+                                id="accentColor"
+                                className="booking-input"
+                                value={accentColor}
+                                onChange={e => {
+                                    const newAccentColor = e.target.value as AccentColorOption;
+                                    setAccentColor(newAccentColor);
+                                    updateSettings({ accentColor: newAccentColor as AccentColor });
+                                    setDirtySettings(true);
+                                }}
+                            >
+                                {AccentColorOption.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="form-row">
+                            <label htmlFor="fontSize">Font Size</label>
+                            <select
+                                id="fontSize"
+                                className="booking-input"
+                                value={fontSize}
+                                onChange={e => {
+                                    const newFontSize = Number(e.target.value) as FontSizeOption;
+                                    setFontSize(newFontSize);
+                                    updateSettings({ fontSize: mapFontSizeToLabel(newFontSize) as FontSizeLabel });
+                                    setDirtySettings(true);
+                                }}
+                            >
+                                {FontSizeOption.map(size => (
+                                    <option key={size} value={size}>
+                                        {mapFontSizeToLabel(size)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="form-row">
+                            <label htmlFor="calendarView">Default Calendar View</label>
+                            <select
+                                id="calendarView"
+                                className="booking-input"
+                                value={defaultCalendarView}
+                                onChange={e => {
+                                    setCalendarView(e.target.value as DefaultCalendarViewOption);
+                                    setDirtySettings(true);
+                                }}
+                            >
+                                {DefaultCalendarViewOption.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="form-row">
+                            <label htmlFor="language">Language</label>
+                            <select
+                                id="language"
+                                className="booking-input"
+                                value={language}
+                                onChange={e => {
+                                    const newLang = e.target.value as LanguageOption;
+                                    setLanguage(newLang);
+                                    updateSettings({ language: newLang });
+                                    setDirtySettings(true);
+                                }}
+                            >
+                                {LanguageOption.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="form-footer">
+                        {saveError && <p className="error-message">{saveError}</p>}
+                        {success && <p className="success-message">{success}</p>}
+
+                        <button
+                            className="button-primary full-width-button"
+                            onClick={handleSave}
+                            disabled={saving}
+                        >
+                            {saving ? 'Saving...' : 'Save Settings'}
+                        </button>
+                    </div>
                 </div>
-
-                <div className="settings-row">
-                    <label>User Theme:</label>
-                    <select
-                        value={accentColor}
-                        onChange={e => {
-                            const newAccentColor = e.target.value as AccentColorOption;
-                            setAccentColor(newAccentColor);
-                            updateSettings({ accentColor: newAccentColor as AccentColor });
-                            setDirtySettings(true);
-                        }}
-                    >
-                        {AccentColorOption.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="settings-row">
-                    <label>Font Size:</label>
-                    <select
-                        value={fontSize}
-                        onChange={e => {
-                            const newFontSize = Number(e.target.value) as FontSizeOption;
-                            setFontSize(newFontSize);
-                            updateSettings({ fontSize: mapFontSizeToLabel(newFontSize) as FontSize });
-                            setDirtySettings(true);
-                        }}
-                    >
-                        {FontSizeOption.map(size => (
-                            <option key={size} value={size}>
-                                {size === 14 ? "Small" : size === 16 ? "Medium" : size === 18 ? "Large" : "Extra Large"}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="settings-row">
-                    <label>Default Calendar View:</label>
-                    <select
-                        value={defaultCalendarView}
-                        onChange={e => {
-                            setCalendarView(e.target.value as DefaultCalendarViewOption);
-                            setDirtySettings(true);
-                        }}
-                    >
-                        {DefaultCalendarViewOption.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="settings-row">
-                    <label>Language:</label>
-                    <select
-                        value={language}
-                        onChange={e => {
-                            setLanguage(e.target.value as LanguageOption);
-                            setDirtySettings(true);
-                        }}
-                    >
-                        {LanguageOption.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <button
-                    className="button-primary"
-                    onClick={handleSave}
-                    disabled={saving}
-                >
-                    {saving ? 'Saving...' : 'Save Settings'}
-                </button>
             </div>
 
             {showDialog && (

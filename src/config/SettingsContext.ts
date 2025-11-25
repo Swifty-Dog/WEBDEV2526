@@ -1,14 +1,15 @@
 import { createContext, useContext } from 'react';
+import type { SiteThemeOption, AccentColorOption, DefaultCalendarViewOption, LanguageOption } from '../data/SettingsOptions';
 
-export type Theme = 'Light' | 'Dark';
-export type FontSize = 'Small' | 'Medium' | 'Large' | 'ExtraLarge';
-export type AccentColor = 'Blue' | 'Purple' | 'Orange' | 'Yellow';
-export type DefaultCalendarView = 'Week' | 'Month';
-export type Language = 'English' | 'Dutch';
+export type Theme = SiteThemeOption;
+export type FontSizeLabel = 'Small' | 'Medium' | 'Large' | 'Extra Large';
+export type AccentColor = AccentColorOption;
+export type DefaultCalendarView = DefaultCalendarViewOption;
+export type Language = LanguageOption;
 
 export interface UserSettings {
     theme: Theme;
-    fontSize: FontSize;
+    fontSize: FontSizeLabel;
     accentColor: AccentColor;
     defaultCalendarView: DefaultCalendarView;
     language: Language;
@@ -29,11 +30,11 @@ export const SettingsContext = createContext<UserSettingsContextProps>({
 
 export const useSettings = () => useContext(SettingsContext);
 
-export const mapFontSizeToLabel = (size: number): FontSize => {
+export const mapFontSizeToLabel = (size: number): FontSizeLabel => {
     switch (size) {
         case 14: return 'Small';
         case 18: return 'Large';
-        case 20: return 'ExtraLarge';
+        case 20: return 'Extra Large';
         default: return 'Medium';
     }
 };
