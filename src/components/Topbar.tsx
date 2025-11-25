@@ -9,7 +9,7 @@ interface TopBarProps {
     toggleSidebar: (() => void) | undefined;
 }
 
-export const Topbar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn, toggleSidebar }) => {
+export const Topbar: FC<TopBarProps> = ({ isLoggedIn, toggleSidebar }) => {
     const navigate = useNavigate();
 
     const handleLoginClick = () => {
