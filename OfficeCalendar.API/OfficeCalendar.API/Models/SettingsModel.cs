@@ -9,7 +9,7 @@ public enum SiteThemeOption
     Dark
 }
 
-public enum UserThemeOption
+public enum AccentColorOption
 {
     Blue,
     Purple,
@@ -49,7 +49,7 @@ public class SettingsModel
     public SiteThemeOption SiteTheme { get; set; } = DefaultSiteTheme;
 
     [Required]
-    public UserThemeOption UserTheme { get; set; } = DefaultUserTheme;
+    public AccentColorOption AccentColor { get; set; } = DefaultAccentColor;
 
     [Required]
     public FontSizeOption FontSize { get; set; } = DefaultFontSize;
@@ -61,7 +61,7 @@ public class SettingsModel
     public LanguageOption Language { get; set; } = DefaultLanguage;
 
     public const SiteThemeOption DefaultSiteTheme = SiteThemeOption.Light;
-    public const UserThemeOption DefaultUserTheme = UserThemeOption.Blue;
+    public const AccentColorOption DefaultAccentColor = AccentColorOption.Blue;
     public const FontSizeOption DefaultFontSize = FontSizeOption.Medium;
     public const DefaultCalendarViewOption DefaultDefaultCalendarView = DefaultCalendarViewOption.Week;
     public const LanguageOption DefaultLanguage = LanguageOption.English;

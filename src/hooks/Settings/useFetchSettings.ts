@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ApiGet } from '../../components/ApiRequest';
-import { SiteThemeOption, UserThemeOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../../data/SettingsOptions';
+import { SiteThemeOption, AccentColorOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../../data/SettingsOptions';
 
 export interface SettingsResponse {
     siteTheme: SiteThemeOption;
-    userTheme: UserThemeOption;
+    accentColor: AccentColorOption;
     fontSize: FontSizeOption;
     defaultCalendarView: DefaultCalendarViewOption;
     language: LanguageOption;

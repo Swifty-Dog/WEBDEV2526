@@ -1,6 +1,12 @@
 :root {
-    font-size: 16px;
+    /* DEFAULT VALUES (Overwritten by SettingsProvider.tsx) */
+    --base-font-size: 16px;
 
+    --color-brand-primary: #6bc2df;
+    --color-brand-secondary: #4faccc;
+    --color-brand-accent: #0078d4;
+
+    /* Others */
     --border-radius-main: 0.7rem;
     --sidebar-width: 20rem;
     --upper-header-height: 7rem;
@@ -9,15 +15,25 @@
 
     --color-shadow-subtle: rgba(0, 0, 0, 0.4);
 
-    --color-brand-primary: #6BC2DF;
-    --color-brand-secondary: #4faccc;
-    --color-brand-accent: #0078d4;
-    --color-brand-accent-hover: #004578;
-    --color-brand-accent-active: #01386e;
+    --color-brand-accent-hover: color-mix(in srgb, var(--color-brand-accent), black 20%);
+    --color-brand-accent-active: color-mix(in srgb, var(--color-brand-accent), black 40%);
 
-    --color-button-interact-bg: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-secondary) 100%);
-    --color-button-interact-bg-hover: linear-gradient(135deg, color-mix(in srgb, var(--color-brand-primary) 80%, black) 0%, color-mix(in srgb, var(--color-brand-secondary) 80%, black) 100%);
-    --color-button-interact-bg-active: linear-gradient(135deg, color-mix(in srgb, var(--color-brand-primary) 60%, black) 0%, color-mix(in srgb, var(--color-brand-secondary) 60%, black) 100%);
+    --color-button-interact-bg: linear-gradient(
+            135deg,
+            var(--color-brand-primary) 0%,
+            var(--color-brand-secondary) 100%
+    );
+    --color-button-interact-bg-hover: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-brand-primary), black 10%) 0%,
+            color-mix(in srgb, var(--color-brand-secondary), black 10%) 100%
+    );
+
+    --color-button-interact-bg-active: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-brand-primary), black 20%) 0%,
+            color-mix(in srgb, var(--color-brand-secondary), black 20%) 100%
+    );
 
     --color-highlight-primary: #ff6b6b;
     --color-highlight-secondary: #e55555;
@@ -84,6 +100,8 @@ body.Dark {
 html, body {
     height: 100%;
     margin: 0;
+    font-size: var(--base-font-size);
+    transition: font-size 0.2s ease;
 }
 
 body {

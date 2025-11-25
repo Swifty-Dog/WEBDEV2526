@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import { type SettingsResponse, useFetchSettings } from '../hooks/Settings/useFetchSettings';
 import { useSaveSettings } from '../hooks/Settings/useSaveSettings';
-import { useTheme } from '../config/ThemeContext';
+import { type AccentColor, type FontSize, mapFontSizeToLabel, useSettings } from '../config/SettingsContext.ts';
 import { useNavigationBlocker } from '../hooks/Settings/useNavigationBlocker';
 import { UnsavedChangesDialog } from '../components/Settings/UnsavedChangesDialog';
-import { SiteThemeOption, UserThemeOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../data/SettingsOptions';
+import { SiteThemeOption, AccentColorOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../data/SettingsOptions';
 import '../styles/_components.css';
 
 export const Settings: React.FC = () => {
@@ -15,14 +15,14 @@ export const Settings: React.FC = () => {
     const {settings, loading, error} = useFetchSettings(token);
     const [originalSettings, setOriginalSettings] = useState<SettingsResponse | null>(null);
     const {saveSettings, loading: saving, error: saveError, success} = useSaveSettings(token);
-    const {setTheme} = useTheme();
+    const { updateSettings } = useSettings();
 
     const [dirtySettings, setDirtySettings] = useState(false);
     const [showDialog, setShowDialog] = useState(false);
     const [nextLocation, setNextLocation] = useState<string | null>(null);
 
     const [siteTheme, setSiteTheme] = useState<SiteThemeOption>('Light');
-    const [userTheme, setUserTheme] = useState<UserThemeOption>('Blue');
+    const [accentColor, setAccentColor] = useState<AccentColorOption>('Blue');
     const [fontSize, setFontSize] = useState<FontSizeOption>(16);
     const [defaultCalendarView, setCalendarView] = useState<DefaultCalendarViewOption>('Week');
     const [language, setLanguage] = useState<LanguageOption>('English');
@@ -31,7 +31,7 @@ export const Settings: React.FC = () => {
         if (settings && !originalSettings) {
             setOriginalSettings(settings);
             setSiteTheme(settings.siteTheme);
-            setUserTheme(settings.userTheme);
+            setAccentColor(settings.accentColor);
             setFontSize(settings.fontSize);
             setCalendarView(settings.defaultCalendarView);
             setLanguage(settings.language);
@@ -63,14 +63,40 @@ export const Settings: React.FC = () => {
         }
     }, [dirtySettings, nextLocation, navigate]);
 
+    const handleSave = async () => {
+        try {
+            const payload: SettingsResponse = {
+                siteTheme,
+                accentColor,
+                fontSize: Number(fontSize) as FontSizeOption,
+                defaultCalendarView,
+                language
+            };
+
+            await saveSettings(payload);
+            setDirtySettings(false);
+            setOriginalSettings(payload);
+
+        } catch (err) {
+            console.error("Failed to save settings:", err);
+        }
+    };
+
     const confirmLeave = () => {
         if (originalSettings) {
             setSiteTheme(originalSettings.siteTheme);
-            setUserTheme(originalSettings.userTheme);
+            setAccentColor(originalSettings.accentColor);
             setFontSize(originalSettings.fontSize);
             setCalendarView(originalSettings.defaultCalendarView);
             setLanguage(originalSettings.language);
-            setTheme(originalSettings.siteTheme);
+
+            updateSettings({
+                theme: originalSettings.siteTheme,
+                accentColor: originalSettings.accentColor as AccentColor,
+                fontSize: mapFontSizeToLabel(originalSettings.fontSize),
+                defaultCalendarView: originalSettings.defaultCalendarView,
+                language: originalSettings.language
+            });
         }
 
         setDirtySettings(false);
@@ -100,7 +126,7 @@ export const Settings: React.FC = () => {
                         onChange={e => {
                             const newTheme = e.target.value as SiteThemeOption;
                             setSiteTheme(newTheme);
-                            setTheme(newTheme);
+                            updateSettings({ theme: newTheme });
                             setDirtySettings(true);
                         }}
                     >
@@ -113,13 +139,15 @@ export const Settings: React.FC = () => {
                 <div className="settings-row">
                     <label>User Theme:</label>
                     <select
-                        value={userTheme}
+                        value={accentColor}
                         onChange={e => {
-                            setUserTheme(e.target.value as UserThemeOption);
+                            const newAccentColor = e.target.value as AccentColorOption;
+                            setAccentColor(newAccentColor);
+                            updateSettings({ accentColor: newAccentColor as AccentColor });
                             setDirtySettings(true);
                         }}
                     >
-                        {UserThemeOption.map(opt => (
+                        {AccentColorOption.map(opt => (
                             <option key={opt} value={opt}>{opt}</option>
                         ))}
                     </select>
@@ -130,7 +158,9 @@ export const Settings: React.FC = () => {
                     <select
                         value={fontSize}
                         onChange={e => {
-                            setFontSize(Number(e.target.value) as FontSizeOption);
+                            const newFontSize = Number(e.target.value) as FontSizeOption;
+                            setFontSize(newFontSize);
+                            updateSettings({ fontSize: mapFontSizeToLabel(newFontSize) as FontSize });
                             setDirtySettings(true);
                         }}
                     >
@@ -174,10 +204,7 @@ export const Settings: React.FC = () => {
 
                 <button
                     className="button-primary"
-                    onClick={() => {
-                        saveSettings({siteTheme, userTheme, fontSize, defaultCalendarView, language});
-                        setDirtySettings(false);
-                    }}
+                    onClick={handleSave}
                     disabled={saving}
                 >
                     {saving ? 'Saving...' : 'Save Settings'}

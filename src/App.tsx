@@ -1,4 +1,4 @@
-import React, {type Dispatch, type SetStateAction, useEffect, useState} from 'react';
+import React, { type Dispatch, type SetStateAction, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { About } from './pages/About';
 import { Login } from './pages/Login';
@@ -11,9 +11,9 @@ import { Settings } from './pages/Settings';
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { ThemeProvider } from './config/ThemeProvider';
-import { useTheme } from './config/ThemeContext';
-import {type SettingsResponse, useFetchSettings} from './hooks/Settings/useFetchSettings';
+import { SettingsProvider } from './config/SettingsProvider.tsx';
+import { type AccentColor, mapFontSizeToLabel, type UserSettings } from './config/SettingsContext';
+import { useFetchSettings } from './hooks/Settings/useFetchSettings';
 import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
@@ -24,20 +24,25 @@ export function App() {
     const token = localStorage.getItem('authToken');
     const { settings, loading } = useFetchSettings(token);
 
+    const initialSettings: Partial<UserSettings> | undefined = settings ? {
+        theme: settings.siteTheme,
+        fontSize: mapFontSizeToLabel(settings.fontSize),
+        accentColor: (settings.accentColor) as AccentColor,
+        defaultCalendarView: settings.defaultCalendarView,
+        language: settings.language
+    } : undefined;
+
     if (loading && isLoggedIn) return <div>Loading user settings...</div>;
-    const initialTheme = settings?.siteTheme ?? 'Light';
 
     return (
-        <ThemeProvider initialTheme={initialTheme}>
+        <SettingsProvider initialSettings={initialSettings}>
             <AppInner
                 isLoggedIn={isLoggedIn}
                 setIsLoggedIn={setIsLoggedIn}
                 userRole={userRole}
                 setUserRole={setUserRole}
-                settings={settings}
-                loading={loading}
             />
-        </ThemeProvider>
+        </SettingsProvider>
     );
 }
 
@@ -46,21 +51,9 @@ interface AppInnerProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     userRole: string | null;
     setUserRole: Dispatch<SetStateAction<string | null>>;
-    settings: SettingsResponse | null;
-    loading: boolean;
 }
 
-const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole, setUserRole, settings, loading}) => {
-    const { setTheme } = useTheme();
-
-    useEffect(() => {
-        if (settings?.siteTheme) {
-            setTheme(settings.siteTheme);
-        }
-    }, [settings, setTheme]);
-
-    if (loading && isLoggedIn) return <div>Loading user settings...</div>;
-
+const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole, setUserRole}) => {
     return (
         <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole}>
             <Routes>

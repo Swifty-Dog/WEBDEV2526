@@ -48,7 +48,7 @@ public class SettingsService : ISettingsService
             var settingsDto = new SettingsDto
             {
                 SiteTheme = settings.SiteTheme,
-                UserTheme = settings.UserTheme,
+                AccentColor = settings.AccentColor,
                 FontSize = settings.FontSize,
                 DefaultCalendarView = settings.DefaultCalendarView,
                 Language = settings.Language
@@ -78,7 +78,7 @@ public class SettingsService : ISettingsService
                 return new UpdateSettingsResult.NotFound();
 
             settings.SiteTheme = update.SiteTheme ?? settings.SiteTheme;
-            settings.UserTheme = update.UserTheme ?? settings.UserTheme;
+            settings.AccentColor = update.AccentColor ?? settings.AccentColor;
             settings.FontSize = update.FontSize ?? settings.FontSize;
             settings.DefaultCalendarView = update.DefaultCalendarView ?? settings.DefaultCalendarView;
             settings.Language = update.Language ?? settings.Language;
@@ -98,7 +98,7 @@ public class SettingsService : ISettingsService
         {
             EmployeeId = employeeId,
             SiteTheme = SettingsModel.DefaultSiteTheme,
-            UserTheme = SettingsModel.DefaultUserTheme,
+            AccentColor = SettingsModel.DefaultAccentColor,
             FontSize = SettingsModel.DefaultFontSize,
             DefaultCalendarView = SettingsModel.DefaultDefaultCalendarView,
             Language = SettingsModel.DefaultLanguage
