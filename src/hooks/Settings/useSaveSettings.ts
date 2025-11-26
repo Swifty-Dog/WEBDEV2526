@@ -3,11 +3,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../utils/i18n';
 import { ApiPut } from '../../components/ApiRequest';
 import { type SettingsResponse } from './useFetchSettings';
-
-interface ApiErrorData {
-    message?: string;
-    arguments?: Record<string, string>;
-}
+import { type ApiErrorData } from '../../utils/types';
 
 export const useSaveSettings = (token: string | null) => {
     const { t } = useTranslation('settings');
@@ -39,12 +35,18 @@ export const useSaveSettings = (token: string | null) => {
             setSuccess(t('saveSettings.messageSuccess'));
             setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            const errorObject = err as { response?: { data: ApiErrorData } };
+            const errorObject = err as Error;
             let errorMessage: string;
 
-            if (errorObject?.response?.data?.message) {
-                errorMessage = translateApiError(errorObject.response.data, t);
-            } else {
+            try {
+                const structuredData = JSON.parse(errorObject.message);
+
+                if (structuredData?.message) {
+                    errorMessage = translateApiError(structuredData as ApiErrorData, t);
+                } else {
+                    errorMessage = t('saveSettings.messageFailDefault');
+                }
+            } catch {
                 errorMessage = t('saveSettings.messageFailDefault');
             }
 

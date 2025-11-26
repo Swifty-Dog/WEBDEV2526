@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '../config/api';
-import type { ErrorResponse } from '../utils/types';
+import type { ApiErrorData } from '../utils/types';
 
 type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE';
 
@@ -15,6 +15,8 @@ async function apiRequest<T>(
         method,
         headers: {
             'Content-Type': 'application/json',
+            // If there are extra headers, include them here.
+            // I.e. a translation header if we change how server-side translations work. Currently not used.
             ...extraHeaders,
         },
         body: body ? JSON.stringify(body) : undefined,
@@ -30,9 +32,18 @@ async function apiRequest<T>(
     }
 
     if (!response.ok) {
-        const errorData = data as ErrorResponse;
-        const errorMessage = errorData?.message || `Request failed with status ${response.status}`;
-        throw new Error(errorMessage);
+        const errorData = data as ApiErrorData;
+
+        if (errorData?.message) {
+            const structuredError = JSON.stringify({
+                message: errorData.message,
+                arguments: errorData.arguments
+            });
+
+            throw new Error(structuredError);
+        }
+
+        throw new Error(`Request failed with status ${response.status}`);
     }
 
     return data as T;
