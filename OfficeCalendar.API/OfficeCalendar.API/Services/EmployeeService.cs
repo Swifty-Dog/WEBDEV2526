@@ -33,7 +33,7 @@ public class EmployeeService : IEmployeeService
     public async Task<GetEmployeeResult> GetEmployeeById(long id)
     {
         if (id <= 0)
-            return new GetEmployeeResult.InvalidData("The id cannot be 0 or negative.");
+            return new GetEmployeeResult.InvalidData("general.API_ErrorInvalidData");
 
         try
         {
@@ -42,16 +42,16 @@ public class EmployeeService : IEmployeeService
                 return new GetEmployeeResult.NotFound();
             return new GetEmployeeResult.Success(employee);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetEmployeeResult.Error($"An error occurred while retrieving the employee: {ex.Message}");
+            return new GetEmployeeResult.Error("general.API_ErrorUnexpected");
         }
     }
 
     public async Task<GetEmployeeResult> GetEmployeeByEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
-            return new GetEmployeeResult.InvalidData("Email is required.");
+            return new GetEmployeeResult.InvalidData("employees.API_ErrorEmailRequired");
 
         try
         {
@@ -60,9 +60,9 @@ public class EmployeeService : IEmployeeService
                 return new GetEmployeeResult.NotFound();
             return new GetEmployeeResult.Success(employee);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetEmployeeResult.Error($"An error occurred while retrieving the employee: {ex.Message}");
+            return new GetEmployeeResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -71,12 +71,12 @@ public class EmployeeService : IEmployeeService
         if (string.IsNullOrWhiteSpace(dto.Email))
         {
             if (string.IsNullOrWhiteSpace(dto.Password))
-                return new LoginResult.InvalidCredentials("Email and password are required.");
-            return new LoginResult.InvalidCredentials("Email is required.");
+                return new LoginResult.InvalidCredentials("employees.API_ErrorEmailPasswordRequired");
+            return new LoginResult.InvalidCredentials("employees.API_ErrorEmailRequired");
         }
 
         if (string.IsNullOrWhiteSpace(dto.Password))
-            return new LoginResult.InvalidCredentials("Password is required.");
+            return new LoginResult.InvalidCredentials("employees.API_ErrorPasswordRequired");
 
         try
         {
@@ -91,11 +91,11 @@ public class EmployeeService : IEmployeeService
 
             var verification = _hasher.VerifyHashedPassword(employee, employee.PasswordHash, dto.Password);
             if (verification == PasswordVerificationResult.Failed)
-                return new LoginResult.InvalidCredentials("Invalid email or password.");
+                return new LoginResult.InvalidCredentials("employees.API_ErrorLoginInvalid");
 
             var tokenResult = _tokens.GenerateToken(employee);
-            if (tokenResult is CreateJwtResult.ConfigError error)
-                return new LoginResult.Error($"Token generation failed: {error.Message}");
+            if (tokenResult is CreateJwtResult.ConfigError)
+                return new LoginResult.Error("employees.API_ErrorTokenConfig");
 
             var response = new AuthDto
             {
@@ -108,9 +108,9 @@ public class EmployeeService : IEmployeeService
 
             return new LoginResult.Success(response);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new LoginResult.Error($"An error occurred while validating login: {ex.Message}");
+            return new LoginResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -124,7 +124,7 @@ public class EmployeeService : IEmployeeService
             {
                 var existing = await GetEmployeeByEmail(employee.Email);
                 if (existing is GetEmployeeResult.Success)
-                    throw new InvalidOperationException("Email already exists.");
+                    throw new InvalidOperationException("employees.API_ErrorEmailExists");
 
                 var createdEmployee = new EmployeeModel
                 {
@@ -135,11 +135,11 @@ public class EmployeeService : IEmployeeService
                 };
 
                 var created = await _employeeRepo.Create(createdEmployee);
-                if (!created) throw new Exception("Failed to create employee.");
+                if (!created) throw new Exception("employees.API_ErrorCreateFailed");
 
                 var settingsResult = await _settings.CreateSettingsForNewUser(createdEmployee.Id);
                 if (settingsResult is CreateSettingsResult.Error error)
-                    throw new Exception($"Failed to create settings: {error.Message}");
+                    throw new Exception(error.Message);
 
                 return createdEmployee;
             });
@@ -151,9 +151,9 @@ public class EmployeeService : IEmployeeService
             return new RegisterResult.EmailAlreadyExists();
         }
 
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new RegisterResult.Error($"An error occurred while registering the employee: {ex.Message}");
+            return new RegisterResult.Error("general.API_ErrorUnexpected");
         }
     }
 }

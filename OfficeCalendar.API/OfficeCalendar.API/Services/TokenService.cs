@@ -24,7 +24,7 @@ public class TokenService : ITokenService
         var audience = _config["Jwt:Audience"] ?? "OfficeCalendarUsers";
 
         if (string.IsNullOrEmpty(secretKey))
-            return new CreateJwtResult.ConfigError("JWT secret key is not configured.");
+            return new CreateJwtResult.ConfigError("employees.API_ErrorTokenConfig");
 
         var claims = new List<Claim>
         {

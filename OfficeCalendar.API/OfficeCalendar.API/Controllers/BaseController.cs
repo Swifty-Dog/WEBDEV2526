@@ -21,7 +21,7 @@ public abstract class BaseController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
         if (userIdClaim is null || !long.TryParse(userIdClaim.Value, out long userId))
-            throw new InvalidOperationException("User ID claim is missing or invalid in the token.");
+            throw new InvalidOperationException("employees.API_ErrorUserIdMissing");
 
         return userId;
     }
@@ -32,7 +32,7 @@ public abstract class BaseController : ControllerBase
         var userResult = await EmployeeService.GetEmployeeById(userId);
 
         if (userResult is not GetEmployeeResult.Success success)
-            throw new UnauthorizedAccessException("Authenticated user record not found.");
+            throw new UnauthorizedAccessException("employees.API_ErrorAuthRecordNotFound");
 
         return success.Employee;
     }
