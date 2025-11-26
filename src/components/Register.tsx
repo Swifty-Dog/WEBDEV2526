@@ -15,7 +15,7 @@ const translateApiError = (data: ApiErrorData, fallbackT: typeof i18n.t): string
         return i18n.t(fullKey, interpolationData);
     }
 
-    return fallbackT('register.networkError');
+    return fallbackT('general.networkError');
 };
 
 export const Register: React.FC = () => {
@@ -37,23 +37,40 @@ export const Register: React.FC = () => {
         setSuccessMessage(null);
 
         const requiredFields: { field: string, value: string, labelKey: string }[] = [
-            { field: 'Email', value: email, labelKey: 'register.labelEmail' },
-            { field: 'Password', value: password, labelKey: 'register.labelPassword' },
-            { field: 'FirstName', value: firstName, labelKey: 'register.labelFirstName' },
-            { field: 'LastName', value: lastName, labelKey: 'register.labelLastName' },
+            { field: 'FirstName', value: firstName, labelKey: 'form.labelFirstName' },
+            { field: 'LastName', value: lastName, labelKey: 'form.labelLastName' },
+            { field: 'Email', value: email, labelKey: 'form.labelEmail' },
+            { field: 'Password', value: password, labelKey: 'form.labelPassword' },
         ];
 
         const missing = requiredFields.filter(f => f.value === '');
         if (missing.length > 0) {
-            const missingLabels = missing.map(f => t(f.labelKey)).join(', ');
+            const missingLabels = missing.map(f => t(f.labelKey).toLowerCase());
 
-            alert(t('register.alertRequired', { fields: missingLabels }));
+            const listSeparator = t('general.listSeparator').toLowerCase().trim();
+
+            let formattedList: string;
+
+            if (missingLabels.length === 1) {
+                formattedList = missingLabels[0];
+            } else {
+                const last = missingLabels.pop();
+                formattedList = missingLabels.join(', ') + ' ' + listSeparator + ' ' + last;
+            }
+
+            const alertMessage = t('form.alertRequired', {
+                fields: formattedList,
+                count: missing.length
+            });
+
+            const capitalized = alertMessage.charAt(0).toUpperCase() + alertMessage.slice(1);
+            alert(capitalized);
             return;
         }
 
         if (password !== passwordConfirm)
         {
-            alert(t('register.alertPasswordMismatch'));
+            alert(t('form.alertPasswordMismatch'));
             return;
         }
 
@@ -64,7 +81,7 @@ export const Register: React.FC = () => {
                 { FirstName: firstName, LastName: lastName, Email: email, Password: password }
             );
 
-            setSuccessMessage(t('register.success'));
+            setSuccessMessage(t('form.success'));
 
             setEmail('');
             setPassword('');
@@ -81,10 +98,10 @@ export const Register: React.FC = () => {
                 if (structuredData?.message) {
                     errorMessage = translateApiError(structuredData as ApiErrorData, i18n.t);
                 } else {
-                    errorMessage = t('register.networkError');
+                    errorMessage = t('general.networkError');
                 }
             } catch {
-                errorMessage = t('register.networkError');
+                errorMessage = t('general.networkError');
             }
 
             setErrorMessage(errorMessage);
@@ -96,26 +113,26 @@ export const Register: React.FC = () => {
     return (
         <form onSubmit={handleSubmit} className="login">
                 <input id="firstName" name="firstName" value={firstName} onChange={e => setFirstName(e.target.value)}
-                className="login-input" placeholder="First Name" />
+                className="login-input" placeholder={t('form.labelFirstName')} />
 
                 <input id="lastName" name="lastName" value={lastName} onChange={e => setLastName(e.target.value)}
-                className="login-input" placeholder="Last name" />
+                className="login-input" placeholder={t('form.labelLastName')} />
 
                 <input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
-                className="login-input" placeholder="Email"/>
+                className="login-input" placeholder={t('form.labelEmail')} />
 
                 <input id="password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
-                className="login-input" placeholder="Password" />
+                className="login-input" placeholder={t('form.labelPassword')} />
 
                 <input id="password-confirm" name="password-confirm" type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)}
-                className="login-input" placeholder="Password confirmation" />
+                className="login-input" placeholder={t('form.labelPasswordConfirm')} />
 
                 {errorMessage && <div className="error-message">{errorMessage}</div>}
                 {successMessage && <div className="success-message">{successMessage}</div>}
 
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <button type="submit" className="button-primary" disabled={isLoading}>{isLoading ? 'Registering...' : 'Register'}</button>
-                    <button type="button" className="button-primary" onClick={() => navigate(-1)}>Cancel</button>
+                    <button type="submit" className="button-primary" disabled={isLoading}>{isLoading ? t('form.labelRegistering') : t('general.buttonRegister')}</button>
+                    <button type="button" className="button-primary" onClick={() => navigate(-1)}>{t('general.buttonCancel')}</button>
                 </div>
         </form>
     );

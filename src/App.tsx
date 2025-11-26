@@ -1,6 +1,5 @@
 import React, { type Dispatch, type SetStateAction, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { About } from './pages/About';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -57,7 +56,6 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
     return (
         <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole}>
             <Routes>
-                <Route path="/about" element={<About />} />
                 <Route
                     path="/login"
                     element={

@@ -12,13 +12,48 @@
     "buttonCreate": "Create",
     "buttonEdit": "Edit",
     "buttonDelete": "Delete",
+    "buttonHome": "Go to Home",
     "buttonSave": "Save",
+    "buttonSaving": "Saving...",
     "buttonStay": "Stay",
     "buttonLogin": "Login",
     "buttonRegister": "Register",
     "buttonLeaveAnyway": "Leave Anyway",
     "confirmTitle": "Unsaved Changes",
-    "confirmMessage": "You have unsaved changes. Are you sure you want to leave?"
+    "confirmMessage": "You have unsaved changes. Are you sure you want to leave?",
+    "clearFilter": "Clear Filter",
+    "listSeparator": "and",
+    "networkError": "Network error"
+  },
+  "form": {
+    "placeholderEmail": "Email",
+    "placeholderPassword": "Password",
+    "alertRequired_one": "{{fields}} is required.",
+    "alertRequired_other": "{{fields}} are required.",
+    "alertPasswordMismatch": "Passwords do not match.",
+    "registerSuccess": "Registration successful!",
+    "failDefault": "Registration failed. Please try again.",
+    "labelEmail": "Email",
+    "labelPassword": "Password",
+    "labelPasswordConfirm": "Confirm Password",
+    "labelFirstName": "First Name",
+    "labelLastName": "Last Name",
+    "labelRegistering": "Registering..."
+  },
+  "dashboard": {
+    "statsTitle": "Statistics",
+    "statsTotalUsers": "Total Users",
+    "statsEventsMonth": "Events This Month",
+    "headerInitial": "Select a day",
+    "headerEventsFound": "Events on {{date}} (Total: {{count}})",
+    "headerEventsNone": "No events on {{date}}",
+    "detailsClick": "Click for details...",
+    "statusSelectDay": "Select a day on the calendar.",
+    "statusNothingPlanned": "Nothing planned."
+  },
+  "notFound": {
+    "title": "404 - Page Not Found",
+    "message": "The page you requested could not be found."
   },
   "menu": {
     "adminDashboard": "Admin Dashboard",
@@ -30,6 +65,9 @@
     "logout": "Logout"
   },
   "calendar": {
+    "weekViewTitle": "Week View",
+    "monthViewTitle": "Month View",
+    "filteredDayLab": "Filtered day: ",
     "subtitle": "Click a day for details",
     "titlePrevMonth": "Previous month",
     "titleNextMonth": "Next month",

@@ -230,7 +230,7 @@ export const Settings: React.FC = () => {
                             onClick={handleSave}
                             disabled={saving}
                         >
-                            {saving ? tSettings('settingsPage.buttonSaving') : tCommon('general.buttonSave')}
+                            {saving ? tCommon('general.buttonSaving') : tCommon('general.buttonSave')}
                         </button>
                     </div>
                 </div>

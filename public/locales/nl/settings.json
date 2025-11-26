@@ -1,6 +1,5 @@
 {
   "settingsPage": {
-    "title": "Instellingen",
     "loading": "Instellingen laden...",
     "errorLoading": "Fout bij het laden van instellingen: {{error}}",
     "labelSiteTheme": "Site Thema",
@@ -8,7 +7,6 @@
     "labelFontSize": "Lettergrootte",
     "labelDefaultView": "Standaard Agendaweergave",
     "labelLanguage": "Taal",
-    "buttonSaving": "Opslaan...",
     "buttonSave": "Instellingen opslaan"
   },
   "saveSettings": {

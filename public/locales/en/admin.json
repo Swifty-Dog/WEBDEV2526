@@ -1,0 +1,7 @@
+{
+  "adminDashboard": {
+    "subtitle": "Manage calendar events - create, edit, delete and view attendees.",
+    "buttonNewEvent": "+ New Event",
+    "confirmDeleteMessage": "Delete \"{{title}}\"? This cannot be undone."
+  }
+}

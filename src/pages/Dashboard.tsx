@@ -1,7 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useState, useCallback } from 'react';
 import { Calendar } from '../components/Calendar';
-import { months } from '../utils/months.ts';
+import i18n from "../utils/locales/i18n.ts";
 
 interface Event {
     title: string;
@@ -20,30 +21,29 @@ const sampleEvents = {
 };
 
 export const Dashboard: React.FC = () => {
-    const [eventsHeader, setEventsHeader] = useState<string>("Selecteer een dag");
+    const { t } = useTranslation('common');
+
+    const [eventsHeader, setEventsHeader] = useState<string>(t('dashboard.headerInitial'));
     const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
 
     const handleDaySelect = useCallback((dateString: string, dayEvents: string[] | undefined) => {
-        dateString = dateString
-                .split("-")
-                .map((val, i) => (i === 1 ? months[+val - 1] : val))
-                .reverse()
-                .join(" ");
+        const dateParts = dateString.split("-");
+        const dateDisplay = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' });
 
         if (dayEvents && dayEvents.length > 0) {
-            setEventsHeader(`Events op ${dateString} (Totaal: ${dayEvents.length})`);
+            setEventsHeader(t('dashboard.headerEventsFound', { date: dateDisplay, count: dayEvents.length }));
 
             const mappedEvents: Event[] = dayEvents.map(title => ({
                 title: title,
-                details: 'Klik voor details...',
+                details: t('dashboard.detailsClick'),
             }));
 
             setSelectedEvents(mappedEvents);
         } else {
-            setEventsHeader(`Geen events op ${dateString}`);
+            setEventsHeader(t('dashboard.headerEventsNone', { date: dateDisplay }));
             setSelectedEvents([]);
         }
-    }, []);
+    }, [t]);
 
 
     return (
@@ -53,10 +53,10 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <div className="stats-section section-card">
-                <h2>Statistieken</h2>
+                <h2>{t('dashboard.statsTitle')}</h2>
                 <div className="stats-grid">
-                    <p>Total Users: 120</p>
-                    <p>Events This Month: {Object.keys(sampleEvents).length}</p>
+                    <p>{t('dashboard.statsTotalUsers')}: 120</p>
+                    <p>{t('dashboard.statsEventsMonth')}: {Object.keys(sampleEvents).length}</p>
                 </div>
             </div>
 
@@ -75,7 +75,11 @@ export const Dashboard: React.FC = () => {
                         ))
                     ) : (
                         <div className="event-item no-events">
-                            <p>{eventsHeader === "Selecteer een dag" ? "Selecteer een dag op de kalender." : "Niks gepland."}</p>
+                            <p>
+                                {eventsHeader === t('dashboard.headerInitial')
+                                ? t('dashboard.statusSelectDay')
+                                : t('dashboard.statusNothingPlanned')}
+                            </p>
                         </div>
                     )}
                 </div>

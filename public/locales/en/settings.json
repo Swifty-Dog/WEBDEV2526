@@ -1,6 +1,5 @@
 {
   "settingsPage": {
-    "title": "Settings",
     "loading": "Loading settings...",
     "errorLoading": "Error loading settings: {{error}}",
     "labelSiteTheme": "Site Theme",
@@ -8,7 +7,6 @@
     "labelFontSize": "Font Size",
     "labelDefaultView": "Default Calendar View",
     "labelLanguage": "Language",
-    "buttonSaving": "Saving...",
     "buttonSave": "Save Settings"
   },
   "saveSettings": {

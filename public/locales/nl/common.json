@@ -12,13 +12,48 @@
     "buttonCreate": "Aanmaken",
     "buttonEdit": "Bewerken",
     "buttonDelete": "Verwijderen",
+    "buttonHome": "Ga naar Home",
     "buttonSave": "Opslaan",
+    "buttonSaving": "Opslaan...",
     "buttonStay": "Blijf",
     "buttonLogin": "Inloggen",
     "buttonRegister": "Registreren",
     "buttonLeaveAnyway": "Toch verlaten",
     "confirmTitle": "Niet-opgeslagen wijzigingen",
-    "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je wilt verlaten?"
+    "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je wilt verlaten?",
+    "clearFilter": "Filter wissen",
+    "listSeparator": "en",
+    "networkError": "Netwerkfout"
+  },
+  "form": {
+    "placeholderEmail": "E-mail",
+    "placeholderPassword": "Wachtwoord",
+    "alertRequired_one": "{{fields}} is verplicht.",
+    "alertRequired_other": "{{fields}} zijn verplicht.",
+    "alertPasswordMismatch": "Wachtwoorden komen niet overeen.",
+    "registerSuccess": "Registratie succesvol!",
+    "failDefault": "Registratie mislukt. Probeer het opnieuw.",
+    "labelEmail": "E-mail",
+    "labelPassword": "Wachtwoord",
+    "labelPasswordConfirm": "Wachtwoord bevestigen",
+    "labelFirstName": "Voornaam",
+    "labelLastName": "Achternaam",
+    "labelRegistering": "Registreren..."
+  },
+  "dashboard": {
+    "statsTitle": "Statistieken",
+    "statsTotalUsers": "Totaal aantal gebruikers",
+    "statsEventsMonth": "Evenementen deze maand",
+    "headerInitial": "Selecteer een dag",
+    "headerEventsFound": "Evenementen op {{date}} (Totaal: {{count}})",
+    "headerEventsNone": "Geen evenementen op {{date}}",
+    "detailsClick": "Klik voor details...",
+    "statusSelectDay": "Selecteer een dag op de kalender.",
+    "statusNothingPlanned": "Niets gepland."
+  },
+  "notFound": {
+    "title": "404 - Pagina niet gevonden",
+    "message": "De opgevraagde pagina kan niet worden gevonden."
   },
   "menu": {
     "adminDashboard": "Beheerdersdashboard",
@@ -30,6 +65,9 @@
     "logout": "Uitloggen"
   },
   "calendar": {
+    "weekViewTitle": "Weekweergave",
+    "monthViewTitle": "Maandweergave",
+    "filteredDayLab": "Gefilterde dag:",
     "subtitle": "Klik op een dag voor details",
     "titlePrevMonth": "Vorige maand",
     "titleNextMonth": "Volgende maand",

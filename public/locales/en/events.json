@@ -21,5 +21,8 @@
     "headerAttendees": "Attendees",
     "empty": "No events yet — create a new event to get started.",
     "buttonAttendees": "Attendees"
+  },
+  "admin": {
+    "eventLabel": "event"
   }
 }
