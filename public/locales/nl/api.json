@@ -1,0 +1,29 @@
+{
+  "general": {
+    "API_ErrorInvalidData": "Ongeldige gegevens ingevoerd.",
+    "API_ErrorInvalidSession": "Ongeldige of verlopen gebruikerssessie.",
+    "API_ErrorPermissionDenied": "U heeft geen toestemming om deze actie uit te voeren.",
+    "API_ErrorUnexpected": "Er is een onverwachte fout opgetreden.",
+    "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen."
+  },
+  "rooms": {
+    "API_ErrorDuplicateName": "Kamer met de naam '{{name}}' bestaat al.",
+    "API_ErrorNotAvailable": "De kamer is niet beschikbaar op de gevraagde tijd.",
+    "API_ErrorNotFound": "Kamer niet gevonden.",
+    "API_ErrorNotFoundById": "Kamer met ID '{{id}}' niet gevonden.",
+    "API_ErrorNotFoundByName": "Kamer met naam '{{name}}' niet gevonden.",
+    "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de kamer.",
+    "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de kamer.",
+    "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de kamer."
+
+  },
+  "roomBookings": {
+    "API_ErrorConflict": "Er is een conflict met een bestaande reservering.",
+    "API_ErrorEndBeforeStart": "De eindtijd mag niet vóór de starttijd zijn.",
+    "API_ErrorNotFound": "Reservering niet gevonden.",
+    "API_ErrorNotFoundById": "Reservering met ID '{{id}}' niet gevonden.",
+    "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de reservering.",
+    "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de reservering.",
+    "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de reservering."
+  }
+}

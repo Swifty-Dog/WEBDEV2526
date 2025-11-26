@@ -14,10 +14,10 @@ i18n
         fallbackLng: 'en',
 
         backend: {
-            loadPath: '/locales/{{lng}}/{{ns}}.json',
+            loadPath: '../../locales/{{lng}}/{{ns}}.json',
         },
 
-        ns: ['common'],
+        ns: ['common', 'rooms'],
         defaultNS: 'common',
 
         interpolation: {

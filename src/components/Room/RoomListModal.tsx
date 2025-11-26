@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Room } from '../../utils/types.ts';
 import { RoomFormModal } from './RoomFormModal.tsx';
 import { ConfirmDialog } from '../ConfirmDialog.tsx';
@@ -12,6 +13,9 @@ interface RoomListModalProps {
 }
 
 export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClose, onSaveRoom, onDeleteRoom}) => {
+    const { t: tRooms } = useTranslation('rooms');
+    const { t: tCommon } = useTranslation('common');
+
     const [editing, setEditing] = useState<Room | undefined>(undefined);
     const [creating, setCreating] = useState(false);
     const [confirmDeleteRoom, setConfirmDeleteRoom] = useState<Room | undefined>(undefined);
@@ -20,22 +24,25 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
         <div className="modal-overlay">
             <div className="modal">
                 <h3 className="titling">
-                    {mode === 'manage' ? 'Kamers beheren' : 'Kamers verwijderen'}
+                    {mode === 'manage'
+                        ? tRooms('generalRooms.manageRoomsTitle')
+                        : tRooms('generalRooms.deleteRoomsTitle')
+                    }
                 </h3>
 
                 <table className="events-table">
                     <thead>
                     <tr>
-                        <th>Naam</th>
-                        <th>Capaciteit</th>
-                        <th>Locatie</th>
-                        <th>Actie</th>
+                        <th>{tCommon('general.labelName')}</th>
+                        <th>{tRooms('roomForm.labelCapacity')}</th>
+                        <th>{tRooms('roomForm.labelLocation')}</th>
+                        <th>{tRooms('roomListModal.headerAction')}</th>
                     </tr>
                     </thead>
                     <tbody>
                     {rooms.length === 0 && (
                         <tr>
-                            <td colSpan={4} className="muted">Geen kamers gevonden</td>
+                            <td colSpan={4} className="muted">{tRooms('roomListModal.empty')}</td>
                         </tr>
                     )}
                     {rooms.map(room => (
@@ -46,7 +53,7 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                             <td className="table-actions">
                                 {mode === 'manage' && (
                                     <button className="btn-sm" onClick={() => setEditing(room)}>
-                                        Bewerk
+                                        {tCommon('general.buttonEdit')}
                                     </button>
                                 )}
                                 {mode === 'delete' && (
@@ -54,7 +61,7 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                                         className="btn-sm btn-danger"
                                         onClick={() => setConfirmDeleteRoom(room)}
                                     >
-                                        Verwijder
+                                        {tCommon('general.buttonDelete')}
                                     </button>
                                 )}
                             </td>
@@ -64,13 +71,15 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                 </table>
 
                 <div className="form-actions">
-                    <button className="btn-sm" onClick={onClose}>Sluiten</button>
+                    <button className="btn-sm" onClick={onClose}>
+                        {tCommon('general.buttonClose')}
+                    </button>
                     {mode === 'manage' && (
                         <button
                             className="btn-sm btn-primary-accent"
                             onClick={() => setCreating(true)}
                         >
-                            Nieuwe kamer
+                            {tCommon('general.buttonCreate')}
                         </button>
                     )}
                 </div>
@@ -98,8 +107,8 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
 
                 {confirmDeleteRoom && (
                     <ConfirmDialog
-                        title="Verwijder kamer"
-                        message={`Weet je zeker dat je "${confirmDeleteRoom.roomName}" wilt verwijderen? Dit kan niet ongedaan worden.`}
+                        title={tRooms('roomListModal.confirmDeleteTitle')}
+                        message={tRooms('roomListModal.confirmDeleteMessage', { roomName: confirmDeleteRoom.roomName })}
                         onCancel={() => setConfirmDeleteRoom(undefined)}
                         onConfirm={() => {
                             if (confirmDeleteRoom.id) {

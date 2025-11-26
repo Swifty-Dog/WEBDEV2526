@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/_components.css';
 import { ConfirmDialog } from '../ConfirmDialog.tsx';
 import { type Room } from '../../utils/types.ts';
@@ -10,6 +11,9 @@ type RoomFormModalProps = {
 };
 
 export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose, onSave }) => {
+    const { t: tRooms } = useTranslation('rooms');
+    const { t: tCommon } = useTranslation('common');
+
     const [name, setName] = useState('');
     const [capacity, setCapacity] = useState<number>(0);
     const [location, setLocation] = useState('');
@@ -64,15 +68,17 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
         <>
             <div className="modal-overlay">
                 <div className="modal">
-                    <h3 className="titling">{existing ? 'Kamer bewerken' : 'Nieuwe kamer toevoegen'}</h3>
+                    <h3 className="titling">
+                        {existing ? tRooms('roomForm.titleEdit') : tRooms('roomForm.titleAdd')}
+                    </h3>
                     <form onSubmit={submit}>
                         <div className="form-row">
-                            <label>Naam</label>
+                            <label>{tCommon('general.labelName')}</label>
                             <input value={name} onChange={e => setName(e.target.value)} required />
                         </div>
 
                         <div className="form-row">
-                            <label>Capaciteit</label>
+                            <label>{tRooms('roomForm.labelCapacity')}</label>
                             <input
                                 type="number"
                                 value={capacity}
@@ -83,17 +89,19 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
                         </div>
 
                         <div className="form-row">
-                            <label>Locatie</label>
+                            <label>{tRooms('roomForm.labelLocation')}</label>
                             <input value={location} onChange={e => setLocation(e.target.value)} />
                         </div>
 
                         <div className="form-actions">
-                            <button type="button" className="btn-sm" onClick={handleClose}>Annuleren</button>
+                            <button type="button" className="btn-sm" onClick={handleClose}>
+                                {tCommon('general.buttonCancel')}
+                            </button>
                             <button
                                 type="submit"
                                 className="btn-sm btn-primary-accent"
                             >
-                                {existing ? 'Opslaan' : 'Aanmaken'}
+                                {existing ? tCommon('general.buttonSave') : tCommon('general.buttonCreate')}
                             </button>
                         </div>
                     </form>
@@ -102,8 +110,8 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
 
             {showConfirm && (
                 <ConfirmDialog
-                    title="Wijzigingen niet opgeslagen"
-                    message="Je hebt nog niet opgeslagen wijzigingen. Weet je zeker dat je dit wilt verlaten?"
+                    title={tCommon('general.confirmTitle')}
+                    message={tCommon('general.confirmMessage')}
                     onCancel={() => setShowConfirm(false)}
                     onConfirm={() => onClose()}
                 />

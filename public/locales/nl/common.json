@@ -1,0 +1,17 @@
+{
+  "general": {
+    "labelName": "Naam",
+    "labelStartTime": "Starttijd",
+    "labelEndTime": "Eindtijd",
+    "optionSelectStartTime": "Selecteer een starttijd",
+    "optionSelectEndTime": "Selecteer een eindtijd",
+    "buttonCancel": "Annuleren",
+    "buttonClose": "Sluiten",
+    "buttonCreate": "Aanmaken",
+    "buttonEdit": "Bewerken",
+    "buttonDelete": "Verwijderen",
+    "buttonSave": "Opslaan",
+    "confirmTitle": "Niet-opgeslagen wijzigingen",
+    "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je dit wilt verlaten?"
+  }
+}

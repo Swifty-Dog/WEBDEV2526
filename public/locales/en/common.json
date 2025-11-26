@@ -1,0 +1,17 @@
+{
+  "general": {
+    "labelName": "Name",
+    "labelStartTime": "Start Time",
+    "labelEndTime": "End Time",
+    "optionSelectStartTime": "Select a start time",
+    "optionSelectEndTime": "Select an end time",
+    "buttonCancel": "Cancel",
+    "buttonClose": "Close",
+    "buttonCreate": "Create",
+    "buttonEdit": "Edit",
+    "buttonDelete": "Delete",
+    "buttonSave": "Save",
+    "confirmTitle": "Unsaved Changes",
+    "confirmMessage": "You have unsaved changes. Are you sure you want to leave?"
+  }
+}

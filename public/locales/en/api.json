@@ -1,0 +1,29 @@
+{
+  "general": {
+    "API_ErrorInvalidData": "Invalid data provided.",
+    "API_ErrorInvalidSession": "Invalid or expired user session.",
+    "API_ErrorPermissionDenied": "You do not have permission to perform this action.",
+    "API_ErrorUnexpected": "An unexpected error occurred.",
+    "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match."
+  },
+  "rooms": {
+    "API_ErrorDuplicateName": "Room with the name '{{name}}' already exists.",
+    "API_ErrorNotAvailable": "The room is not available at the requested time.",
+    "API_ErrorNotFound": "Room not found.",
+    "API_ErrorNotFoundById": "Room with ID '{{id}}' not found.",
+    "API_ErrorNotFoundByName": "Room with name '{{name}}' not found.",
+    "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the room.",
+    "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the room.",
+    "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the room."
+
+  },
+  "roomBookings": {
+    "API_ErrorConflict": "There is a conflict with an existing booking.",
+    "API_ErrorEndBeforeStart": "Booking end time can't be before start time.",
+    "API_ErrorNotFound": "Booking not found.",
+    "API_ErrorNotFoundById": "Booking with ID '{{id}}' not found.",
+    "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the booking.",
+    "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the booking.",
+    "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the booking."
+  }
+}

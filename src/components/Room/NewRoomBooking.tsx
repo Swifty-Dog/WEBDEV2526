@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BookingForm } from './BookingForm';
 import { useRooms } from '../../hooks/Room/useRooms.ts';
 import { useMakeNewBooking } from '../../hooks/Room/useMakeNewBooking.ts';
@@ -6,6 +7,8 @@ import { useBookingFormLogic } from '../../hooks/Room/useBookingFormLogic.ts';
 import { getInitialBookingDate } from '../../utils/date';
 
 export const NewRoomBooking: React.FC = () => {
+    const { t } = useTranslation('rooms');
+
     const { rooms, loading: loadingRooms, error: roomsError } = useRooms();
 
     const initialBookingDetails = useMemo(() => ({
@@ -41,9 +44,9 @@ export const NewRoomBooking: React.FC = () => {
     }, [availableEndTimes, bookingDetails.endTime, setBookingDetails]);
 
     const onBookingSuccess = useCallback(() => {
-        setMessage({ text: 'Boeking succesvol gemaakt!', type: 'success' });
+        setMessage({ text: t('newBooking.messageSuccess'), type: 'success' });
         setBookingDetails(initialBookingDetails);
-    }, [setMessage, setBookingDetails, initialBookingDetails]);
+    }, [setMessage, setBookingDetails, initialBookingDetails, t]);
 
     const onBookingError = useCallback((errorMessage: string) => {
         setMessage({ text: errorMessage, type: 'error' });
@@ -61,7 +64,7 @@ export const NewRoomBooking: React.FC = () => {
         void makeBooking();
     };
 
-    if (loadingRooms) return <p>Kamers laden...</p>;
+    if (loadingRooms) return <p>{t('newBooking.loadingRooms')}</p>;
 
     const messageToShow = message || (roomsError ? { text: roomsError, type: 'error' } : null);
     const hasError = formProps.fetchError || !!roomsError;
@@ -69,7 +72,7 @@ export const NewRoomBooking: React.FC = () => {
 
     return (
         <div className="section-card vertical-flex-card">
-            <h2 className="titling">Nieuwe Boeking Maken</h2>
+            <h2 className="titling">{t('newBooking.title')}</h2>
             <BookingForm
                 {...formProps}
                 rooms={rooms}
