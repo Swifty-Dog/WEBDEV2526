@@ -104,7 +104,7 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                 }
                 />
 
-                <Route path="/kamers" element={
+                <Route path="/rooms" element={
                     <ProtectedRoute
                         isLoggedIn={isLoggedIn}
                         userRole={userRole}

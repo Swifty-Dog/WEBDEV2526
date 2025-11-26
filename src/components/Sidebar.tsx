@@ -1,5 +1,6 @@
 import React from 'react';
-import { sidebarMenuItems, type MenuItem } from '../data/SidebarData.ts';
+import { useTranslation } from 'react-i18next';
+import { useSidebarMenuItems, type MenuItem } from '../hooks/useSidebarMenuItems';
 import { Link } from 'react-router-dom';
 import { useSettings } from '../config/SettingsContext.ts';
 import '../styles/_layout.css';
@@ -12,6 +13,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogout, userRole }) => {
+    const { t } = useTranslation('common');
+    const sidebarMenuItems = useSidebarMenuItems();
     const { updateSettings } = useSettings();
     const sidebarClass = `sidebar ${isVisible ? 'visible' : ''}`;
 
@@ -37,7 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogou
                             className={`menu-item ${activePath === '/admin-dashboard' ? 'active' : ''}`}
                         >
                             <span className="icon">🛠️</span>
-                            Admin Dashboard
+                            {t('menu.adminDashboard')}
                         </Link>
                     </li>
                 )}
@@ -63,10 +66,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogou
                        onClick={handleLogoutClick}
                     >
                         <span className="icon">🚪</span>
-                        Uitloggen
+                        {t('menu.logout')}
                     </a>
                 </li>
-
             </ul>
         </nav>
     );

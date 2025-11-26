@@ -117,7 +117,7 @@ export const Settings: React.FC = () => {
     return (
         <div className="panel-fancy-borders">
             <div className="section-card">
-                <h1 className="titling">{tSettings('settingsPage.title')}</h1>
+                <h1 className="titling">{tCommon('menu.settings')}</h1>
 
                 <div className="form-container">
                     <div className="form-fields">

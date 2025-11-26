@@ -15,5 +15,14 @@
     "buttonLeaveAnyway": "Toch verlaten",
     "confirmTitle": "Niet-opgeslagen wijzigingen",
     "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je dit wilt verlaten?"
-  }
+  },
+    "menu": {
+      "adminDashboard": "Beheerdersdashboard",
+      "dashboard": "Dashboard",
+      "calendar": "Kalender",
+      "events": "Evenementen",
+      "rooms": "Kamers",
+      "settings": "Instellingen",
+      "logout": "Uitloggen"
+    }
 }

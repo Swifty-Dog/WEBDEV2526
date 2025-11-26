@@ -15,5 +15,14 @@
     "buttonLeaveAnyway": "Leave Anyway",
     "confirmTitle": "Unsaved Changes",
     "confirmMessage": "You have unsaved changes. Are you sure you want to leave?"
+  },
+  "menu": {
+    "adminDashboard": "Admin Dashboard",
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "events": "Events",
+    "rooms": "Rooms",
+    "settings": "Settings",
+    "logout": "Logout"
   }
 }
