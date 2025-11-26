@@ -1,69 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/global.css';
 import '../styles/_components.css';
 import "../styles/EventCard.css";
 import { EventCard } from "../components/EventCard";
+import { ApiGet } from "../components/ApiRequest";
+
+interface EventApiItem {
+    id: number;
+    title: string;
+    description?: string;
+    date: string; // ISO from backend via JsonPropertyName("date")
+    roomName?: string;
+    location?: string;
+    attendees: string[];
+    attending: boolean;
+}
 
 export const Events: React.FC = () => {
-    // Sample events data
-    const [events] = useState([
-        {
-            id: "1",
-            title: "Team Meeting",
-            date: "2025-11-10",
-            location: "Room 101",
-            description: "Weekly team sync",
-            attendees: ["John", "Jane", "Bob"]
-        },
-        {
-            id: "2",
-            title: "Sprint Planning",
-            date: "2025-11-15",
-            location: "Conference Room",
-            description: "Plan next sprint",
-            attendees: ["Alice", "Bob", "Charlie"]
-        },
-        {
-            id: "3",
-            title: "Retrospective",
-            date: "2025-11-17",
-            location: "Conference Room",
-            description: "Review sprint performance",
-            attendees: ["Alice", "Bob", "Charlie", "David"]
-        },
-        {
-            id: "4",
-            title: "Client Presentation",
-            date: "2025-11-19",
-            location: "Main Hall",
-            description: "Present project updates",
-            attendees: ["John", "Emma", "Frank"]
-        },
-        {
-            id: "5",
-            title: "Design Workshop",
-            date: "2025-11-22",
-            location: "Design Studio",
-            description: "UI/UX design session",
-            attendees: ["Grace", "Henry", "Iris"]
-        },
-        {
-            id: "6",
-            title: "Code Review",
-            date: "2025-11-24",
-            location: "Dev Room",
-            description: "Review pull requests",
-            attendees: ["Jack", "Kevin", "Liam"]
-        },
-        {
-            id: "7",
-            title: "Database Migration",
-            date: "2025-11-26",
-            location: "Server Room",
-            description: "Migrate to new database",
-            attendees: ["Mike", "Nancy", "Oscar"]
-        },
-    ]);
+    const [events, setEvents] = useState<EventApiItem[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('authToken');
+                // Ensure we always hit /api base
+                const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                setEvents(data.map(e => ({ ...e, date: e.date })));
+            } catch (e) {
+                setError(e instanceof Error ? e.message : 'Onbekende fout bij het laden van events.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvents();
+    }, []);
 
     return (
         <div className="events-page">
@@ -83,16 +57,19 @@ export const Events: React.FC = () => {
             </div> */}
 
 
+            {error && <p className="error-message">{error}</p>}
+            {loading && <p>Events laden...</p>}
             <div className="events-grid">
-                {events.map(event => (
+                {!loading && events.map(event => (
                     <EventCard
                         key={event.id}
                         id={event.id}
                         title={event.title}
                         date={event.date}
-                        description={event.description}
-                        location={event.location}
+                        description={event.description || ''}
+                        location={event.location || event.roomName || ''}
                         attendees={event.attendees}
+                        initialAttending={event.attending}
                     />
                 ))}
             </div>

@@ -14,6 +14,8 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 3px solid #000000;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .event-title {
@@ -22,4 +24,10 @@
 
 p {
     margin: 10px 0;
+}
+
+.event-card .table-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
 }
