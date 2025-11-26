@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSidebarMenuItems, type MenuItem } from '../hooks/useSidebarMenuItems';
+import { SidebarMenuItems, type MenuItem } from '../data/SidebarMenuItems.ts';
 import { Link } from 'react-router-dom';
 import { useSettings } from '../config/SettingsContext.ts';
 import '../styles/_layout.css';
@@ -14,7 +14,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogout, userRole }) => {
     const { t } = useTranslation('common');
-    const sidebarMenuItems = useSidebarMenuItems();
+    const sidebarMenuItems = SidebarMenuItems();
     const { updateSettings } = useSettings();
     const sidebarClass = `sidebar ${isVisible ? 'visible' : ''}`;
 

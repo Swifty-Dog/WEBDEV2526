@@ -7,7 +7,7 @@ export interface MenuItem {
     path: string;
 }
 
-export const useSidebarMenuItems = (): MenuItem[] => {
+export const SidebarMenuItems = (): MenuItem[] => {
     const { t } = useTranslation('common');
 
     return [
