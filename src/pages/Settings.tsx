@@ -9,6 +9,26 @@ import { UnsavedChangesDialog } from '../components/Settings/UnsavedChangesDialo
 import { SiteThemeOption, AccentColorOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../data/SettingsOptions';
 import '../styles/_components.css';
 
+const isCalendarViewImplemented = false;  // TODO: Remove this flag when the feature is implemented, and the related code should be changed to this:
+/*
+<div className="form-row">
+    <label htmlFor="calendarView">{tSettings('settingsPage.labelDefaultView')}</label>
+    <select
+        id="calendarView"
+        className="booking-input"
+        value={defaultCalendarView}
+        onChange={e => {
+            setCalendarView(e.target.value as DefaultCalendarViewOption);
+            setDirtySettings(true);
+        }}
+    >
+        {DefaultCalendarViewOption.map(opt => (
+            <option key={opt} value={opt}>{tSettings('settingsOptions.' + opt)}</option>
+        ))}
+    </select>
+</div>
+ */
+
 export const Settings: React.FC = () => {
     const { t: tSettings } = useTranslation('settings');
     const { t: tCommon } = useTranslation('common');
@@ -185,16 +205,25 @@ export const Settings: React.FC = () => {
                         </div>
 
                         <div className="form-row">
-                            <label htmlFor="calendarView">{tSettings('settingsPage.labelDefaultView')}</label>
+                            <label htmlFor="calendarView">
+                                {tSettings('settingsPage.labelDefaultView')}
+                            </label>
                             <select
                                 id="calendarView"
                                 className="booking-input"
                                 value={defaultCalendarView}
+                                disabled={!isCalendarViewImplemented}
+                                title={!isCalendarViewImplemented ? tSettings('settingsPage.warningNotImplemented') : undefined}
                                 onChange={e => {
                                     setCalendarView(e.target.value as DefaultCalendarViewOption);
                                     setDirtySettings(true);
                                 }}
                             >
+                                {!isCalendarViewImplemented && (
+                                    <option value={defaultCalendarView} disabled hidden>
+                                        {tSettings('settingsPage.warningNotImplemented')}
+                                    </option>
+                                )}
                                 {DefaultCalendarViewOption.map(opt => (
                                     <option key={opt} value={opt}>{tSettings('settingsOptions.' + opt)}</option>
                                 ))}

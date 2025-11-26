@@ -7,7 +7,8 @@
     "labelFontSize": "Lettergrootte",
     "labelDefaultView": "Standaard Agendaweergave",
     "labelLanguage": "Taal",
-    "buttonSave": "Instellingen opslaan"
+    "buttonSave": "Instellingen opslaan",
+    "warningNotImplemented": "Nog niet geïmplementeerd"
   },
   "saveSettings": {
     "messageSuccess": "Instellingen succesvol opgeslagen!",
