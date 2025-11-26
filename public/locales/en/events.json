@@ -1,0 +1,25 @@
+{
+  "attendeesModal": {
+    "title": "Attendees - {{title}}",
+    "empty": "No attendees signed up yet."
+  },
+  "eventCard": {
+    "attendeesLabel": "Attendees: {{attendees}}"
+  },
+  "eventForm": {
+    "titleEdit": "Edit Event",
+    "titleNew": "New Event",
+    "labelTitle": "Title",
+    "labelDateTime": "Date & time",
+    "labelLocation": "Location",
+    "labelDescription": "Description"
+  },
+  "eventsTable": {
+    "headerTitle": "Title",
+    "headerDate": "Date",
+    "headerLocation": "Location",
+    "headerAttendees": "Attendees",
+    "empty": "No events yet — create a new event to get started.",
+    "buttonAttendees": "Attendees"
+  }
+}

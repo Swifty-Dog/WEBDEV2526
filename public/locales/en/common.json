@@ -24,5 +24,27 @@
     "rooms": "Rooms",
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "calendar": {
+    "subtitle": "Click a day for details",
+    "titlePrevMonth": "Previous month",
+    "titleNextMonth": "Next month",
+    "titleEvents": "Events: {{events}}",
+    "titlePrevWeek": "Previous week",
+    "titleNextWeek": "Next week",
+    "titleJumpToday": "Jump to current week",
+    "buttonToday": "Today",
+    "chipSelected": "Selected",
+    "labelNoEvents": "No events",
+    "labelMoreEvents": "+{{count}} more",
+    "weekdayAbbr": {
+      "Mon": "Mon",
+      "Tue": "Tue",
+      "Wed": "Wed",
+      "Thu": "Thu",
+      "Fri": "Fri",
+      "Sat": "Sat",
+      "Sun": "Sun"
+    }
   }
 }

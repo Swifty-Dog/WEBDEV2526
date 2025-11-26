@@ -1,9 +1,11 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 export const RegisterButton: React.FC<{ style?: React.CSSProperties }> = ({ style }) => {
-	const navigate = useNavigate();
+    const { t } = useTranslation('common');
+
+    const navigate = useNavigate();
 	return (
 		<button
 			type="button"
@@ -11,7 +13,7 @@ export const RegisterButton: React.FC<{ style?: React.CSSProperties }> = ({ styl
 			style={style}
 			onClick={() => navigate('/admin/register')}
 		>
-			Register
+            {t('register.buttonRegister')}
 		</button>
 	);
 };

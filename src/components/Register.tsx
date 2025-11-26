@@ -1,14 +1,32 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
+import i18n from '../utils/i18n';
 import { useNavigate } from "react-router-dom";
 import { useState, type FormEvent } from 'react';
+import { ApiPost } from './ApiRequest.tsx';
+import type {ApiErrorData} from "../utils/types.ts";
+
+const translateApiError = (data: ApiErrorData, fallbackT: typeof i18n.t): string => {
+    if (data?.message) {
+        const [namespace, key] = data.message.split('.');
+        const fullKey = `${namespace}:${key}`;
+        const interpolationData = data.arguments as Record<string, string>;
+
+        return i18n.t(fullKey, interpolationData);
+    }
+
+    return fallbackT('register.networkError');
+};
 
 export const Register: React.FC = () => {
+    const { t } = useTranslation('common');
+
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [passwordconfirm, setPasswordConfirm] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -18,67 +36,35 @@ export const Register: React.FC = () => {
         setErrorMessage(null);
         setSuccessMessage(null);
 
-        if (email === '') {
-            let message = 'Email';
-            if (password === '') { message += ', Password';}
-            if (firstName === '') { message += ', First Name';}
-            if (lastName === '') { message += ', Last Name';}
+        const requiredFields: { field: string, value: string, labelKey: string }[] = [
+            { field: 'Email', value: email, labelKey: 'register.labelEmail' },
+            { field: 'Password', value: password, labelKey: 'register.labelPassword' },
+            { field: 'FirstName', value: firstName, labelKey: 'register.labelFirstName' },
+            { field: 'LastName', value: lastName, labelKey: 'register.labelLastName' },
+        ];
 
-            if (message.includes(',')) {message += ' are required';}
-            else {message += ' is required';}
-            alert(message);
+        const missing = requiredFields.filter(f => f.value === '');
+        if (missing.length > 0) {
+            const missingLabels = missing.map(f => t(f.labelKey)).join(', ');
+
+            alert(t('register.alertRequired', { fields: missingLabels }));
             return;
         }
 
-        else if (password === '') {
-            let message = 'Password';
-            if (firstName === '') { message += ', First Name';}
-            if (lastName === '') { message += ', Last Name';}
-
-            if (message.includes(',')) {message += ' are required';}
-            else {message += ' is required';}
-            alert(message);
-            return;
-        }
-
-        else if (firstName === '') {
-            if (lastName === '')
-                {
-                    alert('First Name and Last Name are required');
-                    return;
-                }
-            alert('First Name is required');
-            return;
-        }
-
-        else if (lastName === '') {
-            alert('Last Name is required');
-            return;
-        }
-
-        if (password !== passwordconfirm)
+        if (password !== passwordConfirm)
         {
-            alert('Passwords do not match');
+            alert(t('register.alertPasswordMismatch'));
             return;
         }
 
         setIsLoading(true);
         try {
-            const resp = await fetch('http://localhost:5222/api/Employee/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ FirstName: firstName, LastName: lastName, Email: email, Password: password })
-            });
+            await ApiPost(
+                'Employee/register',
+                { FirstName: firstName, LastName: lastName, Email: email, Password: password }
+            );
 
-            if (!resp.ok) {
-                const data = await resp.json().catch(() => ({}));
-                console.error('Registration error response:', { status: resp.status, data });
-                setErrorMessage(data?.message ?? 'Registration failed');
-                setIsLoading(false);
-                return;
-            }
-
-            setSuccessMessage('Registration successful!');
+            setSuccessMessage(t('register.success'));
 
             setEmail('');
             setPassword('');
@@ -86,8 +72,22 @@ export const Register: React.FC = () => {
             setLastName('');
             setPasswordConfirm('');
         } catch (err) {
-            console.error('Fetch error:', err);
-            setErrorMessage((err as Error).message ?? 'Network error');
+            const errorObject = err as Error;
+            let errorMessage: string;
+
+            try {
+                const structuredData = JSON.parse(errorObject.message);
+
+                if (structuredData?.message) {
+                    errorMessage = translateApiError(structuredData as ApiErrorData, i18n.t);
+                } else {
+                    errorMessage = t('register.networkError');
+                }
+            } catch {
+                errorMessage = t('register.networkError');
+            }
+
+            setErrorMessage(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -107,7 +107,7 @@ export const Register: React.FC = () => {
                 <input id="password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
                 className="login-input" placeholder="Password" />
 
-                <input id="password-confirm" name="password-confirm" type="password" value={passwordconfirm} onChange={e => setPasswordConfirm(e.target.value)}
+                <input id="password-confirm" name="password-confirm" type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)}
                 className="login-input" placeholder="Password confirmation" />
 
                 {errorMessage && <div className="error-message">{errorMessage}</div>}

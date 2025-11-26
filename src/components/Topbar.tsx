@@ -1,4 +1,5 @@
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import '../styles/_components.css';
 import '../styles/_layout.css';
@@ -10,6 +11,7 @@ interface TopBarProps {
 }
 
 export const Topbar: FC<TopBarProps> = ({ isLoggedIn, toggleSidebar }) => {
+    const { t } = useTranslation('common');
     const navigate = useNavigate();
 
     const handleLoginClick = () => {
@@ -37,7 +39,7 @@ export const Topbar: FC<TopBarProps> = ({ isLoggedIn, toggleSidebar }) => {
                         className="header-button"
                         onClick={handleLoginClick}
                     >
-                        Login
+                        {t('general.buttonLogin')}
                     </button>
                 )}
             </div>

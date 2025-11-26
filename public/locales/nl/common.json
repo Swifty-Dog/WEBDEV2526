@@ -14,15 +14,37 @@
     "buttonStay": "Blijf",
     "buttonLeaveAnyway": "Toch verlaten",
     "confirmTitle": "Niet-opgeslagen wijzigingen",
-    "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je dit wilt verlaten?"
+    "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je wilt verlaten?"
   },
-    "menu": {
-      "adminDashboard": "Beheerdersdashboard",
-      "dashboard": "Dashboard",
-      "calendar": "Kalender",
-      "events": "Evenementen",
-      "rooms": "Kamers",
-      "settings": "Instellingen",
-      "logout": "Uitloggen"
+  "menu": {
+    "adminDashboard": "Beheerdersdashboard",
+    "dashboard": "Dashboard",
+    "calendar": "Kalender",
+    "events": "Evenementen",
+    "rooms": "Kamers",
+    "settings": "Instellingen",
+    "logout": "Uitloggen"
+  },
+  "calendar": {
+    "subtitle": "Klik op een dag voor details",
+    "titlePrevMonth": "Vorige maand",
+    "titleNextMonth": "Volgende maand",
+    "titleEvents": "Evenementen: {{events}}",
+    "titlePrevWeek": "Vorige week",
+    "titleNextWeek": "Volgende week",
+    "titleJumpToday": "Ga naar huidige week",
+    "buttonToday": "Vandaag",
+    "chipSelected": "Geselecteerd",
+    "labelNoEvents": "Geen evenementen",
+    "labelMoreEvents": "+{{count}} meer",
+    "weekdayAbbr": {
+      "Mon": "Ma",
+      "Tue": "Di",
+      "Wed": "Wo",
+      "Thu": "Do",
+      "Fri": "Vr",
+      "Sat": "Za",
+      "Sun": "Zo"
     }
+  }
 }

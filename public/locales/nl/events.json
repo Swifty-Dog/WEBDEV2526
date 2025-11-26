@@ -1,0 +1,25 @@
+{
+  "attendeesModal": {
+    "title": "Deelnemers — {{title}}",
+    "empty": "Nog geen deelnemers aangemeld."
+  },
+  "eventCard": {
+    "attendeesLabel": "Deelnemers: {{attendees}}"
+  },
+  "eventForm": {
+    "titleEdit": "Evenement bewerken",
+    "titleNew": "Nieuw evenement",
+    "labelTitle": "Titel",
+    "labelDateTime": "Datum & tijd",
+    "labelLocation": "Locatie",
+    "labelDescription": "Beschrijving"
+  },
+  "eventsTable": {
+    "headerTitle": "Titel",
+    "headerDate": "Datum",
+    "headerLocation": "Locatie",
+    "headerAttendees": "Deelnemers",
+    "empty": "Nog geen evenementen — maak een nieuw evenement om te beginnen.",
+    "buttonAttendees": "Deelnemers"
+  }
+}
