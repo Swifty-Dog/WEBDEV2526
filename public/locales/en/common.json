@@ -11,6 +11,8 @@
     "buttonEdit": "Edit",
     "buttonDelete": "Delete",
     "buttonSave": "Save",
+    "buttonStay": "Stay",
+    "buttonLeaveAnyway": "Leave Anyway",
     "confirmTitle": "Unsaved Changes",
     "confirmMessage": "You have unsaved changes. Are you sure you want to leave?"
   }

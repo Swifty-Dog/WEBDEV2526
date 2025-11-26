@@ -436,7 +436,7 @@ textarea:disabled {
 
 .form-row label {
     white-space: nowrap;
-    flex: 0 0 11.2rem;
+    flex: 0 0 15rem;
     font-weight: 600;
     color: var(--color-text-secondary);
 }

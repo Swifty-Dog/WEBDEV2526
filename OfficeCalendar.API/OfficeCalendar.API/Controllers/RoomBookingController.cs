@@ -54,14 +54,10 @@ public class RoomBookingController : BaseController
 
         return result switch
         {
-            CreateRoomBookingResult.RoomNotAvailable =>
-                Conflict(new { message = "roomBookings.API_ErrorConflict" }),
-            CreateRoomBookingResult.InvalidData invalidData =>
-                BadRequest(new { message = invalidData.Message, arguments = invalidData.Arguments }),
-            CreateRoomBookingResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "general.API_ErrorUnexpected" })
+            CreateRoomBookingResult.RoomNotAvailable => Conflict(new { message = "roomBookings.API_ErrorConflict" }),
+            CreateRoomBookingResult.InvalidData invalidData => BadRequest(new { message = invalidData.Message, arguments = invalidData.Arguments }),
+            CreateRoomBookingResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -85,10 +81,8 @@ public class RoomBookingController : BaseController
                 Purpose = booking.Purpose
             }).ToList()),
 
-            GetRoomBookingListResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "general.API_ErrorUnexpected" })
+            GetRoomBookingListResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -107,10 +101,8 @@ public class RoomBookingController : BaseController
                 EndTime = booking.EndTime
             }).ToList()),
 
-            GetRoomBookingListResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "general.API_ErrorUnexpected" })
+            GetRoomBookingListResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -142,12 +134,9 @@ public class RoomBookingController : BaseController
 
         return result switch
         {
-            UpdateRoomBookingResult.NotFound notFound =>
-                NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
-            UpdateRoomBookingResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message, arguments = error.Arguments }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "general.API_ErrorUnexpected" })
+            UpdateRoomBookingResult.NotFound notFound => NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
+            UpdateRoomBookingResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message, arguments = error.Arguments }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -164,12 +153,9 @@ public class RoomBookingController : BaseController
 
         return result switch
         {
-            DeleteRoomBookingResult.NotFound notFound =>
-                NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
-            DeleteRoomBookingResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "general.API_ErrorUnexpected" })
+            DeleteRoomBookingResult.NotFound notFound => NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
+            DeleteRoomBookingResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 }

@@ -28,11 +28,11 @@ public class SettingsService : ISettingsService
 
             return created
                 ? new CreateSettingsResult.Success(newSettings)
-                : new CreateSettingsResult.Error("Failed to create settings.");
+                : new CreateSettingsResult.Error("settings.API_ErrorSaveFailed");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new CreateSettingsResult.Error(ex.Message);
+            return new CreateSettingsResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -43,7 +43,7 @@ public class SettingsService : ISettingsService
             var settings = await _settings.GetById(employeeId);
 
             if (settings is null)
-                return new GetSettingsResult.NotFound();
+                return new GetSettingsResult.NotFound("settings.API_ErrorNotFound");
 
             var settingsDto = new SettingsDto
             {
@@ -56,9 +56,9 @@ public class SettingsService : ISettingsService
 
             return new GetSettingsResult.Success(settingsDto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetSettingsResult.Error(ex.Message);
+            return new GetSettingsResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -75,7 +75,7 @@ public class SettingsService : ISettingsService
 
             var settings = await _settings.GetById(targetEmployeeId);
             if (settings is null)
-                return new UpdateSettingsResult.NotFound();
+                return new UpdateSettingsResult.NotFound("settings.API_ErrorNotFound");
 
             settings.SiteTheme = update.SiteTheme ?? settings.SiteTheme;
             settings.AccentColor = update.AccentColor ?? settings.AccentColor;
@@ -83,12 +83,14 @@ public class SettingsService : ISettingsService
             settings.DefaultCalendarView = update.DefaultCalendarView ?? settings.DefaultCalendarView;
             settings.Language = update.Language ?? settings.Language;
 
-            await _settings.Update(settings);
-            return new UpdateSettingsResult.Success(settings);
+            bool updated = await _settings.Update(settings);
+            return updated
+                ? new UpdateSettingsResult.Success(settings)
+                : new UpdateSettingsResult.Error("settings.API_ErrorSaveFailed");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new UpdateSettingsResult.Error(ex.Message);
+            return new UpdateSettingsResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -120,7 +122,11 @@ public class SettingsService : ISettingsService
 
             if (!type.IsEnum) continue;
             if (!Enum.IsDefined(type, value))
-                return new UpdateSettingsResult.InvalidData($"Invalid {prop.Name} value: {value}");
+                return new UpdateSettingsResult.InvalidData("settings.API_ErrorInvalidDataValue",
+                    new Dictionary<string, string> {
+                        { "field", prop.Name },
+                        { "value", value.ToString()! }
+                    });
         }
 
         return null;
@@ -130,11 +136,11 @@ public class SettingsService : ISettingsService
     {
         var user = _httpContext.HttpContext?.User;
         if (user is null || !user.Identity!.IsAuthenticated)
-            return (0, new UpdateSettingsResult.Unauthorized());
+            return (0, new UpdateSettingsResult.Unauthorized("general.API_ErrorInvalidSession"));
 
         var idClaim = user.FindFirst(ClaimTypes.NameIdentifier);
         if (idClaim is null || !long.TryParse(idClaim.Value, out long currentUserId))
-            return (0, new UpdateSettingsResult.Unauthorized());
+            return (0, new UpdateSettingsResult.Unauthorized("general.API_ErrorInvalidSession"));
 
         long targetEmployeeId = currentUserId;
 
@@ -142,7 +148,7 @@ public class SettingsService : ISettingsService
         {
             var roleClaim = user.FindFirst(ClaimTypes.Role)?.Value;
             if (roleClaim != "Admin")
-                return (0, new UpdateSettingsResult.Unauthorized());
+                return (0, new UpdateSettingsResult.Unauthorized("settings.API_ErrorUnauthorized"));
 
             targetEmployeeId = adminUpdate.EmployeeId.Value;
         }

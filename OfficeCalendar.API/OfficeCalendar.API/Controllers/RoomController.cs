@@ -34,12 +34,8 @@ public class RoomController : BaseController
         return result switch
         {
             GetRoomResult.Success success => Ok(success.Room),
-            GetRoomResult.NotFound notFound => NotFound(
-                new { message = notFound.Message, arguments = notFound.Arguments }
-            ),
-            GetRoomResult.Error error => StatusCode(
-                StatusCodes.Status500InternalServerError, new { message = error.Message }
-            ),
+            GetRoomResult.NotFound notFound => NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
+            GetRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
@@ -59,12 +55,8 @@ public class RoomController : BaseController
                 new { id = success.Room.Id },
                 success.Room
             ),
-            CreateRoomResult.DuplicateRoom duplicateRoom => Conflict(
-                new { message = duplicateRoom.Message, arguments = duplicateRoom.Arguments }
-            ),
-            CreateRoomResult.Error error => StatusCode(
-                StatusCodes.Status500InternalServerError, new { message = error.Message }
-            ),
+            CreateRoomResult.DuplicateRoom duplicateRoom => Conflict(new { message = duplicateRoom.Message, arguments = duplicateRoom.Arguments }),
+            CreateRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
@@ -76,9 +68,7 @@ public class RoomController : BaseController
         return rooms switch
         {
             GetRoomsListResult.Success success => Ok(success.Rooms),
-            GetRoomsListResult.Error error => StatusCode(
-                StatusCodes.Status500InternalServerError, new { message = error.Message }
-            ),
+            GetRoomsListResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
@@ -98,12 +88,8 @@ public class RoomController : BaseController
         {
             UpdateRoomResult.Success success => Ok(success.Room),
             UpdateRoomResult.RoomNotFound _ => NotFound(new { message = "rooms.API_ErrorNotFound" }),
-            UpdateRoomResult.InvalidData invalidData => BadRequest(
-                new { message = invalidData.Message, arguments = invalidData.Arguments }
-            ),
-            UpdateRoomResult.Error error => StatusCode(
-                StatusCodes.Status500InternalServerError, new { message = error.Message }
-            ),
+            UpdateRoomResult.InvalidData invalidData => BadRequest(new { message = invalidData.Message, arguments = invalidData.Arguments }),
+            UpdateRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
@@ -118,9 +104,7 @@ public class RoomController : BaseController
         {
             DeleteRoomResult.Success _ => NoContent(),
             DeleteRoomResult.RoomNotFound _ => NotFound(new { message = "rooms.API_ErrorNotFound" }),
-            DeleteRoomResult.Error error => StatusCode(
-                StatusCodes.Status500InternalServerError, new { message = error.Message }
-            ),
+            DeleteRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }

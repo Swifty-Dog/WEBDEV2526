@@ -11,6 +11,8 @@
     "buttonEdit": "Bewerken",
     "buttonDelete": "Verwijderen",
     "buttonSave": "Opslaan",
+    "buttonStay": "Blijf",
+    "buttonLeaveAnyway": "Toch verlaten",
     "confirmTitle": "Niet-opgeslagen wijzigingen",
     "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je dit wilt verlaten?"
   }

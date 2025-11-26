@@ -1,0 +1,34 @@
+{
+  "settingsPage": {
+    "title": "Settings",
+    "loading": "Loading settings...",
+    "errorLoading": "Error loading settings: {{error}}",
+    "labelSiteTheme": "Site Theme",
+    "labelAccentColor": "Accent Color",
+    "labelFontSize": "Font Size",
+    "labelDefaultView": "Default Calendar View",
+    "labelLanguage": "Language",
+    "buttonSaving": "Saving...",
+    "buttonSave": "Save Settings"
+  },
+  "saveSettings": {
+    "messageSuccess": "Settings saved successfully!",
+    "messageFailDefault": "Failed to save settings due to a network error."
+  },
+  "settingsOptions": {
+    "Light": "Light",
+    "Dark": "Dark",
+    "Blue": "Blue",
+    "Purple": "Purple",
+    "Orange": "Orange",
+    "Yellow": "Yellow",
+    "Week": "Week",
+    "Month": "Month",
+    "English": "English",
+    "Dutch": "Dutch",
+    "Small": "Small",
+    "Medium": "Medium",
+    "Large": "Large",
+    "Extra Large": "Extra Large"
+  }
+}

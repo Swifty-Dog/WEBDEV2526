@@ -28,21 +28,21 @@ public class SettingsController : BaseController
         var token = HttpContext.Request.Headers["Authorization"].ToString();
 
         if (string.IsNullOrWhiteSpace(token) || !token.StartsWith("Bearer "))
-            return Unauthorized("Missing or invalid Authorization header.");
+            return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
         var jwt = token["Bearer ".Length..].Trim();
         var employeeId = _tokens.GetEmployeeIdFromToken(jwt);
 
         if (employeeId == null)
-            return Unauthorized("Invalid or expired token.");
+            return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
         var result = await _settings.CreateSettingsForNewUser(employeeId.Value);
 
         return result switch
         {
             CreateSettingsResult.Success s => Ok(s.Settings),
-            CreateSettingsResult.Error e => BadRequest(e.Message),
-            _ => StatusCode(StatusCodes.Status500InternalServerError)
+            CreateSettingsResult.Error e => BadRequest(new { message = e.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -51,14 +51,17 @@ public class SettingsController : BaseController
     public async Task<IActionResult> GetSettings()
     {
         var user = await GetCurrentUserAsync();
-        var result = user is not null ? await _settings.GetSettingsByEmployeeId(user.Id) : new GetSettingsResult.UserNotFound();
+        var result = user is not null
+            ? await _settings.GetSettingsByEmployeeId(user.Id)
+            : new GetSettingsResult.UserNotFound("settings.API_ErrorUserNotFound");
+
         return result switch
         {
             GetSettingsResult.Success s => Ok(s.Settings),
-            GetSettingsResult.NotFound => NotFound("Settings not found."),
-            GetSettingsResult.UserNotFound => NotFound("User not logged in."),
-            GetSettingsResult.Error e => StatusCode(StatusCodes.Status500InternalServerError, e.Message),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
+            GetSettingsResult.NotFound notFound => NotFound(new { message = notFound.Message }),
+            GetSettingsResult.UserNotFound userNotFound => NotFound(new { message = userNotFound.Message }),
+            GetSettingsResult.Error e => StatusCode(StatusCodes.Status500InternalServerError, new { message = e.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -83,11 +86,11 @@ public class SettingsController : BaseController
         return result switch
         {
             UpdateSettingsResult.Success s => Ok(s.Settings),
-            UpdateSettingsResult.NotFound => NotFound("Settings not found."),
-            UpdateSettingsResult.InvalidData i => BadRequest(i.Message),
-            UpdateSettingsResult.Unauthorized => Unauthorized("You are not authorized to perform this action."),
-            UpdateSettingsResult.Error e => StatusCode(StatusCodes.Status500InternalServerError, e.Message),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
+            UpdateSettingsResult.NotFound notFound => NotFound(new { message = notFound.Message }),
+            UpdateSettingsResult.InvalidData invalidData => BadRequest(new { message = invalidData.Message, arguments = invalidData.Arguments }),
+            UpdateSettingsResult.Unauthorized unauthorized => Unauthorized(new { message = unauthorized.Message }),
+            UpdateSettingsResult.Error e => StatusCode(StatusCodes.Status500InternalServerError, new { message = e.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 }

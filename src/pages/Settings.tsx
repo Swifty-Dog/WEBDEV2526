@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { type SettingsResponse, useFetchSettings } from '../hooks/Settings/useFetchSettings';
 import { useSaveSettings } from '../hooks/Settings/useSaveSettings';
@@ -9,6 +10,8 @@ import { SiteThemeOption, AccentColorOption, FontSizeOption, DefaultCalendarView
 import '../styles/_components.css';
 
 export const Settings: React.FC = () => {
+    const { t: tSettings } = useTranslation('settings');
+    const { t: tCommon } = useTranslation('common');
     const token = localStorage.getItem('authToken');
     const navigate = useNavigate();
 
@@ -108,19 +111,19 @@ export const Settings: React.FC = () => {
         setNextLocation(null);
     };
 
-    if (loading) return <div className="panel-fancy-borders">Loading settings...</div>;
-    if (error) return <div className="panel-fancy-borders error-message">Error loading settings: {error}</div>;
+    if (loading) return <div className="panel-fancy-borders">{tSettings('settingsPage.loading')}</div>;
+    if (error) return <div className="panel-fancy-borders error-message">{tSettings('settingsPage.errorLoading', { error })}</div>;
 
     return (
         <div className="panel-fancy-borders">
             <div className="section-card">
-                <h1 className="titling" style={{ marginTop: 0 }}>Instellingen</h1>
+                <h1 className="titling">{tSettings('settingsPage.title')}</h1>
 
                 <div className="form-container">
                     <div className="form-fields">
 
                         <div className="form-row">
-                            <label htmlFor="siteTheme">Site Theme</label>
+                            <label htmlFor="siteTheme">{tSettings('settingsPage.labelSiteTheme')}</label>
                             <select
                                 id="siteTheme"
                                 className="booking-input"
@@ -133,13 +136,13 @@ export const Settings: React.FC = () => {
                                 }}
                             >
                                 {SiteThemeOption.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                    <option key={opt} value={opt}>{tSettings('settingsOptions.' + opt)}</option>
                                 ))}
                             </select>
                         </div>
 
                         <div className="form-row">
-                            <label htmlFor="accentColor">User Theme</label>
+                            <label htmlFor="accentColor">{tSettings('settingsPage.labelAccentColor')}</label>
                             <select
                                 id="accentColor"
                                 className="booking-input"
@@ -152,13 +155,13 @@ export const Settings: React.FC = () => {
                                 }}
                             >
                                 {AccentColorOption.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                    <option key={opt} value={opt}>{tSettings('settingsOptions.' + opt)}</option>
                                 ))}
                             </select>
                         </div>
 
                         <div className="form-row">
-                            <label htmlFor="fontSize">Font Size</label>
+                            <label htmlFor="fontSize">{tSettings('settingsPage.labelFontSize')}</label>
                             <select
                                 id="fontSize"
                                 className="booking-input"
@@ -170,16 +173,19 @@ export const Settings: React.FC = () => {
                                     setDirtySettings(true);
                                 }}
                             >
-                                {FontSizeOption.map(size => (
-                                    <option key={size} value={size}>
-                                        {mapFontSizeToLabel(size)}
-                                    </option>
-                                ))}
+                                {FontSizeOption.map(size => {
+                                    const key = mapFontSizeToLabel(size);
+                                    return (
+                                        <option key={size} value={size}>
+                                            {tSettings('settingsOptions.' + key)}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </div>
 
                         <div className="form-row">
-                            <label htmlFor="calendarView">Default Calendar View</label>
+                            <label htmlFor="calendarView">{tSettings('settingsPage.labelDefaultView')}</label>
                             <select
                                 id="calendarView"
                                 className="booking-input"
@@ -190,13 +196,13 @@ export const Settings: React.FC = () => {
                                 }}
                             >
                                 {DefaultCalendarViewOption.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                    <option key={opt} value={opt}>{tSettings('settingsOptions.' + opt)}</option>
                                 ))}
                             </select>
                         </div>
 
                         <div className="form-row">
-                            <label htmlFor="language">Language</label>
+                            <label htmlFor="language">{tSettings('settingsPage.labelLanguage')}</label>
                             <select
                                 id="language"
                                 className="booking-input"
@@ -209,7 +215,7 @@ export const Settings: React.FC = () => {
                                 }}
                             >
                                 {LanguageOption.map(opt => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                    <option key={opt} value={opt}>{tSettings('settingsOptions.' + opt)}</option>
                                 ))}
                             </select>
                         </div>
@@ -224,7 +230,7 @@ export const Settings: React.FC = () => {
                             onClick={handleSave}
                             disabled={saving}
                         >
-                            {saving ? 'Saving...' : 'Save Settings'}
+                            {saving ? tSettings('settingsPage.buttonSaving') : tCommon('general.buttonSave')}
                         </button>
                     </div>
                 </div>

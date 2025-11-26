@@ -17,7 +17,7 @@ i18n
             loadPath: '../../locales/{{lng}}/{{ns}}.json',
         },
 
-        ns: ['common', 'rooms'],
+        ns: ['common', 'rooms', 'api', 'settings'],
         defaultNS: 'common',
 
         interpolation: {
