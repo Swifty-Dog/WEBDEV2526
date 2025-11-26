@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { translateFetchError } from "../../utils/locales/translateFetchError";
 import type { BookingDetails } from '../../utils/types.ts';
 import { ApiPost } from '../../components/ApiRequest.tsx';
 
@@ -14,7 +15,7 @@ export const useMakeNewBooking = (
             });
             onSuccess();
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Kon boeking niet maken.';
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomBookingError.errorCreate');
             onError(errorMessage);
         }
     }, [bookingDetails, onSuccess, onError]);

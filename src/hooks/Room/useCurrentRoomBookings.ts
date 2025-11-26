@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ApiGet } from '../../components/ApiRequest.tsx';
-import { type Booking } from '../../utils/types.ts';
+import i18n from '../../utils/locales/i18n';
+import { translateFetchError} from "../../utils/locales/translateFetchError";
+import { ApiGet } from '../../components/ApiRequest';
+import { type Booking } from '../../utils/types';
 import { startGenericHub, onEvent } from '../../utils/signalR/genericHub';
 
 export const useCurrentRoomBookings = () => {
@@ -11,7 +13,7 @@ export const useCurrentRoomBookings = () => {
 
     const fetchBookings = useCallback(async () => {
         if (!token) {
-            setError('Je bent niet ingelogd.');
+            setError(i18n.t('general.errorNotLoggedIn'));
             setLoading(false);
             return;
         }
@@ -31,11 +33,8 @@ export const useCurrentRoomBookings = () => {
             setBookings(data);
             setError(null);
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Fout bij ophalen boekingen.'
-            );
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomBookingError.errorFetchUpcoming');
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

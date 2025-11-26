@@ -3,6 +3,7 @@
     "API_ErrorInvalidData": "Ongeldige gegevens ingevoerd.",
     "API_ErrorInvalidSession": "Ongeldige of verlopen gebruikerssessie.",
     "API_ErrorPermissionDenied": "U heeft geen toestemming om deze actie uit te voeren.",
+    "API_ErrorUnauthorized": "U bent niet gemachtigd om deze actie uit te voeren.",
     "API_ErrorUnexpected": "Er is een onverwachte fout opgetreden.",
     "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen."
   },
@@ -26,5 +27,12 @@
     "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de reservering.",
     "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de reservering."
   },
-
+  "settings": {
+    "API_ErrorNotFound": "Instellingen niet gevonden voor deze gebruiker.",
+    "API_ErrorInvalidDataValue": "Ongeldige waarde '{{value}}' voor '{{field}}'.",
+    "API_ErrorSaveFailed": "Opslaan van instellingen mislukt.",
+    "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de instellingen.",
+    "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de instellingen.",
+    "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de instellingen."
+  }
 }

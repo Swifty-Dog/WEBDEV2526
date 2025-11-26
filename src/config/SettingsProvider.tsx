@@ -1,7 +1,7 @@
 import {type FC, type ReactNode, useState, useEffect, useCallback} from 'react';
 import { SettingsContext, type UserSettings, type FontSizeLabel, type AccentColor } from './SettingsContext';
 import { LANGUAGE_MAP } from '../data/SettingsOptions';
-import i18n from '../utils/i18n';
+import i18n from '../utils/locales/i18n.ts';
 
 interface Props {
     children: ReactNode;

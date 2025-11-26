@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { AuthProvider } from './components/AuthProvider';
-import './utils/i18n';
+import './utils/locales/i18n.ts';
 
 const LoadingMarkup = (
     <div className="loading-container">

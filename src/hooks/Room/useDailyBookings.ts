@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import i18n from '../../utils/locales/i18n';
+import { translateFetchError} from "../../utils/locales/translateFetchError";
 import type { DailyBookingWithRoom } from "../../utils/types.ts";
 import { ApiGet } from "../../components/ApiRequest.tsx";
 import { startGenericHub, onEvent, stopGenericHub } from "../../utils/signalR/genericHub";
@@ -20,7 +22,7 @@ export const useDailyBookings = (date: string | null) => {
         setError(null);
 
         if (!token) {
-            setError("Je bent niet ingelogd.");
+            setError(i18n.t('general.errorNotLoggedIn'));
             setLoading(false);
             return;
         }
@@ -40,11 +42,8 @@ export const useDailyBookings = (date: string | null) => {
                 }))
             );
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Kon beschikbaarheid niet ophalen."
-            );
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomBookingError.errorFetchDaily');
+            setError(errorMessage);
             setBookings([]);
         } finally {
             setLoading(false);

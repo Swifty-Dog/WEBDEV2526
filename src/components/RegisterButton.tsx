@@ -13,7 +13,7 @@ export const RegisterButton: React.FC<{ style?: React.CSSProperties }> = ({ styl
 			style={style}
 			onClick={() => navigate('/admin/register')}
 		>
-            {t('register.buttonRegister')}
+            {t('general.buttonRegister')}
 		</button>
 	);
 };

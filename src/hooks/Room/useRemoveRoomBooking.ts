@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { translateFetchError } from "../../utils/locales/translateFetchError";
 import { ApiDelete } from '../../components/ApiRequest';
 
 export const useDeleteBooking = (
@@ -12,7 +13,7 @@ export const useDeleteBooking = (
             });
             onSuccess();
         } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Kon boeking niet verwijderen.';
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomBookingError.errorDelete');
             onError(errorMessage);
         }
     }, [onSuccess, onError]);

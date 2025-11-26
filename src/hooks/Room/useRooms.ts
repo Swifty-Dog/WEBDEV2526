@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import i18n from '../../utils/locales/i18n';
+import { translateFetchError } from '../../utils/locales/translateFetchError';
 import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../components/ApiRequest.tsx';
 import type { Room } from '../../utils/types.ts';
 import { startGenericHub, onEvent, stopGenericHub } from '../../utils/signalR/genericHub';
@@ -11,7 +13,7 @@ export const useRooms = () => {
 
     const fetchRooms = useCallback(async () => {
         if (!token) {
-            setError('Je bent niet ingelogd.');
+            setError(i18n.t('general.errorNotLoggedIn'));
             setLoading(false);
             return;
         }
@@ -31,7 +33,8 @@ export const useRooms = () => {
                 location: r.location
             })));
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Kon kamers niet ophalen.');
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorFetch');
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -58,7 +61,8 @@ export const useRooms = () => {
                 setRooms(prev => [...prev, saved]);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Kon kamer niet opslaan.');
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorSave');
+            setError(errorMessage);
         }
     }, [token]);
 
@@ -69,7 +73,8 @@ export const useRooms = () => {
             await ApiDelete(`/Room/${id}`, {Authorization: `Bearer ${token}`});
             setRooms(prev => prev.filter(r => r.id !== id));
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Kon kamer niet verwijderen.');
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorDelete');
+            setError(errorMessage);
         }
     }, [token]);
 

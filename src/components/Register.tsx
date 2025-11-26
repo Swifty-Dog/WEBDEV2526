@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import i18n from '../utils/i18n';
+import i18n from '../utils/locales/i18n.ts';
 import { useNavigate } from "react-router-dom";
 import { useState, type FormEvent } from 'react';
 import { ApiPost } from './ApiRequest.tsx';

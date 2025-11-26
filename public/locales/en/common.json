@@ -1,10 +1,12 @@
 {
   "general": {
+    "errorNotLoggedIn": "You are not logged in.",
     "labelName": "Name",
     "labelStartTime": "Start Time",
     "labelEndTime": "End Time",
     "optionSelectStartTime": "Select a start time",
     "optionSelectEndTime": "Select an end time",
+    "buttonConfirm": "Confirm",
     "buttonCancel": "Cancel",
     "buttonClose": "Close",
     "buttonCreate": "Create",
@@ -12,6 +14,8 @@
     "buttonDelete": "Delete",
     "buttonSave": "Save",
     "buttonStay": "Stay",
+    "buttonLogin": "Login",
+    "buttonRegister": "Register",
     "buttonLeaveAnyway": "Leave Anyway",
     "confirmTitle": "Unsaved Changes",
     "confirmMessage": "You have unsaved changes. Are you sure you want to leave?"
