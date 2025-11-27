@@ -37,7 +37,11 @@ const initialSample: EventItem[] = [
     }
 ];
 
-export const AdminDashboard: React.FC = () => {
+interface AdminDashboardProps {
+    userRole: string | null;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
     const { t: tAdmin } = useTranslation('admin');
@@ -124,7 +128,9 @@ export const AdminDashboard: React.FC = () => {
                 </div>
                 <div>
                     <button className="header-button" onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
-                    <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                    {userRole === 'admin' && (
+                        <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                    )}
                 </div>
             </div>
 

@@ -7,6 +7,7 @@ using OfficeCalendar.API.Services.Results.Settings;
 namespace OfficeCalendar.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class SettingsController : BaseController
 {
@@ -22,6 +23,7 @@ public class SettingsController : BaseController
         _tokens = tokens;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateForNewUser()
     {
@@ -46,7 +48,6 @@ public class SettingsController : BaseController
         };
     }
 
-    [Authorize]
     [HttpGet("current")]
     public async Task<IActionResult> GetSettings()
     {
@@ -65,7 +66,6 @@ public class SettingsController : BaseController
         };
     }
 
-    [Authorize]
     [HttpPut("current")]
     public async Task<IActionResult> UpdateSettings([FromBody] UpdateSettingsDto dto)
     {

@@ -86,7 +86,7 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                         userRole={userRole}
                         allowedRoles={['admin', 'manager']}
                     >
-                        <AdminDashboard />
+                        <AdminDashboard userRole={userRole} />
                     </ProtectedRoute>
                 }
                 />
