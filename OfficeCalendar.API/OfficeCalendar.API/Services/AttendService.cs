@@ -16,31 +16,35 @@ public class AttendService : IAttendService
         _events = events;
     }
 
-    public async Task<bool> Attend(long eventId, long employeeId)
+    public async Task<AttendResult> Attend(long eventId, long employeeId)
     {
-        if (eventId <= 0 || employeeId <= 0) return false;
+        if (eventId <= 0 || employeeId <= 0) return new AttendResult(AttendStatus.NotFound);
         try
         {
             var ev = await _events.GetById(eventId);
-            if (ev is null) return false;
-            return await _repo.Attend(eventId, employeeId);
+            if (ev is null) return new AttendResult(AttendStatus.NotFound);
+            var ok = await _repo.Attend(eventId, employeeId);
+            return new AttendResult(ok ? AttendStatus.Success : AttendStatus.Error);
         }
         catch
         {
-            return false;
+            return new AttendResult(AttendStatus.Error);
         }
     }
 
-    public async Task<bool> Unattend(long eventId, long employeeId)
+    public async Task<AttendResult> Unattend(long eventId, long employeeId)
     {
-        if (eventId <= 0 || employeeId <= 0) return false;
+        if (eventId <= 0 || employeeId <= 0) return new AttendResult(AttendStatus.NotFound);
         try
         {
-            return await _repo.Unattend(eventId, employeeId);
+            var ev = await _events.GetById(eventId);
+            if (ev is null) return new AttendResult(AttendStatus.NotFound);
+            var ok = await _repo.Unattend(eventId, employeeId);
+            return new AttendResult(ok ? AttendStatus.Success : AttendStatus.NoChange);
         }
         catch
         {
-            return false;
+            return new AttendResult(AttendStatus.Error);
         }
     }
 }
