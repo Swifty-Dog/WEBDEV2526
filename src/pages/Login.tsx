@@ -1,7 +1,7 @@
 import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ApiPost } from '../components/ApiRequest';
+import { ApiPost } from '../config/ApiRequest.ts';
 import '../styles/_components.css';
 import '../styles/global.css';
 
@@ -17,6 +17,7 @@ interface LoginResponse {
         email: string;
         role: string;
         token: string;
+        refreshToken: string;
     };
 }
 
@@ -51,6 +52,8 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
             );
 
             localStorage.setItem('authToken', data.employee.token);
+            sessionStorage.setItem('refreshToken', data.employee.refreshToken);
+
             const employeeRole: string = data.employee.role.trim().toLowerCase();
 
             setIsLoggedIn(true);

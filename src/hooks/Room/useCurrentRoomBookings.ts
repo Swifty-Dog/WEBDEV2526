@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import i18n from '../../utils/locales/i18n';
 import { translateFetchError} from "../../utils/locales/translateFetchError";
-import { ApiGet } from '../../components/ApiRequest';
+import { ApiGet } from '../../config/ApiRequest.ts';
 import { type Booking } from '../../utils/types';
 import { startGenericHub, onEvent } from '../../utils/signalR/genericHub';
 

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { translateFetchError } from '../../utils/locales/translateFetchError';
 import type { Booking } from '../../utils/types';
-import { ApiPut } from '../../components/ApiRequest';
+import { ApiPut } from '../../config/ApiRequest.ts';
 
 export const useUpdateBooking = (
     onSuccess: () => void,

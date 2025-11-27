@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ApiGet } from '../../components/ApiRequest';
+import { ApiGet } from '../../config/ApiRequest.ts';
 import { SiteThemeOption, AccentColorOption, FontSizeOption, DefaultCalendarViewOption, LanguageOption } from '../../data/SettingsOptions';
 
 export interface SettingsResponse {
@@ -10,13 +10,17 @@ export interface SettingsResponse {
     language: LanguageOption;
 }
 
-export const useFetchSettings = (token: string | null) => {
+export const useFetchSettings = (token: string | null, isLoggedIn: boolean) => {
     const [settings, setSettings] = useState<SettingsResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!token) return;
+        if (!token || !isLoggedIn) {
+            setSettings(null);
+            setLoading(false);
+            return;
+        }
 
         (async () => {
             setLoading(true);
@@ -32,7 +36,7 @@ export const useFetchSettings = (token: string | null) => {
                 setLoading(false);
             }
         })();
-    }, [token]);
+    }, [token, isLoggedIn]);
 
     return { settings, setSettings, loading, error };
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import i18n from '../../utils/locales/i18n';
 import { translateFetchError } from '../../utils/locales/translateFetchError';
-import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../components/ApiRequest.tsx';
+import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../config/ApiRequest.ts';
 import type { Room } from '../../utils/types.ts';
 import { startGenericHub, onEvent, stopGenericHub } from '../../utils/signalR/genericHub';
 

@@ -7,6 +7,12 @@
     "API_ErrorUnexpected": "An unexpected error occurred.",
     "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match."
   },
+  "tokens": {
+    "API_ErrorTokenConfig": "Token generation failed: JWT secret key is not configured.",
+    "API_ErrorInvalidRefreshToken": "Invalid or expired refresh token.",
+    "API_ErrorTokenGenerationFailed": "Failed to generate token.",
+    "API_ErrorRefreshTokenRequired": "Refresh token is required."
+  },
   "employees": {
     "API_ErrorLoginInvalid": "Invalid email or password.",
     "API_ErrorEmailRequired": "Email is required.",
@@ -15,7 +21,6 @@
     "API_ErrorEmailExists": "Email already exists.",
     "API_ErrorCreateFailed": "Failed to create employee.",
     "API_ErrorAuthRecordNotFound": "Authenticated user record not found.",
-    "API_ErrorTokenConfig": "Token generation failed: JWT secret key is not configured.",
     "API_ErrorMissingToken": "Missing or invalid Authentication header.",
     "API_ErrorInvalidToken": "Invalid or expired token.",
     "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token."

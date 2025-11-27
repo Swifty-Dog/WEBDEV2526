@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.DTOs.Employees.Request;
+using OfficeCalendar.API.DTOs.Tokens;
+using OfficeCalendar.API.Services.Results.Tokens;
 
 namespace OfficeCalendar.API.Controllers;
 
@@ -42,6 +44,22 @@ public class EmployeeController : BaseController
             RegisterResult.EmailAlreadyExists => BadRequest(new { message = "general.API_ErrorEmailExists" }),
             RegisterResult.InvalidData invalidData => BadRequest(new { message = invalidData.Message }),
             RegisterResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
+        };
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var result = await EmployeeService.RefreshToken(request.RefreshToken);
+
+        return result switch
+        {
+            TokenRefreshResult.Success success => Ok(new { Token = success.JwtToken, RefreshToken = success.RefreshToken }),
+            TokenRefreshResult.InvalidToken invalidToken => BadRequest(new { message = invalidToken.Message }),
+            TokenRefreshResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }

@@ -18,10 +18,11 @@ import './styles/_layout.css';
 import './styles/_components.css';
 
 export function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userRole, setUserRole] = useState<string | null>(null);
     const token = localStorage.getItem('authToken');
-    const { settings, loading } = useFetchSettings(token);
+    const storedRole = localStorage.getItem('userRole');
+    const [isLoggedIn, setIsLoggedIn] = useState(!!token);
+    const [userRole, setUserRole] = useState<string | null>(storedRole);
+    const { settings, loading } = useFetchSettings(token, isLoggedIn);
 
     const initialSettings: Partial<UserSettings> | undefined = settings ? {
         theme: settings.siteTheme,
@@ -31,7 +32,7 @@ export function App() {
         language: settings.language
     } : undefined;
 
-    if (loading && isLoggedIn) return <div>Loading user settings...</div>;
+    if (loading && isLoggedIn && !initialSettings) return <div>Loading user settings...</div>;
 
     return (
         <SettingsProvider initialSettings={initialSettings}>
@@ -54,7 +55,7 @@ interface AppInnerProps {
 
 const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole, setUserRole}) => {
     return (
-        <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole}>
+        <Layout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} userRole={userRole} setUserRole={setUserRole}>
             <Routes>
                 <Route
                     path="/login"
@@ -129,7 +130,7 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                         userRole={userRole}
                         allowedRoles={['admin', 'manager', 'employee']}
                     >
-                        <Settings />
+                        <Settings isLoggedIn={isLoggedIn} />
                     </ProtectedRoute>}
                 />
 

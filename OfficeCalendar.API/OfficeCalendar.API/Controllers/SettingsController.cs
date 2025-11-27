@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.DTOs.Settings.Request;
@@ -12,33 +13,21 @@ namespace OfficeCalendar.API.Controllers;
 public class SettingsController : BaseController
 {
     private readonly ISettingsService _settings;
-    private readonly ITokenService _tokens;
 
-    public SettingsController(
-        ISettingsService settings,
-        ITokenService tokens,
-        IEmployeeService employee) : base(employee)
+    public SettingsController(ISettingsService settings, IEmployeeService employee) : base(employee)
     {
         _settings = settings;
-        _tokens = tokens;
     }
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateForNewUser()
     {
-        var token = HttpContext.Request.Headers["Authorization"].ToString();
-
-        if (string.IsNullOrWhiteSpace(token) || !token.StartsWith("Bearer "))
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (claim is null || !long.TryParse(claim.Value, out var employeeId))
             return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
-        var jwt = token["Bearer ".Length..].Trim();
-        var employeeId = _tokens.GetEmployeeIdFromToken(jwt);
-
-        if (employeeId == null)
-            return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
-
-        var result = await _settings.CreateSettingsForNewUser(employeeId.Value);
+        var result = await _settings.CreateSettingsForNewUser(employeeId);
 
         return result switch
         {
@@ -52,9 +41,12 @@ public class SettingsController : BaseController
     public async Task<IActionResult> GetSettings()
     {
         var user = await GetCurrentUserAsync();
-        var result = user is not null
-            ? await _settings.GetSettingsByEmployeeId(user.Id)
-            : new GetSettingsResult.UserNotFound("settings.API_ErrorUserNotFound");
+
+        if (user is null)
+            return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
+
+
+        var result = await _settings.GetSettingsByEmployeeId(user.Id);
 
         return result switch
         {

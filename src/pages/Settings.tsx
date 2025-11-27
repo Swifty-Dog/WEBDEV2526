@@ -29,13 +29,17 @@ const isCalendarViewImplemented = false;  // TODO: Remove this flag when the fea
 </div>
  */
 
-export const Settings: React.FC = () => {
+interface SettingsProps {
+    isLoggedIn: boolean;
+}
+
+export const Settings: React.FC<SettingsProps> = ({ isLoggedIn }) => {
     const { t: tSettings } = useTranslation('settings');
     const { t: tCommon } = useTranslation('common');
     const token = localStorage.getItem('authToken');
     const navigate = useNavigate();
 
-    const { settings, loading, error } = useFetchSettings(token);
+    const { settings, loading, error } = useFetchSettings(token, isLoggedIn);
     const [originalSettings, setOriginalSettings] = useState<SettingsResponse | null>(null);
     const { saveSettings, loading: saving, error: saveError, success } = useSaveSettings(token);
     const { updateSettings } = useSettings();

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, type FC } from 'react';
+import { handleLogout } from '../config/ApiRequest';
 import { useLocation } from 'react-router-dom';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
@@ -10,9 +11,10 @@ interface LayoutProps {
     isLoggedIn: boolean;
     setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
     userRole: string | null;
+    setUserRole: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn, userRole }) => {
+export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn, userRole, setUserRole }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
     const activePath = useLocation().pathname;
 
@@ -20,9 +22,12 @@ export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn, u
         setIsSidebarOpen(prev => !prev);
     }, []);
 
-    const handleLogout = useCallback(() => {
+    const logout = useCallback(() =>{
+        handleLogout();
+
         setIsLoggedIn(false);
-    }, [setIsLoggedIn]);
+        setUserRole(null);
+    }, [setIsLoggedIn, setUserRole]);
 
     const containerClass = `container`;
     const isSidebarAvailable = isLoggedIn;
@@ -39,7 +44,7 @@ export const Layout: FC<LayoutProps> = ({ children, isLoggedIn, setIsLoggedIn, u
                     <Sidebar
                         isVisible={isSidebarOpen && isSidebarAvailable}
                         activePath={activePath}
-                        onLogout={handleLogout}
+                        onLogout={logout}
                         userRole={userRole}
                     />
                 )}

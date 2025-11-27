@@ -6,7 +6,6 @@ using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.Services.Results.Tokens;
 using OfficeCalendar.API.DTOs.Employees.Request;
-using OfficeCalendar.API.Models.Repositories;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Services.Results.Settings;
 
@@ -93,6 +92,11 @@ public class EmployeeService : IEmployeeService
             if (verification == PasswordVerificationResult.Failed)
                 return new LoginResult.InvalidCredentials("employees.API_ErrorLoginInvalid");
 
+            var refreshToken = _tokens.GenerateRefreshToken();
+            employee.RefreshToken = refreshToken;
+            employee.RefreshTokenExpiryTime = _tokens.GetRefreshTokenExpiryTime();
+            await _employeeRepo.Update(employee);
+
             var tokenResult = _tokens.GenerateToken(employee);
             if (tokenResult is CreateJwtResult.ConfigError)
                 return new LoginResult.Error("employees.API_ErrorTokenConfig");
@@ -103,7 +107,8 @@ public class EmployeeService : IEmployeeService
                 Name = employee.FullName,
                 Email = employee.Email,
                 Role = employee.Role,
-                Token = (tokenResult as CreateJwtResult.Success)!.Token
+                Token = (tokenResult as CreateJwtResult.Success)!.Token,
+                RefreshToken = refreshToken
             };
 
             return new LoginResult.Success(response);
@@ -154,6 +159,44 @@ public class EmployeeService : IEmployeeService
         catch (Exception)
         {
             return new RegisterResult.Error("general.API_ErrorUnexpected");
+        }
+    }
+
+    public async Task<TokenRefreshResult> RefreshToken(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return new TokenRefreshResult.InvalidToken("tokens.API_ErrorRefreshTokenRequired");
+
+        try
+        {
+            var employee = await _employeeRepo.GetSingle(e => e.RefreshToken == refreshToken);
+
+            if (employee is null)
+                return new TokenRefreshResult.InvalidToken("tokens.API_ErrorInvalidRefreshToken");
+
+            if (employee.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                employee.RefreshToken = null;
+                employee.RefreshTokenExpiryTime = null;
+                await _employeeRepo.Update(employee);
+                return new TokenRefreshResult.InvalidToken("tokens.API_ErrorRefreshTokenExpired");
+            }
+
+            var newRefreshToken = _tokens.GenerateRefreshToken();
+
+            var tokenResult = _tokens.GenerateToken(employee);
+            if (tokenResult is not CreateJwtResult.Success success)
+                return new TokenRefreshResult.Error("tokens.API_ErrorTokenGenerationFailed");
+
+            employee.RefreshToken = newRefreshToken;
+            employee.RefreshTokenExpiryTime = _tokens.GetRefreshTokenExpiryTime();
+            await _employeeRepo.Update(employee);
+
+            return new TokenRefreshResult.Success(success.Token, newRefreshToken);
+        }
+        catch (Exception)
+        {
+            return new TokenRefreshResult.Error("general.API_ErrorUnexpected");
         }
     }
 }

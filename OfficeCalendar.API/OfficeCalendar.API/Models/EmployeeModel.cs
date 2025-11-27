@@ -35,6 +35,9 @@ public class EmployeeModel
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
 
     public SettingsModel Settings { get; set; } = null!;
     public virtual AdminModel? Admin { get; set; }

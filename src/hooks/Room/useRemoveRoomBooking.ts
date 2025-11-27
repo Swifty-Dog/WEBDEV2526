@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { translateFetchError } from "../../utils/locales/translateFetchError";
-import { ApiDelete } from '../../components/ApiRequest';
+import { ApiDelete } from '../../config/ApiRequest.ts';
 
 export const useDeleteBooking = (
     onSuccess: () => void,

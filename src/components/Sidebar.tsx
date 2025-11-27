@@ -28,7 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isVisible, activePath, onLogou
             language: 'English'
         });
         onLogout();
-    };
+    }
 
     return (
         <nav className={sidebarClass}>

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { translateFetchError } from "../../utils/locales/translateFetchError";
 import type { BookingDetails } from '../../utils/types.ts';
-import { ApiPost } from '../../components/ApiRequest.tsx';
+import { ApiPost } from '../../config/ApiRequest.ts';
 
 export const useMakeNewBooking = (
     bookingDetails: BookingDetails,

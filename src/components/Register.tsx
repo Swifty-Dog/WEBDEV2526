@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../utils/locales/i18n.ts';
 import { useNavigate } from "react-router-dom";
 import { useState, type FormEvent } from 'react';
-import { ApiPost } from './ApiRequest.tsx';
+import { ApiPost } from '../config/ApiRequest.ts';
 import type {ApiErrorData} from "../utils/types.ts";
 
 const translateApiError = (data: ApiErrorData, fallbackT: typeof i18n.t): string => {

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import i18n from '../../utils/locales/i18n';
 import { translateFetchError} from "../../utils/locales/translateFetchError";
 import type { DailyBookingWithRoom } from "../../utils/types.ts";
-import { ApiGet } from "../../components/ApiRequest.tsx";
+import { ApiGet } from "../../config/ApiRequest.ts";
 import { startGenericHub, onEvent, stopGenericHub } from "../../utils/signalR/genericHub";
 
 export const useDailyBookings = (date: string | null) => {

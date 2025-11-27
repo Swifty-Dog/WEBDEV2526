@@ -1,7 +1,7 @@
 import {useCallback, useState} from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../utils/locales/i18n.ts';
-import { ApiPut } from '../../components/ApiRequest';
+import { ApiPut } from '../../config/ApiRequest.ts';
 import { type SettingsResponse } from './useFetchSettings';
 import { type ApiErrorData } from '../../utils/types';
 
