@@ -20,9 +20,14 @@ public class AttendController : BaseController
     public async Task<IActionResult> Attend([FromRoute] long eventId)
     {
         var userId = GetCurrentUserId();
-        var ok = await _attendService.Attend(eventId, userId);
-        if (!ok) return BadRequest(new { message = "Unable to attend the event." });
-        return Ok(new { attending = true });
+        var result = await _attendService.Attend(eventId, userId);
+        return result.Status switch
+        {
+            AttendStatus.Success => Ok(new { attending = true }),
+            AttendStatus.NotFound => NotFound(new { message = "Event not found." }),
+            AttendStatus.Error => StatusCode(500, new { message = "An error occurred while attending the event." }),
+            _ => BadRequest(new { message = "Unable to attend the event." })
+        };
     }
 
     [Authorize]
@@ -30,8 +35,14 @@ public class AttendController : BaseController
     public async Task<IActionResult> Unattend([FromRoute] long eventId)
     {
         var userId = GetCurrentUserId();
-        var ok = await _attendService.Unattend(eventId, userId);
-        if (!ok) return BadRequest(new { message = "Unable to unattend the event." });
-        return Ok(new { attending = false });
+        var result = await _attendService.Unattend(eventId, userId);
+        return result.Status switch
+        {
+            AttendStatus.Success => Ok(new { attending = false }),
+            AttendStatus.NotFound => NotFound(new { message = "Event not found or participation does not exist." }),
+            AttendStatus.NoChange => NotFound(new { message = "Participation not found." }),
+            AttendStatus.Error => StatusCode(500, new { message = "An error occurred while unattending the event." }),
+            _ => BadRequest(new { message = "Unable to unattend the event." })
+        };
     }
 }
