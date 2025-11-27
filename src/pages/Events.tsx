@@ -43,13 +43,13 @@ export const Events: React.FC = () => {
         <div className="events-page">
             <h1>Events</h1>
 
-            <div className="stats-section section-card">
+            {/* <div className="stats-section section-card">
                 <h2>Statistieken</h2>
                 <div className="stats-grid">
                     <p>Total Users: 120</p>
                     <p>Events This Month: {events.length}</p>
                 </div>
-            </div>
+            </div> */}
 
             {/* <div className="calender-week-selector">
                 Hier komt een component zodat de gebruiker de gewenste week kan selecteren die getoont moet worden.

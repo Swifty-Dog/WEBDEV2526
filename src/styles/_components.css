@@ -648,6 +648,16 @@ textarea:disabled {
     flex-direction: column;
 }
 
+.panel-fancy-borders.panel-compact {
+    min-height: 0;
+    border-width: 0.5rem;
+    padding: 0.5rem;
+}
+
+.panel-fancy-borders.panel-compact .week-day {
+    min-height: 90px;
+}
+
 .panel-fancy-borders::before {
     content: '';
     position: absolute;

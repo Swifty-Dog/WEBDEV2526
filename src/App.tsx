@@ -13,6 +13,7 @@ import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
 import { Events } from './pages/Events.tsx';
+import CalendarPage from './pages/Calendar.tsx';
 
 export function App() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -99,6 +100,16 @@ export function App() {
                         allowedRoles={['admin', 'manager', 'employee']}
                     >
                         <Events />
+                    </ProtectedRoute>}
+                />
+
+                <Route path="/calendar" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin', 'manager', 'employee']}
+                    >
+                        <CalendarPage />
                     </ProtectedRoute>}
                 />
             </Routes>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
 import { EventsTable } from '../components/EventsTable';
@@ -7,6 +7,7 @@ import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { RegisterButton } from '../components/RegisterButton';
+import { ApiGet } from '../components/ApiRequest';
 
 export type EventItem = {
     id: string;
@@ -17,32 +18,26 @@ export type EventItem = {
     attendees?: string[];
 };
 
-const initialSample: EventItem[] = [
-    {
-        id: '1',
-        title: 'Team Standup',
-        date: new Date().toISOString(),
-        location: 'Conference Room A',
-        description: 'Daily sync for the engineering team',
-        attendees: ['Alice', 'Bob']
-    },
-    {
-        id: '2',
-        title: 'All-hands Meeting',
-        date: new Date(Date.now() + 86400000).toISOString(),
-        location: 'Main Hall',
-        description: 'Monthly company-wide update',
-        attendees: ['Charlie', 'Dana', 'Eve']
-    }
-];
+interface EventApiItem {
+    id: number;
+    title: string;
+    description?: string;
+    date?: string; // legacy key when DTO used JsonPropertyName("date")
+    eventDate?: string; // current key after DTO cleanup
+    roomName?: string;
+    location?: string;
+    attendees: string[];
+}
 
 export const AdminDashboard: React.FC = () => {
-    const [events, setEvents] = useState<EventItem[]>(initialSample);
+    const [events, setEvents] = useState<EventItem[]>([]);
     const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [attendeesFor, setAttendeesFor] = useState<EventItem | null>(null);
     const [confirmDeleteFor, setConfirmDeleteFor] = useState<EventItem | null>(null);
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     const toDayKeyISO = (d: Date) => {
         const y = d.getFullYear();
@@ -67,6 +62,31 @@ export const AdminDashboard: React.FC = () => {
     const filteredEvents = selectedDayISO
         ? events.filter(ev => toDayKeyISO(new Date(ev.date)) === selectedDayISO)
         : events;
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('authToken');
+                const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                const mapped: EventItem[] = data.map(e => ({
+                    id: String(e.id),
+                    title: e.title,
+                    date: (e.date ?? e.eventDate ?? new Date().toISOString()),
+                    location: e.location ?? e.roomName,
+                    description: e.description,
+                    attendees: e.attendees ?? []
+                }));
+                setEvents(mapped);
+            } catch (e) {
+                setError(e instanceof Error ? e.message : 'Kon events niet laden.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvents();
+    }, []);
 
     const openNew = () => {
         setEditingEvent(null);
@@ -114,17 +134,12 @@ export const AdminDashboard: React.FC = () => {
         <div className="admin-dashboard page-content">
             <div className="admin-header">
                 <div>
-                    <h1>Admin Dashboard</h1>
-                    {/* <p className="muted">Manage calendar events — create, edit, delete and view attendees.</p> */}
-                </div>
-                <div>
                     <button className="header-button" onClick={openNew}>+ New Event</button>
                     <RegisterButton style={{ marginLeft: '0.5rem' }} />
                 </div>
             </div>
 
             <section className="section section--compact">
-                <h2 className="section-title">Week view</h2>
                 {selectedDayISO && (
                     <div className="filter-row">
                         <span className="muted">Filtered day:</span>
@@ -132,20 +147,26 @@ export const AdminDashboard: React.FC = () => {
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>Clear filter</button>
                     </div>
                 )}
-                <WeekCalendar
-                    events={events}
-                    selectedDayISO={selectedDayISO ?? undefined}
-                    onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
-                />
+                <div className="panel-fancy-borders panel-compact">
+                    {error && <p className="error-message">{error}</p>}
+                    {loading && <p>Events laden...</p>}
+                    <WeekCalendar
+                        events={events}
+                        selectedDayISO={selectedDayISO ?? undefined}
+                        onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
+                    />
+                </div>
             </section>
 
             <section className="section section--spacious">
-                <EventsTable
-                    events={filteredEvents}
-                    onEdit={handleEdit}
-                    onDelete={(ev: EventItem) => setConfirmDeleteFor(ev)}
-                    onViewAttendees={handleViewAttendees}
-                />
+                <div className="panel-fancy-borders">
+                    <EventsTable
+                        events={filteredEvents}
+                        onEdit={handleEdit}
+                        onDelete={(ev: EventItem) => setConfirmDeleteFor(ev)}
+                        onViewAttendees={handleViewAttendees}
+                    />
+                </div>
             </section>
 
             {isFormOpen && (

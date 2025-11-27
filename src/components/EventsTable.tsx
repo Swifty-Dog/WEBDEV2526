@@ -6,9 +6,12 @@ interface Props {
     onEdit: (ev: EventItem) => void;
     onDelete: (ev: EventItem) => void;
     onViewAttendees: (ev: EventItem) => void;
+    showEdit?: boolean;
+    showDelete?: boolean;
+    deleteLabel?: string;
 }
 
-export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees }) => {
+export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees, showEdit = true, showDelete = true, deleteLabel = 'Delete' }) => {
     return (
         <div>
             <table className="events-table">
@@ -40,9 +43,13 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                             <td>{(ev.attendees ?? []).length}</td>
                             <td>
                                 <div className="table-actions">
-                                    <button className="btn-sm" onClick={() => onEdit(ev)}>Edit</button>
+                                    {showEdit && (
+                                        <button className="btn-sm" onClick={() => onEdit(ev)}>Edit</button>
+                                    )}
                                     <button className="btn-sm" onClick={() => onViewAttendees(ev)}>Attendees</button>
-                                    <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>Delete</button>
+                                    {showDelete && (
+                                        <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>{deleteLabel}</button>
+                                    )}
                                 </div>
                             </td>
                         </tr>
