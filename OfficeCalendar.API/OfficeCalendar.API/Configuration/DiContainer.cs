@@ -20,6 +20,7 @@ public static class DiContainer
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
+        services.AddScoped<IEventRepository, EventRepository>();
 
         // JWT Token Generator: Must be Singleton as it is stateless and reads configuration.
         services.AddSingleton<ITokenService, TokenService>();
@@ -31,6 +32,7 @@ public static class DiContainer
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IRoomBookingService, RoomBookingService>();
+        services.AddScoped<IEventService, EventService>();
 
     }
 }

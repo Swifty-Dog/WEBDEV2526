@@ -1,9 +1,10 @@
 using OfficeCalendar.API.DTOs.Events.Response;
+using OfficeCalendar.API.Models;
 namespace OfficeCalendar.API.Services.Results.Events;
 
 public abstract record UpdateEventResult
 {
-    public sealed record Success(EventResponseDto Dto) : UpdateEventResult;
+    public sealed record Success(EventModel eventModel) : UpdateEventResult;
     public sealed record InvalidCredentials(string Message) : UpdateEventResult;
     public sealed record NotFound : UpdateEventResult;
     public sealed record Error(string Message) : UpdateEventResult;
