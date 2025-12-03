@@ -16,12 +16,16 @@ import { useFetchSettings } from './hooks/Settings/useFetchSettings';
 import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
+import { getUserRoleFromToken, isTokenValid } from './utils/auth.ts';
 
 export function App() {
     const token = localStorage.getItem('authToken');
-    const storedRole = localStorage.getItem('userRole');
-    const [isLoggedIn, setIsLoggedIn] = useState(!!token);
-    const [userRole, setUserRole] = useState<string | null>(storedRole);
+    const hasValidToken = isTokenValid(token);
+    if (!hasValidToken) localStorage.removeItem('authToken');
+    const derivedRole = getUserRoleFromToken(token);
+
+    const [isLoggedIn, setIsLoggedIn] = useState(!!derivedRole);
+    const [userRole, setUserRole] = useState<string | null>(derivedRole);
     const { settings, loading } = useFetchSettings(token, isLoggedIn);
 
     const initialSettings: Partial<UserSettings> | undefined = settings ? {
