@@ -10,7 +10,7 @@ public interface IEventService
 
     public Task<GetEventResult> GetEventById(long eventId);
 
-    public Task<IEnumerable<GetEventResult>> GetAllEvents();
+    public Task<GetEventsResult> GetAllEvents();
 
     public Task<UpdateEventResult> UpdateEvent(UpdateEventDto updatedEventDto);
 
