@@ -7,7 +7,7 @@ import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { RegisterButton } from '../components/RegisterButton';
-import { PromoteDemoteButton } from '../components/PromoteDemoteButton';
+import PromoteDemoteModal from '../components/PromoteDemoteButton';
 
 export type EventItem = {
     id: string;
@@ -44,6 +44,7 @@ export const AdminDashboard: React.FC = () => {
     const [attendeesFor, setAttendeesFor] = useState<EventItem | null>(null);
     const [confirmDeleteFor, setConfirmDeleteFor] = useState<EventItem | null>(null);
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
+    const [isPromoteDemoteOpen, setIsPromoteDemoteOpen] = useState(false);
 
     const toDayKeyISO = (d: Date) => {
         const y = d.getFullYear();
@@ -120,8 +121,8 @@ export const AdminDashboard: React.FC = () => {
                 </div>
                 <div>
                     <button className="header-button" onClick={openNew}>+ New Event</button>
-                    <RegisterButton style={{ marginLeft: '0.5rem' }} />
-                    <PromoteDemoteButton style={{ marginLeft: '0.5rem' }} />
+                    <RegisterButton style={{ marginLeft: '0.5rem', marginRight: "0.5rem" }} />
+                    <button className="header-button" onClick={() => setIsPromoteDemoteOpen(true)}>Promote / Demote</button>
                 </div>
             </div>
 
@@ -171,6 +172,12 @@ export const AdminDashboard: React.FC = () => {
                     message={`Delete "${confirmDeleteFor.title}"? This cannot be undone.`}
                     onConfirm={() => handleDelete(confirmDeleteFor)}
                     onCancel={() => setConfirmDeleteFor(null)}
+                />
+            )}
+
+            {isPromoteDemoteOpen && (
+                <PromoteDemoteModal
+                    onClose={() => setIsPromoteDemoteOpen(false)}
                 />
             )}
         </div>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.DTOs.Employees.Request;
+using OfficeCalendar.API.DTOs.Employees.Response;
 
 namespace OfficeCalendar.API.Controllers;
 
@@ -70,5 +71,13 @@ public class EmployeeController : BaseController
                 BadRequest(new { message = error.Message }),
              _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred during role update." })
         };
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchEmployees([FromQuery] string query)
+    {
+        var result = await EmployeeService.SearchEmployees(query);
+
+        return Ok(result);
     }
 }

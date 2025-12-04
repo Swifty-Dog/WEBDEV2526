@@ -8,6 +8,7 @@ using OfficeCalendar.API.Services.Results.Employees;
 using OfficeCalendar.API.Services.Results.Tokens;
 using OfficeCalendar.API.DTOs.Employees.Request;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.OpenApi.Services;
 
 namespace OfficeCalendar.API.Services;
 
@@ -34,6 +35,9 @@ public class EmployeeService : IEmployeeService
             var employee = await _employeeRepo.GetById(id);
             if (employee is null)
                 return new GetEmployeeResult.NotFound();
+
+            if (employee.Role == "Admin")
+                return new GetEmployeeResult.InvalidData("Access to admin employee data is restricted.");
             return new GetEmployeeResult.Success(employee);
         }
         catch (Exception ex)
@@ -158,7 +162,10 @@ public class EmployeeService : IEmployeeService
                 if (empRole == "admin")
                     return new PromoteDemoteResult.InvalidData("Cannot change role of an admin employee.");
 
-                emp.Role = empRole == "user" ? "Manager" : "User";
+                // Toggle between manager and employee roles
+                emp.Role = empRole == "manager" ? "Employee" : "Manager";
+                if (emp.Role == "User") // Just in case
+                    emp.Role = "Employee";
                 var result = await _employeeRepo.Update(emp);
 
                 if (result)
@@ -172,6 +179,35 @@ public class EmployeeService : IEmployeeService
         catch
         {
             return new PromoteDemoteResult.Error("An error occurred while updating the employee role.");
+        }
+    }
+
+    public async Task<SearchResults> SearchEmployees<T>(T search)
+    {
+        if (search is null || (search is string str && string.IsNullOrWhiteSpace(str)))
+            return new SearchResults.InvalidData("Search query cannot be null or empty.");
+
+        try
+        {
+            var allEmployees = await _employeeRepo.GetAll();
+            allEmployees.RemoveAll(e => e.Role.Trim().ToLower() == "admin");
+            var query = search.ToString()!.Trim().ToLower();
+
+            var matchedEmployees = allEmployees.Where(e =>
+                e.FirstName.ToLower().Contains(query) ||
+                e.LastName.ToLower().Contains(query) ||
+                e.Email.ToLower().Contains(query) ||
+                e.Role.ToLower().Contains(query)
+            ).ToList();
+
+            if (matchedEmployees.Count == 0)
+                return new SearchResults.NoResultsFound();
+
+            return new SearchResults.Success(matchedEmployees);
+        }
+        catch (Exception ex)
+        {
+            return new SearchResults.Error($"An error occurred while searching for employees: {ex.Message}");
         }
     }
 }

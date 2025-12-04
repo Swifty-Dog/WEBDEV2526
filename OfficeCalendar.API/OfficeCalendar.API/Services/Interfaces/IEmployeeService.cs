@@ -10,4 +10,5 @@ public interface IEmployeeService
     Task<LoginResult> ValidateLogin(LoginRequest dto);
     Task<RegisterResult> RegisterEmployee(RegisterDto employee);
     Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId);
+    Task<SearchResults> SearchEmployees<T>(T search);
 }
