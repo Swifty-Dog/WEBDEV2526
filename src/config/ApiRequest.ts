@@ -1,6 +1,7 @@
 import { API_BASE_URL } from './api.ts';
 import type { ApiErrorData } from '../utils/types.ts';
 import { jwtDecode } from 'jwt-decode';
+import i18n from "../utils/locales/i18n.ts";
 
 type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE';
 
@@ -215,9 +216,9 @@ async function apiRequest<T>(
         const errorData = data as ApiErrorData;
 
         if (errorData?.message) {
-            const structuredError = JSON.stringify({
-                message: errorData.message,
-                arguments: errorData.arguments
+            const structuredError = i18n.t(errorData.message, {
+                ...errorData.arguments,
+                ns: 'api'
             });
 
             throw new Error(structuredError);

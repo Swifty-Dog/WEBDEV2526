@@ -63,7 +63,7 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
 
         } catch (error) {
             if (error instanceof Error) {
-                setErrorMessage(error.message);
+                setErrorMessage(tApi(error.message));
             } else {
                 setErrorMessage(tApi('general.API_ErrorUnexpected'));
             }
