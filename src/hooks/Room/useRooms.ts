@@ -42,27 +42,21 @@ export const useRooms = () => {
 
     const saveRoom = useCallback(async (room: Room) => {
         if (!token) return;
-
-        try {
-            if (room.id) {
-                const saved = await ApiPut<Room>(`/Room/${room.id}`, room, {
-                    Authorization: `Bearer ${token}`,
-                });
-                setRooms(prev => prev.map(r => r.id === saved.id ? saved : r));
-            } else {
-                const dto = {
-                    roomName: room.roomName,
-                    capacity: room.capacity,
-                    location: room.location,
-                };
-                const saved = await ApiPost<Room>('/Room', dto, {
-                    Authorization: `Bearer ${token}`,
-                });
-                setRooms(prev => [...prev, saved]);
-            }
-        } catch (err) {
-            const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorSave');
-            setError(errorMessage);
+        if (room.id) {
+            const saved = await ApiPut<Room>(`/Room/${room.id}`, room, {
+                Authorization: `Bearer ${token}`,
+            });
+            setRooms(prev => prev.map(r => r.id === saved.id ? saved : r));
+        } else {
+            const dto = {
+                roomName: room.roomName,
+                capacity: room.capacity,
+                location: room.location,
+            };
+            const saved = await ApiPost<Room>('/Room', dto, {
+                Authorization: `Bearer ${token}`,
+            });
+            setRooms(prev => [...prev, saved]);
         }
     }, [token]);
 

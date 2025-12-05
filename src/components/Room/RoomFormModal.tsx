@@ -6,7 +6,7 @@ import { type Room } from '../../utils/types.ts';
 
 type RoomFormModalProps = {
     existing?: Room;
-    onSave: (room: Room) => void;
+    onSave: (room: Room) => Promise<void>;
     onClose: () => void;
 };
 
@@ -18,6 +18,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
     const [capacity, setCapacity] = useState<number>(0);
     const [location, setLocation] = useState('');
     const [showConfirm, setShowConfirm] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const initialState = {
         name: existing?.roomName ?? '',
@@ -35,6 +36,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
             setCapacity(0);
             setLocation('');
         }
+        setError(null);
     }, [existing, initialState.capacity, initialState.location, initialState.name]);
 
     const isDirty = () => {
@@ -53,16 +55,27 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
         }
     };
 
-    const submit = (e?: React.FormEvent) => {
+    const submit = async (e?: React.FormEvent) => {
         e?.preventDefault();
+        setError(null);
+
         const payload: Room = {
             id: existing?.id || null,
             roomName: name.trim(),
             capacity,
             location: location.trim(),
         };
-        onSave(payload);
-    };
+
+        try {
+            await onSave(payload);
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError(tCommon('general.API_ErrorUnexpected'));
+            }
+        }
+    }
 
     return (
         <>
@@ -92,6 +105,8 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
                             <label>{tRooms('roomForm.labelLocation')}</label>
                             <input value={location} onChange={e => setLocation(e.target.value)} />
                         </div>
+
+                        {error && (<div className="error-message">{error}</div>)}
 
                         <div className="form-actions">
                             <button type="button" className="btn-sm" onClick={handleClose}>

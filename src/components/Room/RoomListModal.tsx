@@ -8,8 +8,8 @@ interface RoomListModalProps {
     rooms: Room[];
     mode: 'manage' | 'delete';
     onClose: () => void;
-    onSaveRoom: (room: Room) => void;
-    onDeleteRoom: (id: number) => void;
+    onSaveRoom: (room: Room) => Promise<void>;
+    onDeleteRoom: (id: number) => Promise<void>;
 }
 
 export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClose, onSaveRoom, onDeleteRoom}) => {
@@ -88,8 +88,8 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                     <RoomFormModal
                         existing={editing}
                         onClose={() => setEditing(undefined)}
-                        onSave={(room) => {
-                            onSaveRoom(room);
+                        onSave={async (room) => {
+                            await onSaveRoom(room);
                             setEditing(undefined);
                         }}
                     />
@@ -98,8 +98,8 @@ export const RoomListModal: React.FC<RoomListModalProps> = ({rooms, mode, onClos
                 {creating && (
                     <RoomFormModal
                         onClose={() => setCreating(false)}
-                        onSave={(room) => {
-                            onSaveRoom(room);
+                        onSave={async (room) => {
+                            await onSaveRoom(room);
                             setCreating(false);
                         }}
                     />

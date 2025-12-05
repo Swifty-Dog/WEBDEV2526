@@ -34,7 +34,10 @@ export const AdminRoomManagement: React.FC = () => {
             {showRoomForm && (
                 <RoomFormModal
                     onClose={() => setShowRoomForm(false)}
-                    onSave={(room) => { saveRoom(room); setShowRoomForm(false); }}
+                    onSave={async (room) => {
+                        await saveRoom(room);
+                        setShowRoomForm(false);
+                    }}
                 />
             )}
         </div>
