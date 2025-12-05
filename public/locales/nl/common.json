@@ -67,7 +67,7 @@
   "calendar": {
     "weekViewTitle": "Weekweergave",
     "monthViewTitle": "Maandweergave",
-    "filteredDayLab": "Gefilterde dag:",
+    "filteredDayLabel": "Gefilterde dag:",
     "subtitle": "Klik op een dag voor details",
     "titlePrevMonth": "Vorige maand",
     "titleNextMonth": "Volgende maand",

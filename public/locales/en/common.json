@@ -67,7 +67,7 @@
   "calendar": {
     "weekViewTitle": "Week View",
     "monthViewTitle": "Month View",
-    "filteredDayLab": "Filtered day: ",
+    "filteredDayLabel": "Filtered day: ",
     "subtitle": "Click a day for details",
     "titlePrevMonth": "Previous month",
     "titleNextMonth": "Next month",
