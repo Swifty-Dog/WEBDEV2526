@@ -427,10 +427,35 @@ textarea:disabled {
     margin-top: auto;
 }
 
-.form-row { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.75rem; }
-.form-row label { width:120px; font-weight:600; color:var(--color-text-secondary); }
-.form-row input, .form-row textarea { flex:1; padding:0.5rem; border-radius:0.4rem; border:1px solid var(--color-border-subtle); background:var(--color-input-bg); color:var(--color-text-primary); }
-.form-actions { display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.75rem }
+.form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.form-row label {
+    white-space: nowrap;
+    flex: 0 0 15rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.form-row input, .form-row textarea {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-input-bg);
+    color: var(--color-text-primary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.75rem
+}
 
 /* Week calendar styles */
 .week-calendar { background: transparent; }
@@ -666,6 +691,14 @@ textarea:disabled {
     margin: 0;
 }
 
+/*.settings-actions-container {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*    gap: 1rem;*/
+/*    width: 100%;*/
+/*    text-align: center;*/
+/*}*/
+
 .list-item {
     display: flex;
     justify-content: center;
@@ -772,6 +805,8 @@ textarea:disabled {
     color: var(--color-text-primary);
     font-size: 1rem;
     transition: border-color 0.3s;
+    flex: 1;
+    width: 100%;
 }
 
 .booking-input::placeholder {

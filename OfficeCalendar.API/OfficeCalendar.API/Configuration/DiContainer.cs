@@ -17,12 +17,9 @@ public static class DiContainer
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
         // Repository: Scoped. New instance per HTTP request.
-        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
-
-        // JWT Token Generator: Must be Singleton as it is stateless and reads configuration.
-        services.AddSingleton<ITokenService, TokenService>();
 
         // Password Hasher: Must be Singleton as it is stateless and resource-intensive.
         services.AddSingleton<IPasswordHasher<EmployeeModel>, PasswordHasher<EmployeeModel>>();
@@ -31,6 +28,7 @@ public static class DiContainer
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IRoomBookingService, RoomBookingService>();
-
+        services.AddScoped<ISettingsService, SettingsService>();
+        services.AddScoped<ITokenService, TokenService>();
     }
 }

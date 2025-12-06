@@ -1,0 +1,56 @@
+{
+  "general": {
+    "API_ErrorInvalidData": "Invalid data provided.",
+    "API_ErrorInvalidSession": "Invalid or expired user session.",
+    "API_ErrorPermissionDenied": "You do not have permission to perform this action.",
+    "API_ErrorUnauthorized": "You are not authorized to perform this action.",
+    "API_ErrorUnexpected": "An unexpected error occurred.",
+    "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match."
+  },
+  "tokens": {
+    "API_ErrorTokenConfig": "Token generation failed: JWT secret key is not configured.",
+    "API_ErrorInvalidRefreshToken": "Invalid or expired refresh token.",
+    "API_ErrorTokenGenerationFailed": "Failed to generate token.",
+    "API_ErrorRefreshTokenRequired": "Refresh token is required."
+  },
+  "employees": {
+    "API_ErrorLoginInvalid": "Invalid email or password.",
+    "API_ErrorEmailRequired": "Email is required.",
+    "API_ErrorPasswordRequired": "Password is required.",
+    "API_ErrorEmailPasswordRequired": "Email and password are required.",
+    "API_ErrorEmailExists": "Email already exists.",
+    "API_ErrorCreateFailed": "Failed to create employee.",
+    "API_ErrorAuthRecordNotFound": "Authenticated user record not found.",
+    "API_ErrorMissingToken": "Missing or invalid Authentication header.",
+    "API_ErrorInvalidToken": "Invalid or expired token.",
+    "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token."
+  },
+  "rooms": {
+    "API_ErrorDuplicateName": "Room with the name '{{name}}' already exists.",
+    "API_ErrorNotAvailable": "The room is not available at the requested time.",
+    "API_ErrorNotFound": "Room not found.",
+    "API_ErrorNotFoundById": "Room with ID '{{id}}' not found.",
+    "API_ErrorNotFoundByName": "Room with name '{{name}}' not found.",
+    "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the room.",
+    "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the room.",
+    "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the room."
+
+  },
+  "roomBookings": {
+    "API_ErrorConflict": "There is a conflict with an existing booking.",
+    "API_ErrorEndBeforeStart": "Booking end time can't be before start time.",
+    "API_ErrorNotFound": "Booking not found.",
+    "API_ErrorNotFoundById": "Booking with ID '{{id}}' not found.",
+    "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the booking.",
+    "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the booking.",
+    "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the booking."
+  },
+  "settings": {
+    "API_ErrorNotFound": "Settings not found for this user.",
+    "API_ErrorInvalidDataValue": "Invalid value '{{value}}' for '{{field}}'.",
+    "API_ErrorSaveFailed": "Failed to save settings.",
+    "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the settings.",
+    "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the settings.",
+    "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the settings."
+  }
+}

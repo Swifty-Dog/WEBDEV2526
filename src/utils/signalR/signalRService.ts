@@ -1,28 +1,49 @@
 import * as signalR from "@microsoft/signalr";
+import { getValidToken} from "../../config/ApiRequest";
 
 const connections: Record<string, signalR.HubConnection> = {};
+const connectionPromises: Record<string, Promise<void> | undefined> = {};
 
-export function startConnection(hubUrl: string): signalR.HubConnection {
-    const existing = connections[hubUrl];
-    if (existing && existing.state === signalR.HubConnectionState.Connected) {
-        return existing;
+export async function startConnection(hubUrl: string): Promise<signalR.HubConnection> {
+    let connection = connections[hubUrl];
+    if (connection && connection.state === signalR.HubConnectionState.Connected) {
+        return connection;
     }
 
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-        throw new Error("Authentication token not found for SignalR connection.");
+    if (connectionPromises[hubUrl]) {
+        await connectionPromises[hubUrl];
+        return connections[hubUrl];
     }
 
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl(hubUrl, {
-            accessTokenFactory: () => token,
-        })
-        .withAutomaticReconnect()
-        .build();
+    if (!connection) {
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl, {
+                accessTokenFactory: async () => {
+                    try {
+                        return await getValidToken();
+                    } catch (e) {
+                        console.error("SignalR token error", e);
+                        return "";
+                    }
+                }
+            })
+            .withAutomaticReconnect()
+            .build();
 
-    connection.start().catch(err => console.error("SignalR start error:", err));
+        connections[hubUrl] = connection;
+    }
 
-    connections[hubUrl] = connection;
+    try {
+        connectionPromises[hubUrl] = connection.start();
+        await connectionPromises[hubUrl];
+        console.log(`SignalR Connected: ${hubUrl}`);
+    } catch (err) {
+        console.error("SignalR Connection Failed:", err);
+        throw err;
+    } finally {
+        delete connectionPromises[hubUrl];
+    }
+
     return connection;
 }
 
@@ -31,19 +52,36 @@ export function subscribe(
     eventName: string,
     callback: (...args: any[]) => void
 ) {
-    const connection = startConnection(hubUrl);
+    startConnection(hubUrl).catch(err => console.error(err));
 
-    connection.on(eventName, callback);
+    const connection = connections[hubUrl];
+
+    if (connection) {
+        connection.on(eventName, callback);
+    }
 
     return () => {
-        connection.off(eventName, callback);
+        if (connections[hubUrl]) {
+            connections[hubUrl].off(eventName, callback);
+        }
     };
 }
 
-export function stopConnection(hubUrl: string) {
+export async function stopConnection(hubUrl: string) {
     const connection = connections[hubUrl];
+
+    if (connectionPromises[hubUrl]) {
+        try { await connectionPromises[hubUrl]; } catch { /* ignore */ }
+    }
+
     if (connection) {
-        connection.stop().catch(err => console.error("SignalR stop error:", err));
-        delete connections[hubUrl];
+        try {
+            await connection.stop();
+            console.log(`SignalR Disconnected: ${hubUrl}`);
+        } catch (err) {
+            console.error("SignalR Stop Error:", err);
+        } finally {
+            delete connections[hubUrl];
+        }
     }
 }
