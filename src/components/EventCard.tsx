@@ -3,7 +3,6 @@ import { ApiDelete, ApiPost } from "./ApiRequest";
 import "../styles/EventCard.css";
 import "../styles/_components.css";
 
-// Define the props interface
 interface EventCardProps {
     id: string | number;
     title: string;
