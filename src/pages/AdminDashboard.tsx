@@ -22,8 +22,7 @@ interface EventApiItem {
     id: number;
     title: string;
     description?: string;
-    date?: string; // legacy key when DTO used JsonPropertyName("date")
-    eventDate?: string; // current key after DTO cleanup
+    eventDate: string;
     roomName?: string;
     location?: string;
     attendees: string[];
@@ -73,7 +72,7 @@ export const AdminDashboard: React.FC = () => {
                 const mapped: EventItem[] = data.map(e => ({
                     id: String(e.id),
                     title: e.title,
-                    date: (e.date ?? e.eventDate ?? new Date().toISOString()),
+                    date: e.eventDate,
                     location: e.location ?? e.roomName,
                     description: e.description,
                     attendees: e.attendees ?? []

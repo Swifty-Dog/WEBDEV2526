@@ -18,8 +18,7 @@ type EventApiItem = {
     id: number;
     title: string;
     description?: string;
-    date?: string;      // legacy
-    eventDate?: string; // current
+    eventDate: string;
     roomName?: string;
     location?: string;
     attendees?: string[];
@@ -39,7 +38,7 @@ const formatDisplayDate = (key: string) => {
 };
 
 const mapApiEvent = (e: EventApiItem): CalendarEvent | null => {
-    const iso = e.date ?? e.eventDate;
+    const iso = e.eventDate;
     const attending = e.attending === true;
     if (!iso || !attending) return null; // only show attending events with a date
     return {

@@ -27,7 +27,7 @@ export function useEvents(): UseEventsResult {
                 );
                 const grouped: Record<string, string[]> = {};
                 data.forEach(e => {
-                    const iso = (e.date ?? e.eventDate ?? new Date().toISOString());
+                    const iso = e.eventDate;
                     const dateKey = toDayKeyISO(new Date(iso));
                     if (!grouped[dateKey]) grouped[dateKey] = [];
                     grouped[dateKey].push(e.title);

@@ -2,8 +2,7 @@ export interface EventApiItem {
     id: number;
     title: string;
     description?: string;
-    date?: string; 
-    eventDate?: string; 
+    eventDate: string;
     roomName?: string;
     location?: string;
     attendees: string[];
