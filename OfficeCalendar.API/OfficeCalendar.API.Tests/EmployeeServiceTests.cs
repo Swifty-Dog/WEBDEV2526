@@ -13,7 +13,8 @@ namespace OfficeCalendar.API.Tests;
 public class EmployeeServiceTests
 {
     #region Setup
-    private readonly Mock<IRepository<EmployeeModel>> _employeeRepoMock = new();
+    private readonly Mock<IEmployeeRepository> _employeeRepoMock = new();
+    private readonly Mock<IRepository<AdminModel>> _adminRepoMock = new();
     private readonly Mock<ITokenService> _tokenServiceMock = new();
     private readonly Mock<IPasswordHasher<EmployeeModel>> _hasherMock = new();
     private readonly Mock<ISettingsService> _settingsServiceMock = new();
@@ -24,6 +25,7 @@ public class EmployeeServiceTests
     {
         _employeeService = new EmployeeService(
             _employeeRepoMock.Object,
+            _adminRepoMock.Object,
             _tokenServiceMock.Object,
             _hasherMock.Object,
             _settingsServiceMock.Object

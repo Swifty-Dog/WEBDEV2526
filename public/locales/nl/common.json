@@ -36,8 +36,11 @@
     "labelEmail": "E-mail",
     "labelPassword": "Wachtwoord",
     "labelPasswordConfirm": "Wachtwoord bevestigen",
+    "labelName": "Naam",
     "labelFirstName": "Voornaam",
     "labelLastName": "Achternaam",
+    "labelRole": "Rol",
+    "labelId": "ID",
     "labelRegistering": "Registreren..."
   },
   "dashboard": {
@@ -88,5 +91,11 @@
       "Sat": "Za",
       "Sun": "Zo"
     }
+  },
+  "roles": {
+    "Admin": "Beheerder",
+    "Manager": "Manager",
+    "Employee": "Werknemer",
+    "Terminated": "Getermineerd"
   }
 }

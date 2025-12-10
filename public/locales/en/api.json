@@ -19,10 +19,14 @@
     "API_ErrorPasswordRequired": "Password is required.",
     "API_ErrorEmailPasswordRequired": "Email and password are required.",
     "API_ErrorEmailExists": "Email already exists.",
+    "API_ErrorAccountTerminated": "This account has been terminated. Please contact the administrator if you believe this is an error.",
     "API_ErrorCreateFailed": "Failed to create employee.",
     "API_ErrorAuthRecordNotFound": "Authenticated user record not found.",
     "API_ErrorMissingToken": "Missing or invalid Authentication header.",
     "API_ErrorInvalidToken": "Invalid or expired token.",
+    "API_ErrorCannotTerminateAdmin": "Cannot terminate an admin.",
+    "API_ErrorTerminationFailed": "Failed to terminate employee.",
+    "API_TerminationSuccess": "Employee terminated successfully.",
     "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token."
   },
   "rooms": {
