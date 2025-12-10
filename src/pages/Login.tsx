@@ -1,6 +1,7 @@
 import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ApiPost } from '../components/ApiRequest';
+import { ApiPost } from '../config/ApiRequest.ts';
 import '../styles/_components.css';
 import '../styles/global.css';
 
@@ -16,10 +17,14 @@ interface LoginResponse {
         email: string;
         role: string;
         token: string;
+        refreshToken: string;
     };
 }
 
 export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
+    const { t: tCommon } = useTranslation('common');
+    const { t: tApi } = useTranslation('api');
+
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -29,16 +34,12 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
         event.preventDefault();
         setErrorMessage(null);
 
-        if (email === '') {
-            if (password === '') {
-                alert('Email and Password are required');
-                return;
-            }
-            alert('Email is required');
-            return;
-        }
-        else if (password === '') {
-            alert('Password is required');
+        if (email === '' || password === '') {
+            const fields = [];
+            if (email === '') fields.push(tCommon('register.labelEmail'));
+            if (password === '') fields.push(tCommon('register.labelPassword'));
+
+            alert(tCommon('register.alertRequired', { fields: fields.join(tCommon('general.listSeparator')) }));
             return;
         }
 
@@ -51,6 +52,8 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
             );
 
             localStorage.setItem('authToken', data.employee.token);
+            sessionStorage.setItem('refreshToken', data.employee.refreshToken);
+
             const employeeRole: string = data.employee.role.trim().toLowerCase();
 
             setIsLoggedIn(true);
@@ -60,9 +63,9 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
 
         } catch (error) {
             if (error instanceof Error) {
-                setErrorMessage(error.message);
+                setErrorMessage(tApi(error.message));
             } else {
-                setErrorMessage('An unknown error occurred.');
+                setErrorMessage(tApi('general.API_ErrorUnexpected'));
             }
         }
     };
@@ -73,7 +76,7 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
                 type="email"
                 className="login-input"
                 id="email"
-                placeholder="Email"
+                placeholder={tCommon('form.placeholderEmail')}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 onInvalid={(e) => e.currentTarget.setCustomValidity('')}
@@ -84,7 +87,7 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
                 type="password"
                 className="login-input"
                 id="password"
-                placeholder="Password"
+                placeholder={tCommon('form.placeholderPassword')}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
@@ -93,7 +96,7 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
             {errorMessage && <p className="login-error">{errorMessage}</p>}
 
             <button type="submit" className="button-primary">
-                Login
+                {tCommon('general.buttonLogin')}
             </button>
         </form>
     );

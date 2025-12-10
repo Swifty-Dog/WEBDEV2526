@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using OfficeCalendar.API.Models.DbContext;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
@@ -22,11 +23,15 @@ public class Repository<T> : IRepository<T> where T : class
         return entriesWritten > 0;
     }
 
-    public virtual async Task<T?> GetById(long id)
+    public virtual async Task<T?> GetById(object id)
     {
         var set = Context.Set<T>();
         return await set.FindAsync(id);
     }
+
+    public virtual async Task<List<T>> GetBy(Expression<Func<T, bool>> predicate) => await DbSet.Where(predicate).ToListAsync();
+
+    public virtual async Task<T?> GetSingle(Expression<Func<T, bool>> predicate) => await DbSet.FirstOrDefaultAsync(predicate);
 
     public virtual async Task<List<T>> GetAll() => await DbSet.ToListAsync();
 
@@ -44,5 +49,21 @@ public class Repository<T> : IRepository<T> where T : class
         DbSet.Remove(entity);
         int entriesWritten = await Context.SaveChangesAsync();
         return entriesWritten > 0;
+    }
+
+    public async Task<TTransaction> ExecuteInTransaction<TTransaction>(Func<CancellationToken, Task<TTransaction>> func, CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await Context.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var result = await func(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return result;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 }

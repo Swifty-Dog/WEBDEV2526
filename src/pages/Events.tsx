@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { ApiGet } from '../components/ApiRequest';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import '../styles/global.css';
+import '../styles/_components.css';
+import "../styles/EventCard.css";
+
 import { EventCard } from "../components/EventCard";
 import type { EventModel } from "../Models/EventModel";
 import '../styles/_components.css';
 
 export const Events: React.FC = () => {
+
     const [events, setEvents] = useState<EventModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -26,16 +33,20 @@ export const Events: React.FC = () => {
 
     if (loading) return <p>Bezig met laden...</p>;
     if (error) return <p>Fout: {error}</p>;
+    const { t } = useTranslation('common');
+    // Sample events data
+
+
 
     return (
         <div className="events-page">
-            <h1>Events</h1>
+            <h1>{t('menu.events')}</h1>
 
             <div className="stats-section section-card">
-                <h2>Statistieken</h2>
+                <h2>{t('dashboard.statsTitle')}</h2>
                 <div className="stats-grid">
-                    <p>Total Users: 120</p>
-                    <p>Events This Month: {events.length}</p>
+                    <p>{t('dashboard.statsTotalUsers')}: 120</p>
+                    <p>{t('dashboard.statsEventsMonth')}: {events.length}</p>
                 </div>
             </div>
 
@@ -56,3 +67,4 @@ export const Events: React.FC = () => {
         </div>
     );
 };
+

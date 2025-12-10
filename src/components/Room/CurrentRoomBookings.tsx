@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RoomBookingsModal } from './RoomBookingsModal';
 import { BookingItem } from './BookingItem';
 import { useCurrentRoomBookings } from '../../hooks/Room/useCurrentRoomBookings.ts';
@@ -12,6 +13,8 @@ import {useUpdateBooking} from "../../hooks/Room/useUpdateBooking.ts";
 type ModalMessage = { text: string | null; type: 'success' | 'error' };
 
 export const CurrentRoomBookings: React.FC = () => {
+    const { t } = useTranslation('rooms');
+
     const { bookings: fetchedBookings, loading, error } = useCurrentRoomBookings();
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,7 +46,7 @@ export const CurrentRoomBookings: React.FC = () => {
 
     const handleSaveEdit = async (updatedBooking: Booking) => {
         try {
-            setModalMessage({ text: 'Boeking bijwerken…', type: 'success' });
+            setModalMessage({ text: t('currentBookings.messageUpdating'), type: 'success' });
 
             await updateBooking(updatedBooking);
 
@@ -53,10 +56,10 @@ export const CurrentRoomBookings: React.FC = () => {
 
             setBookingToEdit(null);
             setIsModalOpen(true);
-            showTemporaryMessage('Boeking succesvol bijgewerkt.', 'success' );
+            showTemporaryMessage(t('currentBookings.messageUpdateSuccess'), 'success' );
         } catch (err) {
             const errorMessage =
-                err instanceof Error ? err.message : 'Kon boeking niet bijwerken.';
+                err instanceof Error ? err.message : t('currentBookings.messageUpdateFailDefault');
             showTemporaryMessage(errorMessage, 'error' );
         }
     };
@@ -67,11 +70,11 @@ export const CurrentRoomBookings: React.FC = () => {
         try {
             await deleteBooking(bookingId);
             setBookings(prev => prev.filter(b => b.id !== bookingId));
-            showTemporaryMessage('Boeking succesvol bijgewerkt.', 'success');
+            showTemporaryMessage(t('currentBookings.messageDeleteSuccess'), 'success');
         } catch (error) {
             console.error("Delete failed:", error);
         }
-    }, [deleteBooking]);
+    }, [deleteBooking, t]);
 
     const handleDeleteClick = (booking: Booking) => {
         setModalMessage(null);
@@ -98,16 +101,16 @@ export const CurrentRoomBookings: React.FC = () => {
         }
     };
 
-    if (loading) return <p>Boekingen laden...</p>;
+    if (loading) return <p>{t('currentBookings.loading')}</p>;
     if (error) return <p className="error-message">{error}</p>;
 
     return (
         <>
             <div className="section-card vertical-flex-card">
-                <h2 className="titling">Opkomende kamerboekingen</h2>
+                <h2 className="titling">{t('currentBookings.title')}</h2>
 
                 {bookings.length === 0 ? (
-                    <p className="muted">Geen opkomende boekingen gevonden.</p>
+                    <p className="muted">{t('currentBookings.empty')}</p>
                 ) : (
                     <ul className="booking-items-list flex-fill">
                         {displayedBookings.map(b => (
@@ -120,7 +123,7 @@ export const CurrentRoomBookings: React.FC = () => {
                     className="button-secondary full-width-button"
                     onClick={() => setIsModalOpen(true)}
                 >
-                    Bekijk al mijn aankomende boekingen &gt;
+                    {t('currentBookings.buttonShowAll')}{' '}
                 </button>
             </div>
 
@@ -147,8 +150,11 @@ export const CurrentRoomBookings: React.FC = () => {
 
             {bookingToDelete && (
                 <ConfirmDialog
-                    title="Verwijder Boeking"
-                    message={`Weet je zeker dat je de boeking voor '${bookingToDelete.purpose}' op ${formatDate(bookingToDelete.bookingDate)} wilt verwijderen?`}
+                    title={t('currentBookings.confirmDeleteTitle')}
+                    message={t('currentBookings.confirmDeleteMessage', {
+                        purpose: bookingToDelete.purpose,
+                        date: formatDate(bookingToDelete.bookingDate)
+                    })}
                     onConfirm={handleConfirmDelete}
                     onCancel={handleCancelDelete}
                 />

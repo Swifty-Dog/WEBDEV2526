@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Identity;
 using Moq;
 using OfficeCalendar.API.Models;
@@ -12,17 +13,20 @@ namespace OfficeCalendar.API.Tests;
 public class EmployeeServiceTests
 {
     #region Setup
-    private readonly Mock<IEmployeeRepository> _employeeRepoMock = new();
+    private readonly Mock<IRepository<EmployeeModel>> _employeeRepoMock = new();
     private readonly Mock<ITokenService> _tokenServiceMock = new();
     private readonly Mock<IPasswordHasher<EmployeeModel>> _hasherMock = new();
+    private readonly Mock<ISettingsService> _settingsServiceMock = new();
     private readonly EmployeeService _employeeService;
+
 
     public EmployeeServiceTests()
     {
         _employeeService = new EmployeeService(
             _employeeRepoMock.Object,
             _tokenServiceMock.Object,
-            _hasherMock.Object
+            _hasherMock.Object,
+            _settingsServiceMock.Object
         );
     }
 
@@ -56,9 +60,9 @@ public class EmployeeServiceTests
     public async Task GetEmployeeById_EmployeeFound_ReturnsSuccess(long id)
     {
         var employee = new EmployeeModel { Id = id, FirstName = "Alice" };
-        _employeeRepoMock.Setup(r => r.GetById(1)).ReturnsAsync(employee);
+        _employeeRepoMock.Setup(r => r.GetById(id)).ReturnsAsync(employee);
 
-        var result = await _employeeService.GetEmployeeById(1);
+        var result = await _employeeService.GetEmployeeById(id);
 
         var success = Assert.IsType<GetEmployeeResult.Success>(result);
         Assert.Equal(employee, success.Employee);
@@ -82,7 +86,8 @@ public class EmployeeServiceTests
     [Fact]
     public async Task ValidateLogin_EmployeeNotFound_ReturnsNotFound()
     {
-        _employeeRepoMock.Setup(repo => repo.GetByEmail(It.IsAny<string>())).ReturnsAsync((EmployeeModel?)null);
+        _employeeRepoMock.Setup(repo => repo.GetSingle(It.IsAny<Expression<Func<EmployeeModel, bool>>>())).
+            ReturnsAsync((EmployeeModel?)null);
 
         var result = await _employeeService.ValidateLogin(new() { Email = "john@doe.com", Password = "password" });
 
@@ -94,7 +99,8 @@ public class EmployeeServiceTests
     public async Task ValidateLogin_ValidCredentials_ReturnsSuccess(string email, string password)
     {
         var employee = new EmployeeModel { Id = 1, Email = email, FirstName = "John" };
-        _employeeRepoMock.Setup(repo => repo.GetByEmail(email)).ReturnsAsync(employee);
+        _employeeRepoMock.Setup(repo => repo.GetSingle(It.IsAny<Expression<Func<EmployeeModel, bool>>>()))
+            .ReturnsAsync(employee);
         _hasherMock.Setup(hasher => hasher.VerifyHashedPassword(employee, It.IsAny<string>(), password))
             .Returns(PasswordVerificationResult.Success);
         _tokenServiceMock.Setup(tokenService => tokenService.GenerateToken(employee)).Returns(new CreateJwtResult.Success("valid_token"));
@@ -111,7 +117,9 @@ public class EmployeeServiceTests
     public async Task ValidateLogin_HashVerificationFails_ReturnsInvalidCredentials(string email, string password)
     {
         var employee = new EmployeeModel { Id = 1, Email = email, FirstName = "John" };
-        _employeeRepoMock.Setup(repo => repo.GetByEmail(email)).ReturnsAsync(employee);
+
+        _employeeRepoMock.Setup(repo => repo.GetSingle(It.IsAny<Expression<Func<EmployeeModel, bool>>>()))
+            .ReturnsAsync(employee);
         _hasherMock.Setup(hasher => hasher.VerifyHashedPassword(employee, It.IsAny<string>(), password))
             .Returns(PasswordVerificationResult.Failed);
 

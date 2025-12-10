@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
 import { EventsTable } from '../components/EventsTable';
@@ -42,8 +43,17 @@ export type EventItem = {
 //     }
 // ];
 
-export const AdminDashboard: React.FC = () => {
-    const [events, setEvents] = useState<EventItem[]>([]);
+
+interface AdminDashboardProps {
+    userRole: string | null;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tAdmin } = useTranslation('admin');
+
+    const [events, setEvents] = useState<EventItem[]>(initialSample);
     const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [attendeesFor, setAttendeesFor] = useState<EventItem | null>(null);
@@ -192,22 +202,24 @@ export const AdminDashboard: React.FC = () => {
         <div className="admin-dashboard page-content">
             <div className="admin-header">
                 <div>
-                    <h1>Admin Dashboard</h1>
-                    {/* <p className="muted">Manage calendar events — create, edit, delete and view attendees.</p> */}
+                    <h1>{tCommon('menu.adminDashboard')}</h1>
+                    {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
                 </div>
                 <div>
-                    <button className="header-button" onClick={openNew}>+ New Event</button>
-                    <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                    <button className="header-button" onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
+                    {userRole === 'admin' && (
+                        <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                    )}
                 </div>
             </div>
 
             <section className="section section--compact">
-                <h2 className="section-title">Week view</h2>
+                <h2 className="section-title">{tCommon('calendar.weekViewTitle')}</h2>
                 {selectedDayISO && (
                     <div className="filter-row">
-                        <span className="muted">Filtered day:</span>
+                        <span className="muted">{tCommon('calendar.filteredDayLabel')}</span>
                         <span className="filter-pill">{formatISOToDisplay(selectedDayISO)}</span>
-                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>Clear filter</button>
+                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{tCommon('general.clearFilter')}</button>
                     </div>
                 )}
                 <WeekCalendar
@@ -243,8 +255,8 @@ export const AdminDashboard: React.FC = () => {
 
             {confirmDeleteFor && (
                 <ConfirmDialog
-                    title="Delete event"
-                    message={`Delete "${confirmDeleteFor.title}"? This cannot be undone.`}
+                    title={tCommon('general.buttonDelete') + ' ' + tEvents('admin.eventLabel')}
+                    message={tAdmin('adminDashboard.confirmDeleteMessage', { title: confirmDeleteFor.title })}
                     onConfirm={() => handleDelete(confirmDeleteFor)}
                     onCancel={() => setConfirmDeleteFor(null)}
                 />

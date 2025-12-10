@@ -1,0 +1,7 @@
+{
+  "adminDashboard": {
+    "subtitle": "Beheer kalenderevenementen - maak, bewerk, verwijder en bekijk deelnemers.",
+    "buttonNewEvent": "+ Nieuw evenement",
+    "confirmDeleteMessage": "Verwijder \"{{title}}\"? Dit kan niet ongedaan worden gemaakt."
+  }
+}

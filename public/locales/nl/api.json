@@ -1,0 +1,51 @@
+{
+  "general": {
+    "API_ErrorInvalidData": "Ongeldige gegevens ingevoerd.",
+    "API_ErrorInvalidSession": "Ongeldige of verlopen gebruikerssessie.",
+    "API_ErrorPermissionDenied": "U heeft geen toestemming om deze actie uit te voeren.",
+    "API_ErrorUnauthorized": "U bent niet gemachtigd om deze actie uit te voeren.",
+    "API_ErrorUnexpected": "Er is een onverwachte fout opgetreden.",
+    "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen."
+  },
+  "employees": {
+  "API_ErrorLoginInvalid": "Ongeldig e-mailadres of wachtwoord.",
+  "API_ErrorEmailRequired": "E-mailadres is verplicht.",
+  "API_ErrorPasswordRequired": "Wachtwoord is verplicht.",
+  "API_ErrorEmailPasswordRequired": "E-mailadres en wachtwoord zijn verplicht.",
+  "API_ErrorEmailExists": "E-mailadres bestaat al.",
+  "API_ErrorCreateFailed": "Aanmaken van werknemer mislukt.",
+  "API_ErrorAuthRecordNotFound": "Geauthenticeerd gebruikersrecord niet gevonden.",
+  "API_ErrorTokenConfig": "Genereren van token mislukt: JWT secret key is niet geconfigureerd.",
+  "API_ErrorMissingToken": "Ontbrekende of ongeldige autorisatieheader.",
+  "API_ErrorInvalidToken": "Ongeldige of verlopen token.",
+  "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token."
+},
+  "rooms": {
+    "API_ErrorDuplicateName": "Kamer met de naam '{{name}}' bestaat al.",
+    "API_ErrorNotAvailable": "De kamer is niet beschikbaar op de gevraagde tijd.",
+    "API_ErrorNotFound": "Kamer niet gevonden.",
+    "API_ErrorNotFoundById": "Kamer met ID '{{id}}' niet gevonden.",
+    "API_ErrorNotFoundByName": "Kamer met naam '{{name}}' niet gevonden.",
+    "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de kamer.",
+    "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de kamer.",
+    "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de kamer."
+
+  },
+  "roomBookings": {
+    "API_ErrorConflict": "Er is een conflict met een bestaande reservering.",
+    "API_ErrorEndBeforeStart": "De eindtijd mag niet vóór de starttijd zijn.",
+    "API_ErrorNotFound": "Reservering niet gevonden.",
+    "API_ErrorNotFoundById": "Reservering met ID '{{id}}' niet gevonden.",
+    "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de reservering.",
+    "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de reservering.",
+    "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de reservering."
+  },
+  "settings": {
+    "API_ErrorNotFound": "Instellingen niet gevonden voor deze gebruiker.",
+    "API_ErrorInvalidDataValue": "Ongeldige waarde '{{value}}' voor '{{field}}'.",
+    "API_ErrorSaveFailed": "Opslaan van instellingen mislukt.",
+    "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de instellingen.",
+    "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de instellingen.",
+    "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de instellingen."
+  }
+}
