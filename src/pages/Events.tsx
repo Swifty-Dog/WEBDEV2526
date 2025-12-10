@@ -1,69 +1,31 @@
-import React, { useState } from 'react';
-import '../styles/global.css';
-import '../styles/_components.css';
-import "../styles/EventCard.css";
+import React, { useEffect, useState } from 'react';
+import { ApiGet } from '../components/ApiRequest';
 import { EventCard } from "../components/EventCard";
+import type { EventModel } from "../Models/EventModel";
+import '../styles/_components.css';
 
 export const Events: React.FC = () => {
-    // Sample events data
-    const [events] = useState([
-        {
-            id: "1",
-            title: "Team Meeting",
-            date: "2025-11-10",
-            location: "Room 101",
-            description: "Weekly team sync",
-            attendees: ["John", "Jane", "Bob"]
-        },
-        {
-            id: "2",
-            title: "Sprint Planning",
-            date: "2025-11-15",
-            location: "Conference Room",
-            description: "Plan next sprint",
-            attendees: ["Alice", "Bob", "Charlie"]
-        },
-        {
-            id: "3",
-            title: "Retrospective",
-            date: "2025-11-17",
-            location: "Conference Room",
-            description: "Review sprint performance",
-            attendees: ["Alice", "Bob", "Charlie", "David"]
-        },
-        {
-            id: "4",
-            title: "Client Presentation",
-            date: "2025-11-19",
-            location: "Main Hall",
-            description: "Present project updates",
-            attendees: ["John", "Emma", "Frank"]
-        },
-        {
-            id: "5",
-            title: "Design Workshop",
-            date: "2025-11-22",
-            location: "Design Studio",
-            description: "UI/UX design session",
-            attendees: ["Grace", "Henry", "Iris"]
-        },
-        {
-            id: "6",
-            title: "Code Review",
-            date: "2025-11-24",
-            location: "Dev Room",
-            description: "Review pull requests",
-            attendees: ["Jack", "Kevin", "Liam"]
-        },
-        {
-            id: "7",
-            title: "Database Migration",
-            date: "2025-11-26",
-            location: "Server Room",
-            description: "Migrate to new database",
-            attendees: ["Mike", "Nancy", "Oscar"]
-        },
-    ]);
+    const [events, setEvents] = useState<EventModel[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        async function loadEvents() {
+            try {
+                const events = await ApiGet<EventModel[]>("/Event");
+                setEvents(events);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadEvents();
+    }, []);
+
+    if (loading) return <p>Bezig met laden...</p>;
+    if (error) return <p>Fout: {error}</p>;
 
     return (
         <div className="events-page">
@@ -77,11 +39,6 @@ export const Events: React.FC = () => {
                 </div>
             </div>
 
-            {/* <div className="calender-week-selector">
-                Hier komt een component zodat de gebruiker de gewenste week kan selecteren die getoont moet worden.
-
-            </div> */}
-
 
             <div className="events-grid">
                 {events.map(event => (
@@ -89,13 +46,13 @@ export const Events: React.FC = () => {
                         key={event.id}
                         id={event.id}
                         title={event.title}
-                        date={event.date}
+                        eventDate={event.eventDate}
                         description={event.description}
-                        location={event.location}
+                        roomId={event.roomId}
                         attendees={event.attendees}
                     />
                 ))}
             </div>
         </div>
     );
-}
+};

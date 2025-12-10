@@ -102,6 +102,13 @@ public class EventService : IEventService
             {
                 return new UpdateEventResult.NotFound("Event not found");
             }
+
+            eventModel.Title = updatedEventDto.Title;
+            eventModel.Description = updatedEventDto.Description;
+            eventModel.EventDate = updatedEventDto.EventDate;
+            eventModel.RoomId = updatedEventDto.RoomId;
+
+
             var updatedEvent = await _eventRepo.Update(eventModel);
             if (updatedEvent is false)
             {
@@ -125,6 +132,11 @@ public class EventService : IEventService
             {
                 return new DeleteEventResult.NotFound("Event not found");
             }
+
+            var deleted = await _eventRepo.Delete(eventModel);
+            if (!deleted)
+                return new DeleteEventResult.Error("Cannot delete event");
+
 
             return new DeleteEventResult.Success();
         }
