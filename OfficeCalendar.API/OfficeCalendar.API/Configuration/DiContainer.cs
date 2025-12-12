@@ -20,6 +20,7 @@ public static class DiContainer
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
+        services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
         // Password Hasher: Must be Singleton as it is stateless and resource-intensive.
         services.AddSingleton<IPasswordHasher<EmployeeModel>, PasswordHasher<EmployeeModel>>();

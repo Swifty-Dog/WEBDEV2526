@@ -36,8 +36,11 @@
     "labelEmail": "Email",
     "labelPassword": "Password",
     "labelPasswordConfirm": "Confirm Password",
-    "labelFirstName": "First Name",
-    "labelLastName": "Last Name",
+    "labelName": "Name",
+    "labelFirstName": "First {{labelName}}",
+    "labelLastName": "Last {{labelName}}",
+    "labelRole": "Role",
+    "labelId": "ID",
     "labelRegistering": "Registering..."
   },
   "dashboard": {
@@ -88,5 +91,11 @@
       "Sat": "Sat",
       "Sun": "Sun"
     }
+  },
+  "roles": {
+    "Admin": "Administrator",
+    "Manager": "Manager",
+    "Employee": "Employee",
+    "Terminated": "Terminated"
   }
 }

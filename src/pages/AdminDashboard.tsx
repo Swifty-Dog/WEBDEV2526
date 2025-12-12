@@ -7,7 +7,8 @@ import { EventFormModal } from '../components/EventFormModal';
 import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
-import { RegisterButton } from '../components/RegisterButton';
+import { RegisterButton } from '../components/Admin/RegisterButton.tsx';
+import {TerminateNavButton} from "../components/Admin/TerminateNavButton.tsx";
 
 export type EventItem = {
     id: string;
@@ -127,10 +128,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
                 </div>
                 <div>
-                    <button className="header-button" onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
+                    <button
+                        className="header-button"
+                        id="extra-margins"
+                        onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
                     {userRole === 'admin' && (
-                        <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                        <RegisterButton />
                     )}
+                    {userRole === 'admin' &&
+                        <TerminateNavButton />
+                    }
                 </div>
             </div>
 

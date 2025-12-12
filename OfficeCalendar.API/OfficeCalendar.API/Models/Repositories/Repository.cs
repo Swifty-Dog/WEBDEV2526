@@ -35,7 +35,19 @@ public class Repository<T> : IRepository<T> where T : class
 
     public virtual async Task<List<T>> GetAll() => await DbSet.ToListAsync();
 
+    public virtual async Task<List<T>> GetAllFiltered(Expression<Func<T, bool>> predicate) => await DbSet.Where(predicate).ToListAsync();
+
+    public Task<List<T>> GetPaginated(int pageNumber, int pageSize, Expression<Func<T, bool>> filter)
+    {
+        return DbSet.Where(filter)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
     public virtual async Task<int> Count() => await DbSet.CountAsync();
+
+    public virtual async Task<int> CountFiltered(Expression<Func<T, bool>> predicate) => await DbSet.CountAsync(predicate);
 
     public virtual async Task<bool> Update(T entity)
     {

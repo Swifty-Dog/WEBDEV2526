@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { Register } from './components/Register';
+import { Register } from './components/Admin/Register.tsx';
 import { Rooms } from "./pages/Rooms";
 import { Events } from './pages/Events';
 import { Settings } from './pages/Settings';
@@ -17,6 +17,7 @@ import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
 import { getUserRoleFromToken, isTokenValid } from './utils/auth.ts';
+import {TerminateEmployee} from "./components/Admin/TerminateEmployee.tsx";
 
 export function App() {
     const token = localStorage.getItem('authToken');
@@ -82,6 +83,16 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                         allowedRoles={['admin', 'manager']}
                     >
                         <Register />
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/admin/terminate" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin']}
+                    >
+                        <TerminateEmployee isLoggedIn={isLoggedIn} />
                     </ProtectedRoute>
                 } />
 
