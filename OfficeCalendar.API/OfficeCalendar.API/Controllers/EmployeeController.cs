@@ -27,9 +27,9 @@ public class EmployeeController : BaseController
         return result switch
         {
             LoginResult.Success success => Ok( new { Employee = success.Dto} ),
-            LoginResult.InvalidCredentials invalidCredentials => Unauthorized(new { message = invalidCredentials.Message }),
-            LoginResult.TerminatedAccount terminatedAccount => Unauthorized(new { message = terminatedAccount.Message }),
-            LoginResult.NotFound => Unauthorized(new { message = "general.API_ErrorLoginInvalid" }),
+            LoginResult.InvalidCredentials invalidCredentials => BadRequest(new { message = invalidCredentials.Message }),
+            LoginResult.TerminatedAccount terminatedAccount => BadRequest(new { message = terminatedAccount.Message }),
+            LoginResult.NotFound => BadRequest(new { message = "employees.API_ErrorLoginInvalid" }),
             LoginResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
