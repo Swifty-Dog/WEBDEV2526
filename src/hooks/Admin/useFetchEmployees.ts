@@ -58,7 +58,7 @@ export const useFetchEmployees = (
     }, [token, isLoggedIn, page, pageSize, searchTerm]);
 
     useEffect(() => {
-        fetchEmployees();
+        void fetchEmployees();
     }, [fetchEmployees]);
 
     return { employees, totalCount, loading, error, refetch: fetchEmployees };

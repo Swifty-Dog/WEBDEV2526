@@ -6,7 +6,7 @@ interface DecodedToken {
     'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string;
     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role'?: string;
     exp: number;
-    [key: string]: any;
+    [key: string]: string | number | undefined;
 }
 
 export const isTokenValid = (token: string | null): boolean => {

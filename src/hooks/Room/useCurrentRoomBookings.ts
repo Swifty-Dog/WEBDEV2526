@@ -44,7 +44,7 @@ export const useCurrentRoomBookings = () => {
         void fetchBookings();
         if (!token) return;
 
-        startGenericHub();
+        startGenericHub().catch(err => console.error('Error starting SignalR hub for bookings:', err));
 
         const unsubscribe = onEvent("BookingChanged", () => {
             void fetchBookings();

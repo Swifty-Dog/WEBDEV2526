@@ -55,7 +55,7 @@ export const useDailyBookings = (date: string | null) => {
 
         if (!token) return;
 
-        startGenericHub();
+        startGenericHub().catch(err => console.error('Error starting SignalR hub for daily bookings:', err));
 
         const unsubscribe = onEvent("BookingChanged", () => {
             void fetchBookings();
@@ -63,7 +63,7 @@ export const useDailyBookings = (date: string | null) => {
 
         return () => {
             unsubscribe();
-            stopGenericHub();
+            stopGenericHub().catch(err => console.error('Error stopping SignalR hub for daily bookings:', err));
         };
     }, [token, fetchBookings]);
 
