@@ -7,7 +7,7 @@ export function startGenericHub() {
     return startConnection(GENERIC_HUB_URL);
 }
 
-export function onEvent(eventName: string, callback: (...args: any[]) => void) {
+export function onEvent(eventName: string, callback: (...args: string[]) => void) {
     return subscribe(GENERIC_HUB_URL, eventName, callback);
 }
 

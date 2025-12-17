@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {Booking, Room, BookingDetails} from '../../utils/types';
 import { BookingForm } from './BookingForm';
 import { useBookingFormLogic } from '../../hooks/Room/useBookingFormLogic';
@@ -13,11 +14,14 @@ type EditRoomBookingFormProps = {
 
 export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking, rooms, onClose, onSave}) => {
 
+    const { t: tRooms } = useTranslation('rooms');
+    const { t: tCommon } = useTranslation('common');
+
     const initialDetails = useMemo((): BookingDetails => {
         const roomId = rooms.find(r => r.roomName === booking.roomName)?.id;
 
         if (roomId === undefined) {
-            console.error(`Kamer '${booking.roomName}' niet gevonden.`);
+            console.error(tRooms('editForm.errorRoomNotFound', { roomName: booking.roomName }));
             return {...booking, roomId: 0};
         }
 
@@ -28,7 +32,7 @@ export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking
             purpose: booking.purpose,
             roomId: roomId ?? 0,
         };
-    }, [rooms, booking]);
+    }, [rooms, booking, tRooms]);
 
     const {
         bookingDetails,
@@ -88,7 +92,7 @@ export const EditRoomBookingForm: React.FC<EditRoomBookingFormProps> = ({booking
 
             <div className="form-actions">
                 <button className="btn-sm btn-secondary" onClick={onClose}>
-                    Annuleren
+                    {tCommon('common:general.buttonCancel')}
                 </button>
             </div>
         </>

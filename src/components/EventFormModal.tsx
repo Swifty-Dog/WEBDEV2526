@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { EventItem } from '../pages/AdminDashboard';
 
 interface Props {
@@ -22,6 +23,9 @@ function fromInputDateTime(val: string) {
 }
 
 export const EventFormModal: React.FC<Props> = ({ existing, onClose, onSave }) => {
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+
     const [title, setTitle] = useState('');
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
@@ -56,33 +60,33 @@ export const EventFormModal: React.FC<Props> = ({ existing, onClose, onSave }) =
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h3 style={{ marginTop: 0 }}>{existing ? 'Edit Event' : 'New Event'}</h3>
+                <h3 style={{ marginTop: 0 }}>{existing ? tEvents('eventForm.titleEdit') : tEvents('eventForm.titleNew')}</h3>
                 <form onSubmit={submit}>
                     <div className="form-row">
-                        <label>Title</label>
+                        <label>{tEvents('eventForm.labelTitle')}</label>
                         <input value={title} onChange={e => setTitle(e.target.value)} required />
                     </div>
                     <div className="form-row">
-                        <label>Date & time</label>
+                        <label>{tEvents('eventForm.labelDateTime')}</label>
                         <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)} required />
                     </div>
                     <div className="form-row">
-                        <label>Location</label>
+                        <label>{tEvents('eventForm.labelLocation')}</label>
                         <input value={location} onChange={e => setLocation(e.target.value)} />
                     </div>
                     <div className="form-row">
-                        <label>Description</label>
+                        <label>{tEvents('eventForm.labelDescription')}</label>
                         <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} />
                     </div>
 
                     <div className="form-actions">
-                        <button type="button" className="btn-sm" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn-sm" style={{ background: 'var(--color-brand-accent)', color: 'white' }}>{existing ? 'Save' : 'Create'}</button>
+                        <button type="button" className="btn-sm" onClick={onClose}>{tCommon('general.buttonCancel')}</button>
+                        <button type="submit" className="btn-sm" style={{ background: 'var(--color-brand-accent)', color: 'white' }}>
+                            {existing ? tCommon('general.buttonSave') : tCommon('general.buttonCreate')}
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     );
 };
-
-export default EventFormModal;

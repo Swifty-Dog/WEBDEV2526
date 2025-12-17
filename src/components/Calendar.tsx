@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { months, capitalize } from '../utils/months.ts';
+import { useTranslation } from 'react-i18next';
 import '../styles/calendar.css';
 
 interface Events {
@@ -11,13 +11,16 @@ interface CalendarProps {
     onDaySelect: (dateString: string, dayEvents: string[] | undefined) => void;
 }
 
-const allMonths: string[] = months.map(capitalize);
-
 export const Calendar: React.FC<CalendarProps> = ({ events, onDaySelect }) => {
+    const { t, i18n } = useTranslation('common');
+
     const today = useMemo(() => new Date(), []);
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
     const [selectedDateString, setSelectedDateString] = useState<string | null>(null);
+
+    const weekdayKeys = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const weekdayNames = weekdayKeys.map(key => t(`calendar.weekdayAbbr.${key}`));
 
     const updateMonthYear = useCallback((month: number, year: number) => {
         setCurrentMonth(month);
@@ -102,32 +105,35 @@ export const Calendar: React.FC<CalendarProps> = ({ events, onDaySelect }) => {
         onDaySelect(newDateString, events[newDateString]);
     };
 
-    const monthYearTitle = `${allMonths[currentMonth]} ${currentYear}`;
-    const subtitle = 'Klik op een dag voor details';
+    const monthYearTitle = useMemo(() => {
+        const date = new Date(currentYear, currentMonth);
+        const currentLanguage = i18n.language || 'en';
+
+        const formatter = new Intl.DateTimeFormat(currentLanguage, { month: 'long', year: 'numeric' });
+        return formatter.format(date);
+    }, [currentYear, currentMonth, i18n.language]);
+
+    const subtitle = t('calendar.subtitle');
 
     return (
         <div className="calendar">
             <div className="calendar-header">
-                <button id="prevMonth" className="button-secondary" title="Vorige maand" onClick={previousMonth}>
+                <button id="prevMonth" className="button-secondary" title={t('calendar.titlePrevMonth')} onClick={previousMonth}>
                     <span>❮</span>
                 </button>
                 <div className="month-year-container">
                     <h3 id="monthYear">{monthYearTitle}</h3>
                     <div className="calendar-subtitle">{subtitle}</div>
                 </div>
-                <button id="nextMonth" className="button-secondary" title="Volgende maand" onClick={nextMonth}>
+                <button id="nextMonth" className="button-secondary" title={t('calendar.titleNextMonth')} onClick={nextMonth}>
                     <span>❯</span>
                 </button>
             </div>
 
             <div className="calendar-weekdays">
-                <div className="weekday-names">Ma</div>
-                <div className="weekday-names">Di</div>
-                <div className="weekday-names">Wo</div>
-                <div className="weekday-names">Do</div>
-                <div className="weekday-names">Vr</div>
-                <div className="weekday-names">Za</div>
-                <div className="weekday-names">Zo</div>
+                {weekdayNames.map(name => (
+                    <div key={name} className="weekday-names">{name}</div>
+                ))}
             </div>
 
             <div className="calendar-days" id="calendarDays">
@@ -146,7 +152,7 @@ export const Calendar: React.FC<CalendarProps> = ({ events, onDaySelect }) => {
                     if (hasEvent) className += ' has-event';
                     if (isSelected) className += ' selected';
 
-                    const titleText = hasEvent ? `Events: ${events[dateString].join(', ')}` : undefined;
+                    const titleText = hasEvent ? t('calendar.titleEvents', { events: events[dateString].join(', ') }) : undefined;
 
                     return (
                         <div

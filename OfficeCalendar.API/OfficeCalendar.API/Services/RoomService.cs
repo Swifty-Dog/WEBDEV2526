@@ -24,10 +24,13 @@ public class RoomService : IRoomService
             if (room != null)
                 return new GetRoomResult.Success(room);
 
-            return new GetRoomResult.NotFound($"Kamer met ID {id} niet gevonden.");
+            return new GetRoomResult.NotFound("rooms.API_ErrorNotFoundById",
+                new Dictionary<string, string> { { "id", id.ToString() } });
         }
-        catch (Exception ex)
-        { return new GetRoomResult.Error($"Er is een fout opgetreden tijdens het ophalen van de kamer: {ex.Message}"); }
+        catch (Exception)
+        {
+            return new GetRoomResult.Error("general.API_ErrorUnexpected");
+        }
     }
 
     public async Task<CreateRoomResult> CreateRoom(CreateRoomDto dto)
@@ -36,7 +39,8 @@ public class RoomService : IRoomService
         {
             var existingRoom = await GetRoomByName(dto.RoomName);
             if (existingRoom is GetRoomResult.Success)
-                return new CreateRoomResult.DuplicateRoom($"Kamer met de naam {dto.RoomName} bestaat al.");
+                return new CreateRoomResult.DuplicateRoom("rooms.API_ErrorDuplicateName",
+                    new Dictionary<string, string> { { "name", dto.RoomName } });
 
             var newRoom = new RoomModel
             {
@@ -49,11 +53,11 @@ public class RoomService : IRoomService
             if (created)
                 return new CreateRoomResult.Success(newRoom);
 
-            return new CreateRoomResult.Error("Kamer kon niet worden aangemaakt door een onbekende fout.");
+            return new CreateRoomResult.Error("rooms.API_ErrorCreateUnexpected");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new CreateRoomResult.Error($"Er is een fout opgetreden tijdens het aanmaken van de kamer: {ex.Message}");
+            return new CreateRoomResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -64,10 +68,14 @@ public class RoomService : IRoomService
             RoomModel? room = await _roomRepo.GetByName(roomName);
             if (room != null)
                 return new GetRoomResult.Success(room);
-            return new GetRoomResult.NotFound($"Kamer met naam {roomName} niet gevonden.");
+
+            return new GetRoomResult.NotFound("rooms.API_ErrorNotFoundByName",
+                new Dictionary<string, string> { { "name", roomName } });
         }
-        catch (Exception ex)
-        { return new GetRoomResult.Error($"Er is een fout opgetreden tijdens het ophalen van de kamers: {ex.Message}"); }
+        catch (Exception)
+        {
+            return new GetRoomResult.Error("general.API_ErrorUnexpected");
+        }
     }
 
     public async Task<GetRoomsListResult> GetAllRooms()
@@ -86,8 +94,10 @@ public class RoomService : IRoomService
 
             return new GetRoomsListResult.Success(rooms);
         }
-        catch (Exception ex)
-        { return new GetRoomsListResult.Error($"Er is een fout opgetreden tijdens het ophalen van de kamers: {ex.Message}"); }
+        catch (Exception)
+        {
+            return new GetRoomsListResult.Error("general.API_ErrorUnexpected");
+        }
     }
 
     public async Task<UpdateRoomResult> UpdateRoom(UpdateRoomDto dto)
@@ -104,7 +114,8 @@ public class RoomService : IRoomService
             {
                 var existingRoomResult = await GetRoomByName(dto.RoomName);
                 if (existingRoomResult is GetRoomResult.Success existingRoomSuccess && existingRoomSuccess.Room.Id != roomToUpdate.Id)
-                    return new UpdateRoomResult.InvalidData($"Kamer met de naam {dto.RoomName} bestaat al.");
+                    return new UpdateRoomResult.InvalidData("rooms.API_ErrorDuplicateName",
+                        new Dictionary<string, string> { { "name", dto.RoomName } });
 
                 roomToUpdate.RoomName = dto.RoomName;
             }
@@ -118,10 +129,12 @@ public class RoomService : IRoomService
             if (updated)
                 return new UpdateRoomResult.Success(roomToUpdate);
 
-            return new UpdateRoomResult.Error("Kamer kon niet worden bijgewerkt door een onbekende fout.");
+            return new UpdateRoomResult.Error("rooms.API_ErrorUpdateUnexpected");
         }
-        catch (Exception ex)
-        { return new UpdateRoomResult.Error($"Er is een fout opgetreden tijdens het bijwerken van de kamer: {ex.Message}"); }
+        catch (Exception)
+        {
+            return new UpdateRoomResult.Error("general.API_ErrorUnexpected");
+        }
     }
 
     public async Task<DeleteRoomResult> DeleteRoom(long id)
@@ -136,9 +149,11 @@ public class RoomService : IRoomService
             if (deleted)
                 return new DeleteRoomResult.Success();
 
-            return new DeleteRoomResult.Error("Kamer kon niet worden verwijderd door een onbekende fout.");
+            return new DeleteRoomResult.Error("rooms.API_ErrorDeleteUnexpected");
         }
-        catch (Exception ex)
-        { return new DeleteRoomResult.Error($"Er is een fout opgetreden tijdens het verwijderen van de kamer: {ex.Message}"); }
+        catch (Exception)
+        {
+            return new DeleteRoomResult.Error("general.API_ErrorUnexpected");
+        }
     }
 }

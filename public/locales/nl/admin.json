@@ -1,0 +1,27 @@
+{
+  "adminDashboard": {
+    "subtitle": "Beheer kalenderevenementen - maak, bewerk, verwijder en bekijk deelnemers.",
+    "buttonNewEvent": "+ Nieuw evenement",
+    "confirmDeleteMessage": "Verwijder \"{{title}}\"? Dit kan niet ongedaan worden gemaakt."
+  },
+  "terminateEmployee": {
+    "title": "Werknemer termineren",
+    "loading": "Werknemers laden...",
+    "searchPlaceholder": "Zoek werknemer op basis van id, naam of e-mail",
+    "noEmployees": "Geen werknemers gevonden.",
+    "terminate": "Termineren",
+    "confirmTitle": "Bevestig werknemersterminering",
+    "confirmMessage": "Weet u zeker dat u deze werknemer wilt termineren? Deze actie kan niet ongedaan worden gemaakt.",
+    "success": "Werknemer succesvol getermineerd."
+  },
+  "button": {
+    "backToAdminDashboard": "Terug naar Beheerdersdashboard",
+    "terminating": "Bezig met termineren...",
+    "confirmTerminate": "Terminering bevestigen"
+  },
+  "pagination": {
+    "perPage": "Per pagina:",
+    "all": "Alles",
+    "pageInfo": "Pagina {{page}} van {{totalPages}}"
+  }
+}

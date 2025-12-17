@@ -9,11 +9,20 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ isLoggedIn, userRole, allowedRoles, children }: ProtectedRouteProps) => {
-    if (!isLoggedIn || !userRole || !allowedRoles.includes(userRole.toLowerCase())) {
-        // TODO: Add logout logic here, like clearing backend session if needed.
-        localStorage.removeItem('authToken');
+    if (!isLoggedIn) {
         return <Navigate to="/login" replace />;
-        }
+    }
+
+    if (userRole === null) {
+        return children;
+    }
+
+    if (!allowedRoles.includes(userRole.toLowerCase())) {
+        const unauthorizedRedirectPath =
+            (userRole === 'admin' || userRole === 'manager') ? '/admin-dashboard' : '/dashboard';
+
+        return <Navigate to={unauthorizedRedirectPath} replace />;
+    }
 
     return children;
 };

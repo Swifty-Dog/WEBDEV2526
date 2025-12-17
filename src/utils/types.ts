@@ -30,7 +30,7 @@ export interface DailyBookingWithRoom {
     endTime: string;
 }
 
-export interface ErrorResponse {
+export interface ApiErrorData {
     message?: string;
-    [key: string]: unknown;
+    arguments?: Record<string, string>;
 }

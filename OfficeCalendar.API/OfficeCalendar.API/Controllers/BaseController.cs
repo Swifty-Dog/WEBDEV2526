@@ -16,12 +16,12 @@ public abstract class BaseController : ControllerBase
         EmployeeService = employees;
     }
 
-    protected long GetCurrentUserId()
+    protected long? GetCurrentUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
         if (userIdClaim is null || !long.TryParse(userIdClaim.Value, out long userId))
-            throw new InvalidOperationException("User ID claim is missing or invalid in the token.");
+            return null;
 
         return userId;
     }
@@ -29,10 +29,13 @@ public abstract class BaseController : ControllerBase
     protected async Task<EmployeeModel?> GetCurrentUserAsync()
     {
         var userId = GetCurrentUserId();
-        var userResult = await EmployeeService.GetEmployeeById(userId);
+
+        if (userId == null) return null;
+
+        var userResult = await EmployeeService.GetEmployeeById(userId.Value);
 
         if (userResult is not GetEmployeeResult.Success success)
-            throw new UnauthorizedAccessException("Authenticated user record not found.");
+            return null;
 
         return success.Employee;
     }

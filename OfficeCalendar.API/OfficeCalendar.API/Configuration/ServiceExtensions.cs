@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,7 @@ public static class ServiceExtensions
                     ValidIssuer = issuer,
                     ValidAudience = audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.FromSeconds(30)
                 };
             });
 
@@ -58,6 +59,7 @@ public static class ServiceExtensions
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.Converters.Add(new JsonDateOnlyConverter());
                 options.JsonSerializerOptions.Converters.Add(new JsonTimeOnlyConverter());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             });
 
 
@@ -65,6 +67,7 @@ public static class ServiceExtensions
         services.AddOfficeCalendarServices(configuration);
         services.AddSwaggerAuthorization();
         services.AddSignalR();
+        services.AddHttpContextAccessor();
 
         return services;
     }

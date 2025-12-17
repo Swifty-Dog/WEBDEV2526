@@ -16,9 +16,11 @@ public class RoomController : BaseController
     private readonly IRoomService _roomService;
     private readonly IHubContext<GenericHub> _genericHub;
 
-    public RoomController(IRoomService roomService,
+    public RoomController(
+        IRoomService roomService,
         IHubContext<GenericHub> genericHub,
-        IEmployeeService employeeService) : base(employeeService)
+        IEmployeeService employeeService
+    ) : base(employeeService)
     {
         _roomService = roomService;
         _genericHub = genericHub;
@@ -31,14 +33,10 @@ public class RoomController : BaseController
 
         return result switch
         {
-            GetRoomResult.Success success =>
-                Ok(success.Room),
-            GetRoomResult.NotFound notFound =>
-                NotFound(new { message = notFound.Message }),
-            GetRoomResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het ophalen van de kamer." })
+            GetRoomResult.Success success => Ok(success.Room),
+            GetRoomResult.NotFound notFound => NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
+            GetRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -52,14 +50,14 @@ public class RoomController : BaseController
 
         return result switch
         {
-            CreateRoomResult.Success success =>
-                CreatedAtAction(nameof(GetRoomById), new { id = success.Room.Id }, success.Room),
-            CreateRoomResult.DuplicateRoom duplicateRoom =>
-                Conflict(new { message = duplicateRoom.Message }),
-            CreateRoomResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het maken van de kamer." })
+            CreateRoomResult.Success success => CreatedAtAction(
+                nameof(GetRoomById),
+                new { id = success.Room.Id },
+                success.Room
+            ),
+            CreateRoomResult.DuplicateRoom duplicateRoom => Conflict(new { message = duplicateRoom.Message, arguments = duplicateRoom.Arguments }),
+            CreateRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -69,11 +67,9 @@ public class RoomController : BaseController
         var rooms = await _roomService.GetAllRooms();
         return rooms switch
         {
-            GetRoomsListResult.Success success =>
-                Ok(success.Rooms),
-            GetRoomsListResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "Een onverwachte fout is opgetreden bij het ophalen van de kamers." })
+            GetRoomsListResult.Success success => Ok(success.Rooms),
+            GetRoomsListResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -81,7 +77,7 @@ public class RoomController : BaseController
     public async Task<IActionResult> UpdateRoom(long id, [FromBody] UpdateRoomDto dto)
     {
         if (id != dto.Id)
-            return BadRequest(new { message = "URL ID en body ID komen niet overeen." });
+            return BadRequest(new { message = "general.API_ErrorUrlBodyIdMismatch" });
 
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -90,16 +86,11 @@ public class RoomController : BaseController
 
         return result switch
         {
-            UpdateRoomResult.Success success =>
-                Ok(success.Room),
-            UpdateRoomResult.RoomNotFound _ =>
-                NotFound(new { message = "Kamer niet gevonden." }),
-            UpdateRoomResult.InvalidData invalidData =>
-                BadRequest(new { message = invalidData.Message }),
-            UpdateRoomResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het bijwerken van de kamer." })
+            UpdateRoomResult.Success success => Ok(success.Room),
+            UpdateRoomResult.RoomNotFound _ => NotFound(new { message = "rooms.API_ErrorNotFound" }),
+            UpdateRoomResult.InvalidData invalidData => BadRequest(new { message = invalidData.Message, arguments = invalidData.Arguments }),
+            UpdateRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -111,14 +102,10 @@ public class RoomController : BaseController
 
         return result switch
         {
-            DeleteRoomResult.Success _ =>
-                NoContent(),
-            DeleteRoomResult.RoomNotFound _ =>
-                NotFound(new { message = "Kamer niet gevonden." }),
-            DeleteRoomResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het verwijderen van de kamer." })
+            DeleteRoomResult.Success _ => NoContent(),
+            DeleteRoomResult.RoomNotFound _ => NotFound(new { message = "rooms.API_ErrorNotFound" }),
+            DeleteRoomResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 }

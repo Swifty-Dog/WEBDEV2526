@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
+import i18n from '../../utils/locales/i18n';
+import { translateFetchError} from "../../utils/locales/translateFetchError";
 import type { DailyBookingWithRoom } from "../../utils/types.ts";
-import { ApiGet } from "../../components/ApiRequest.tsx";
+import { ApiGet } from "../../config/ApiRequest.ts";
 import { startGenericHub, onEvent, stopGenericHub } from "../../utils/signalR/genericHub";
 
 export const useDailyBookings = (date: string | null) => {
@@ -20,7 +22,7 @@ export const useDailyBookings = (date: string | null) => {
         setError(null);
 
         if (!token) {
-            setError("Je bent niet ingelogd.");
+            setError(i18n.t('general.errorNotLoggedIn'));
             setLoading(false);
             return;
         }
@@ -40,11 +42,8 @@ export const useDailyBookings = (date: string | null) => {
                 }))
             );
         } catch (err) {
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Kon beschikbaarheid niet ophalen."
-            );
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomBookingError.errorFetchDaily');
+            setError(errorMessage);
             setBookings([]);
         } finally {
             setLoading(false);
@@ -56,7 +55,7 @@ export const useDailyBookings = (date: string | null) => {
 
         if (!token) return;
 
-        startGenericHub();
+        startGenericHub().catch(err => console.error('Error starting SignalR hub for daily bookings:', err));
 
         const unsubscribe = onEvent("BookingChanged", () => {
             void fetchBookings();
@@ -64,7 +63,7 @@ export const useDailyBookings = (date: string | null) => {
 
         return () => {
             unsubscribe();
-            stopGenericHub();
+            stopGenericHub().catch(err => console.error('Error stopping SignalR hub for daily bookings:', err));
         };
     }, [token, fetchBookings]);
 

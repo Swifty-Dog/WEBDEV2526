@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../styles/global.css';
 import '../styles/_components.css';
 import "../styles/EventCard.css";
 import { EventCard } from "../components/EventCard";
 
 export const Events: React.FC = () => {
+    const { t } = useTranslation('common');
     // Sample events data
     const [events] = useState([
         {
@@ -67,13 +69,13 @@ export const Events: React.FC = () => {
 
     return (
         <div className="events-page">
-            <h1>Events</h1>
+            <h1>{t('menu.events')}</h1>
 
             <div className="stats-section section-card">
-                <h2>Statistieken</h2>
+                <h2>{t('dashboard.statsTitle')}</h2>
                 <div className="stats-grid">
-                    <p>Total Users: 120</p>
-                    <p>Events This Month: {events.length}</p>
+                    <p>{t('dashboard.statsTotalUsers')}: 120</p>
+                    <p>{t('dashboard.statsEventsMonth')}: {events.length}</p>
                 </div>
             </div>
 

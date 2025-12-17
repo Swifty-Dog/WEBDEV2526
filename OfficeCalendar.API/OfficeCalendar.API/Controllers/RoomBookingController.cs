@@ -32,7 +32,7 @@ public class RoomBookingController : BaseController
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var employee = await GetCurrentUserAsync();
-        if (employee is null) return Unauthorized(new { message = "Ongeldige of verlopen gebruikerssessie." });
+        if (employee is null) return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
         var result = await _roomBookingService.CreateRoomBooking(dto, employee.Id);
 
@@ -54,14 +54,10 @@ public class RoomBookingController : BaseController
 
         return result switch
         {
-            CreateRoomBookingResult.RoomNotAvailable =>
-                Conflict(new { message = "De kamer is niet beschikbaar op de gevraagde tijd." }),
-            CreateRoomBookingResult.InvalidData invalidData =>
-                BadRequest(new { message = invalidData.Message }),
-            CreateRoomBookingResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het maken van de kamerreservering." })
+            CreateRoomBookingResult.RoomNotAvailable => Conflict(new { message = "roomBookings.API_ErrorConflict" }),
+            CreateRoomBookingResult.InvalidData invalidData => BadRequest(new { message = invalidData.Message, arguments = invalidData.Arguments }),
+            CreateRoomBookingResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -69,7 +65,7 @@ public class RoomBookingController : BaseController
     public async Task<IActionResult> GetUpcomingRoomBookingsByEmployeeId()
     {
         var employee = await GetCurrentUserAsync();
-        if (employee is null) return Unauthorized(new { message = "Ongeldige of verlopen gebruikerssessie." });
+        if (employee is null) return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
         var result = await _roomBookingService.GetUpcomingRoomBookingsByEmployeeId(employee.Id);
 
@@ -85,10 +81,8 @@ public class RoomBookingController : BaseController
                 Purpose = booking.Purpose
             }).ToList()),
 
-            GetRoomBookingListResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het ophalen van de kamerreserveringen." })
+            GetRoomBookingListResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -107,10 +101,8 @@ public class RoomBookingController : BaseController
                 EndTime = booking.EndTime
             }).ToList()),
 
-            GetRoomBookingListResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden." })
+            GetRoomBookingListResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -119,7 +111,7 @@ public class RoomBookingController : BaseController
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var employee = await GetCurrentUserAsync();
-        if (employee is null) return Unauthorized(new { message = "Ongeldige of verlopen gebruikerssessie." });
+        if (employee is null) return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
         var result = await _roomBookingService.UpdateRoomBooking(id, dto, employee.Id);
 
@@ -142,12 +134,9 @@ public class RoomBookingController : BaseController
 
         return result switch
         {
-            UpdateRoomBookingResult.NotFound =>
-                NotFound(new { message = "Kamerreservering niet gevonden." }),
-            UpdateRoomBookingResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het bijwerken van de kamerreservering." })
+            UpdateRoomBookingResult.NotFound notFound => NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
+            UpdateRoomBookingResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message, arguments = error.Arguments }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 
@@ -164,12 +153,9 @@ public class RoomBookingController : BaseController
 
         return result switch
         {
-            DeleteRoomBookingResult.NotFound =>
-                NotFound(new { message = "Kamerreservering niet gevonden." }),
-            DeleteRoomBookingResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Een onverwachte fout is opgetreden bij het verwijderen van de kamerreservering." })
+            DeleteRoomBookingResult.NotFound notFound => NotFound(new { message = notFound.Message, arguments = notFound.Arguments }),
+            DeleteRoomBookingResult.Error error => StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
 }

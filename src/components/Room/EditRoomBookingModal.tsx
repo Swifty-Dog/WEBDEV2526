@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type {Booking} from '../../utils/types';
 import { useRooms } from '../../hooks/Room/useRooms';
 import { EditRoomBookingForm } from './EditRoomBookingForm';
@@ -10,11 +11,14 @@ type EditRoomBookingModalProps = {
 };
 
 export const EditRoomBookingModal: React.FC<EditRoomBookingModalProps> = ({ booking, onClose, onSave }) => {
+
+    const { t } = useTranslation('rooms');
+
     const { rooms, loading: loadingRooms, error: roomsError } = useRooms();
 
     let content: React.ReactNode;
     if (loadingRooms) {
-        content = <p>Kamers laden...</p>;
+        content = <p>{t('newBooking.loadingRooms')}</p>;
     } else if (roomsError) {
         content = <p className="error-message">{roomsError}</p>;
     } else {
@@ -32,7 +36,7 @@ export const EditRoomBookingModal: React.FC<EditRoomBookingModalProps> = ({ book
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h3 className="titling">Boeking bewerken</h3>
+                <h3 className="titling">{t('editModal.title')}</h3>
                 {content}
             </div>
         </div>

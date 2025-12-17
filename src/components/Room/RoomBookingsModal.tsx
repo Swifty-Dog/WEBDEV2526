@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { type Booking } from '../../utils/types.ts';
 import { formatDate, formatTimeUntil, isBookingInPast } from '../../utils/date.ts';
 
@@ -11,10 +12,13 @@ type RoomBookingsModalProps = {
 };
 
 export const RoomBookingsModal: React.FC<RoomBookingsModalProps> = ({ bookings, onClose, onEdit, onDelete, message }) => {
+    const { t: tRooms } = useTranslation('rooms');
+    const { t: tCommon } = useTranslation('common');
+
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h3 className="titling">Alle aankomende boekingen</h3>
+                <h3 className="titling">{tRooms('roomBookingsModal.title')}</h3>
                 {message?.text && (
                     <p className={message.type === 'error' ? 'error-message' : 'success-message'}>
                         {message.text}
@@ -22,7 +26,7 @@ export const RoomBookingsModal: React.FC<RoomBookingsModalProps> = ({ bookings, 
                 )}
 
                 {bookings.length === 0 ? (
-                    <p className="muted">Geen opkomende boekingen gevonden.</p>
+                    <p className="muted">{tRooms('roomBookingsModal.empty')}</p>
                 ) : (
                     <ul className="booking-items-list modal-list-scroll">
                         {bookings.map(booking => {
@@ -32,18 +36,18 @@ export const RoomBookingsModal: React.FC<RoomBookingsModalProps> = ({ bookings, 
                                 <li key={booking.id} className="booking-item">
                                     <div className="booking-content">
                                         <div className="form-row">
-                                            <label>Datum en tijd:</label>
+                                            <label>{tRooms('bookingItem.labelDateTime')}:</label>
                                             <span>
                                                 {formatDate(booking.bookingDate)} ({booking.startTime} - {booking.endTime}) –{' '}
                                                 {formatTimeUntil(booking.bookingDate, booking.startTime)}
                                             </span>
                                         </div>
                                         <div className="form-row">
-                                            <label>Kamer:</label>
+                                            <label>{tRooms('bookingItem.labelRoom')}:</label>
                                             <span>{booking.roomName}</span>
                                         </div>
                                         <div className="form-row">
-                                            <label>Reden:</label>
+                                            <label>{tRooms('bookingItem.labelPurpose')}:</label>
                                             <span>{booking.purpose}</span>
                                         </div>
                                     </div>
@@ -53,17 +57,17 @@ export const RoomBookingsModal: React.FC<RoomBookingsModalProps> = ({ bookings, 
                                             className="btn-sm button-secondary"
                                             onClick={() => onEdit(booking)}
                                             disabled={isPast}
-                                            title={isPast ? "Boekingen in het verleden kunnen niet bewerkt worden" : "Boeking bewerken"}
+                                            title={tRooms(isPast ? 'roomBookingsModal.tooltipEditPast' : 'roomBookingsModal.tooltipEdit')}
                                         >
-                                            Bewerken
+                                            {tCommon('general.buttonEdit')}
                                         </button>
                                         <button
                                             className="btn-sm btn-danger"
                                             onClick={() => onDelete(booking)}
                                             disabled={isPast}
-                                            title={isPast ? "Boekingen in het verleden kunnen niet verwijderd worden" : "Boeking verwijderen"}
+                                            title={tRooms(isPast ? 'roomBookingsModal.tooltipDeletePast' : 'roomBookingsModal.tooltipDelete')}
                                         >
-                                            Verwijderen
+                                            {tCommon('general.buttonDelete')}
                                         </button>
                                     </div>
                                 </li>
@@ -73,7 +77,9 @@ export const RoomBookingsModal: React.FC<RoomBookingsModalProps> = ({ bookings, 
                 )}
 
                 <div className="form-actions">
-                    <button className="btn-sm btn-primary-accent" onClick={onClose}>Sluiten</button>
+                    <button className="btn-sm btn-primary-accent" onClick={onClose}>
+                        {tCommon('general.buttonClose')}
+                    </button>
                 </div>
             </div>
         </div>

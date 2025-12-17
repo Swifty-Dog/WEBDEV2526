@@ -1,6 +1,6 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
 
-// Define the props interface
 interface EventCardProps {
     id: string;
     title: string;
@@ -17,6 +17,8 @@ export const EventCard: React.FC<EventCardProps> = ({
     description,
     attendees
 }) => {
+    const { t } = useTranslation('events');
+
     return (
         <div className="event-card">
             <h3 className="event-title">{title}</h3>
@@ -24,7 +26,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             <p className="location">{location}</p>
             <p className="description">{description}</p>
             <p className="attendees">
-                Attendees: {attendees.join(', ')}
+                {t('eventCard.attendeesLabel', { attendees: attendees.join(', ') })}
             </p>
         </div>
     );

@@ -1,8 +1,8 @@
 import React from 'react';
 import '../styles/_components.css';
-import { AdminRoomManagement } from '../components/Room/AdminRoomManagement.tsx';
-import { CurrentRoomBookings} from "../components/Room/CurrentRoomBookings.tsx";
-import { NewRoomBooking } from '../components/Room/NewRoomBooking.tsx';
+import { AdminRoomManagement } from '../components/Room/AdminRoomManagement';
+import { CurrentRoomBookings} from "../components/Room/CurrentRoomBookings";
+import { NewRoomBooking } from '../components/Room/NewRoomBooking';
 
 interface RoomsProps {
     userRole: 'admin' | 'manager' | 'employee' | string;
@@ -20,7 +20,7 @@ export const Rooms: React.FC<RoomsProps> = ({ userRole }: RoomsProps) => {
             )}
 
             <div className="room-actions-grid">
-                <div  className="panel-fancy-borders" id="current-bookings">
+                <div className="panel-fancy-borders" id="current-bookings">
                     <CurrentRoomBookings />
                 </div>
 
