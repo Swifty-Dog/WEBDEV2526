@@ -6,14 +6,14 @@ interface EventCardProps {
     title: string;                  // C# string
     description?: string | null;    // C# string? → TS string | null
     eventDate: string;              // C# DateTime → TS string (ISO)
-    roomId?: number | null;         // C# long? → TS number | null
+    roomName?: string | null;         // C# long? → TS number | null
     attendees?: string[];           // mapping van EventParticipations (optioneel)
 }
 
 export const EventCard: React.FC<EventCardProps> = ({
     title,
     eventDate,
-    roomId,
+    roomName,
     description,
     attendees
 }) => {
@@ -23,7 +23,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div className="event-card">
             <h3 className="event-title">{title}</h3>
             <p className="event-date">{new Date(eventDate).toLocaleDateString()}</p>
-            <p className="location">{roomId}</p>
+            <p className="location">{roomName}</p>
             <p className="description">{description}</p>
             <p className="attendees">
                 {t('eventCard.attendeesLabel', { attendees: attendees?.join(', ') })}

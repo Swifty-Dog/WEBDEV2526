@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { ApiGet } from '../components/ApiRequest';
-import React, { useState } from 'react';
+import { ApiGet } from '../config/ApiRequest';
 import { useTranslation } from 'react-i18next';
 import '../styles/global.css';
 import '../styles/_components.css';
 import "../styles/EventCard.css";
-
 import { EventCard } from "../components/EventCard";
 import type { EventModel } from "../Models/EventModel";
-import '../styles/_components.css';
+
 
 export const Events: React.FC = () => {
-
+    const { t } = useTranslation('common');
     const [events, setEvents] = useState<EventModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -33,9 +31,6 @@ export const Events: React.FC = () => {
 
     if (loading) return <p>Bezig met laden...</p>;
     if (error) return <p>Fout: {error}</p>;
-    const { t } = useTranslation('common');
-    // Sample events data
-
 
 
     return (
@@ -59,7 +54,7 @@ export const Events: React.FC = () => {
                         title={event.title}
                         eventDate={event.eventDate}
                         description={event.description}
-                        roomId={event.roomId}
+                        roomName={event.room?.roomName}
                         attendees={event.attendees}
                     />
                 ))}

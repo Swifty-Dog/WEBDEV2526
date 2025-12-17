@@ -3,24 +3,27 @@ import { useTranslation } from 'react-i18next';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
 import { EventsTable } from '../components/EventsTable';
-import { EventFormModal } from '../components/EventFormModal';
 import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { RegisterButton } from '../components/RegisterButton';
+import { CreateNewEvent } from '../components/Event/CreateNewEvent';
 import type { EventModel } from "../Models/EventModel";
-import { ApiGet } from '../components/ApiRequest';
-import { ApiPut } from '../components/ApiRequest';
-import { ApiPost } from '../components/ApiRequest';
-import { ApiDelete } from '../components/ApiRequest';
+import type { Room } from '../utils/types';
+import { ApiGet } from '../config/ApiRequest';
+import { ApiPut } from '../config/ApiRequest';
+import { ApiPost } from '../config/ApiRequest';
+import { ApiDelete } from '../config/ApiRequest';
+
 
 
 export type EventItem = {
-    id: string;
+    id: number;
     title: string;
-    date: string; // ISO
-    location?: string;
     description?: string;
+    date: string; // ISO
+    createdById?: number;
+    location?: Room;
     attendees?: string[];
 };
 
@@ -53,7 +56,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const { t: tCommon } = useTranslation('common');
     const { t: tAdmin } = useTranslation('admin');
 
-    const [events, setEvents] = useState<EventItem[]>(initialSample);
+    const [events, setEvents] = useState<EventItem[]>([]);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [attendeesFor, setAttendeesFor] = useState<EventItem | null>(null);
@@ -64,7 +68,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
 
     // helper: zet backend model om naar EventItem
     const mapEventModelToItem = (m: EventModel): EventItem => ({
-        id: String((m as any).id ?? (m as any).Id ?? ''), // veilig halen
+        id: Number((m as any).id ?? (m as any).Id), // veilig halen
         title: (m as any).title ?? (m as any).Title ?? '',
         date: new Date((m as any).eventDate ?? (m as any).EventDate ?? (m as any).date).toISOString(),
         location: (m as any).location ?? (m as any).Location ?? undefined,
@@ -72,17 +76,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         attendees: (m as any).attendees ?? (m as any).Attendees ?? []
     });
 
-    // laad events bij component mount
+    // laad events en rooms bij component mount
     React.useEffect(() => {
         let mounted = true;
         async function load() {
             setLoading(true);
             setError(null);
             try {
-                const data = await ApiGet<EventModel[]>('/Event'); // endpoint controleren
-                console.log('API /Event response:', data);
+                // Laad events
+                const eventsData = await ApiGet<EventModel[]>('/Event');
+                console.log('API /Event response:', eventsData);
                 if (!mounted) return;
-                setEvents(data.map(mapEventModelToItem));
+                setEvents(eventsData.map(mapEventModelToItem));
+
+                // Laad rooms
+                const roomsData = await ApiGet<Room[]>('/Room');
+                console.log('API /Room response:', roomsData);
+                if (!mounted) return;
+                setRooms(roomsData);
             } catch (err: any) {
                 setError(err?.message ?? 'Kon events niet laden');
             } finally {
@@ -114,7 +125,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     };
 
     const filteredEvents = selectedDayISO
-        ? events.filter(ev => toDayKeyISO(new Date(ev.date)) === selectedDayISO)
+        ? events.filter(ev => ev.date.startsWith(selectedDayISO))
         : events;
 
     const openNew = () => {
@@ -122,26 +133,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         setIsFormOpen(true);
     };
 
-    const handleSave = async (payload: Omit<EventItem, 'id' | 'attendees'> & { id?: string }) => {
+    const handleSave = async (payload: Omit<EventItem, 'id' | 'attendees'> & { id?: number }) => {
         try {
             if (payload.id) {
                 // Update via API — verwacht de bijgewerkte EventModel terug
-                const updated = await ApiPut<EventModel>(`/Event/${payload.id}`, {
+                const updated = await await ApiPut<EventModel>(`/Event/${payload.id}`, {
                     title: payload.title,
+                    description: payload.description,
                     eventDate: payload.date,
-                    location: payload.location,
-                    description: payload.description
+                    roomId: payload.location?.id,
+                    createdById: 1,
                 });
-                setEvents(prev => prev.map(ev => ev.id === payload.id ? mapEventModelToItem(updated) : ev));
+
+                setEvents(prev => prev.map(ev => ev.id == payload.id ? mapEventModelToItem(updated) : ev));
             } else {
                 // Create via API — gebruik id uit response
                 const created = await ApiPost<EventModel>('/Event', {
                     title: payload.title,
+                    description: payload.description,
                     eventDate: payload.date,
-                    location: payload.location,
-                    description: payload.description
+                    roomId: payload.location?.id,
+                    createdById: 1,
                 });
+
                 setEvents(prev => [mapEventModelToItem(created), ...prev]);
+
             }
             // if (payload.id) {
             //     // Edit existing
@@ -198,6 +214,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         setAttendeesFor(ev);
     };
 
+    { loading && <p>Bezig met laden...</p> }
+    { error && <p className="error">{error}</p> }
+
+
     return (
         <div className="admin-dashboard page-content">
             <div className="admin-header">
@@ -239,12 +259,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
             </section>
 
             {isFormOpen && (
-                <EventFormModal
+
+                <CreateNewEvent
                     existing={editingEvent ?? undefined}
-                    onClose={() => setIsFormOpen(false)}
+                    rooms={rooms}
+                    onClose={() => {
+                        setIsFormOpen(false);
+                        setEditingEvent(null);
+                    }}
                     onSave={handleSave}
+
                 />
+
             )}
+
 
             {attendeesFor && (
                 <AttendeesModal
