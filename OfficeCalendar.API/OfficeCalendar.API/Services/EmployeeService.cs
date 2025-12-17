@@ -192,12 +192,20 @@ public class EmployeeService : IEmployeeService
             var allEmployees = await _employeeRepo.GetAll();
             allEmployees.RemoveAll(e => e.Role.Trim().ToLower() == "admin");
             var query = search.ToString()!.Trim().ToLower();
+            var FullName = string.Empty;
+
+            foreach (var emp in allEmployees)
+            {
+                FullName = $"{emp.FirstName} {emp.LastName}";
+            }
 
             var matchedEmployees = allEmployees.Where(e =>
                 e.FirstName.ToLower().Contains(query) ||
                 e.LastName.ToLower().Contains(query) ||
+                FullName.ToLower().Contains(query) ||
                 e.Email.ToLower().Contains(query) ||
-                e.Role.ToLower().Contains(query)
+                e.Role.ToLower().Contains(query) ||
+                e.Id.ToString() == query
             ).ToList();
 
             if (matchedEmployees.Count == 0)

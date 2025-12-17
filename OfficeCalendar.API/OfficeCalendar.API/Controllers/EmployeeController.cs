@@ -64,7 +64,7 @@ public class EmployeeController : BaseController
             PromoteDemoteResult.Success =>
                 Ok(new { message = "Role updated successfully." }),
             PromoteDemoteResult.NotFound =>
-                NotFound(new { message = "Employee not found." }),
+                NotFound(new { message = "Employee not found." }), 
             PromoteDemoteResult.InvalidData invalidData =>
                 BadRequest(new { message = invalidData.Message }),
             PromoteDemoteResult.Error error =>
