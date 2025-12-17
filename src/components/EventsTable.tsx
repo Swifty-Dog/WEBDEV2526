@@ -56,5 +56,3 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
         </div>
     );
 };
-
-export default EventsTable;

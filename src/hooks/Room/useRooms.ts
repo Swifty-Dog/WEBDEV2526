@@ -77,7 +77,7 @@ export const useRooms = () => {
 
         if (!token) return;
 
-        startGenericHub();
+        startGenericHub().catch(err => console.error('Error starting SignalR hub for rooms:', err));
 
         const unsubscribe = onEvent("RoomChanged", () => {
             void fetchRooms();
@@ -85,7 +85,7 @@ export const useRooms = () => {
 
         return () => {
             unsubscribe();
-            stopGenericHub();
+            stopGenericHub().catch(err => console.error('Error stopping SignalR hub for rooms:', err));
         };
     }, [token, fetchRooms]);
 

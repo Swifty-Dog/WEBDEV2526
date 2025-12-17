@@ -50,7 +50,7 @@ export async function startConnection(hubUrl: string): Promise<signalR.HubConnec
 export function subscribe(
     hubUrl: string,
     eventName: string,
-    callback: (...args: any[]) => void
+    callback: (...args: string[]) => void
 ) {
     startConnection(hubUrl).catch(err => console.error(err));
 
