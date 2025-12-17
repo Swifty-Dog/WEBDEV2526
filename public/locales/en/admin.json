@@ -1,0 +1,27 @@
+{
+  "adminDashboard": {
+    "subtitle": "Manage calendar events - create, edit, delete and view attendees.",
+    "buttonNewEvent": "+ New Event",
+    "confirmDeleteMessage": "Delete \"{{title}}\"? This cannot be undone."
+  },
+  "terminateEmployee": {
+    "title": "Terminate Employee",
+    "loading": "Loading employees...",
+    "searchPlaceholder": "Search employee by id, name or email",
+    "noEmployees": "No employees found.",
+    "terminate": "Terminate",
+    "confirmTitle": "Confirm Employee Termination",
+    "confirmMessage": "Are you sure you want to terminate this employee? This action cannot be undone.",
+    "success": "Employee terminated successfully."
+  },
+  "button": {
+    "backToAdminDashboard": "Back to Admin Dashboard",
+    "terminating": "Terminating...",
+    "confirmTerminate": "Confirm Termination"
+  },
+  "pagination": {
+    "perPage": "Per page:",
+    "all": "All",
+    "pageInfo": "Page {{page}} of {{totalPages}}"
+  }
+}

@@ -1,16 +1,19 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { EventItem } from '../pages/AdminDashboard';
 
 interface Props {
     events: EventItem[];
     selectedDayISO?: string;
     onDaySelect?: (dateISO: string, eventsForDay: EventItem[]) => void;
+    startHour?: number;
+    endHour?: number;   
 }
 
 function startOfWeekMonday(date: Date): Date {
     const d = new Date(date);
-    const day = d.getDay(); 
-    const diff = (day === 0 ? -6 : 1 - day); 
+    const day = d.getDay();
+    const diff = (day === 0 ? -6 : 1 - day);
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
     return d;
@@ -23,7 +26,9 @@ function toDayKeyISO(d: Date): string {
     return `${y}-${m}-${day}`;
 }
 
-export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect }) => {
+export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect, startHour = 0, endHour = 24 }) => {
+    const { t, i18n } = useTranslation('common');
+
     const [anchor, setAnchor] = useState<Date>(() => startOfWeekMonday(new Date()));
 
     const days = useMemo(() => {
@@ -38,6 +43,8 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
         const map = new Map<string, EventItem[]>();
         for (const ev of events) {
             const d = new Date(ev.date);
+            const hr = d.getHours();
+            if (hr < startHour || hr >= endHour) continue;
             const key = toDayKeyISO(d);
             if (!map.has(key)) map.set(key, []);
             map.get(key)!.push(ev);
@@ -48,7 +55,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
             map.set(k, arr);
         }
         return map;
-    }, [events]);
+    }, [events, startHour, endHour]);
 
     const prevWeek = () => {
         const d = new Date(anchor);
@@ -67,20 +74,22 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
     const headerLabel = useMemo(() => {
         const end = new Date(anchor);
         end.setDate(anchor.getDate() + 6);
-        const intl = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const currentLanguage = i18n.language || 'en';
+        const intl = new Intl.DateTimeFormat(currentLanguage, { month: 'short', day: 'numeric', year: 'numeric' });
         return `${intl.format(anchor)} – ${intl.format(end)}`;
-    }, [anchor]);
+    }, [anchor, i18n.language]);
 
-    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const weekdayAbbrKeys = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const weekdayNames = weekdayAbbrKeys.map(key => t(`calendar.weekdayAbbr.${key}`));
 
     return (
         <div className="week-calendar">
             <div className="week-header">
-                <button className="nav-btn" onClick={prevWeek} title="Previous week">❮</button>
+                <button className="nav-btn" onClick={prevWeek} title={t('calendar.titlePrevWeek')}>❮</button>
                 <h3 style={{ margin: 0 }}>{headerLabel}</h3>
                 <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
-                    <button className="btn-sm" onClick={goToday} title="Jump to current week">Today</button>
-                    <button className="nav-btn" onClick={nextWeek} title="Next week">❯</button>
+                    <button className="btn-sm" onClick={goToday} title={t('calendar.titleJumpToday')}>{t('calendar.buttonToday')}</button>
+                    <button className="nav-btn" onClick={nextWeek} title={t('calendar.titleNextWeek')}>❯</button>
                 </div>
             </div>
             <div className={selectedDayISO ? 'week-grid has-selection' : 'week-grid'}>
@@ -109,10 +118,10 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
                                 <span className="weekday-name">{weekdayNames[idx]}</span>
                                 <span className="weekday-date">{d.getDate()}</span>
                                 {isToday && (
-                                    <span className="day-chip today-chip" aria-hidden="true">Today</span>
+                                    <span className="day-chip today-chip" aria-hidden="true">{t('calendar.buttonToday')}</span>
                                 )}
                                 {isSelected && (
-                                    <span className="day-chip selected-chip" aria-hidden="true">Selected</span>
+                                    <span className="day-chip selected-chip" aria-hidden="true">{t('calendar.chipSelected')}</span>
                                 )}
                                 {dayEvents.length > 0 && (
                                     <span className="badge">{dayEvents.length}</span>
@@ -120,7 +129,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
                             </div>
                             <div className="day-events">
                                 {dayEvents.length === 0 ? (
-                                    <div className="muted" style={{ fontSize: '0.85rem' }}>No events</div>
+                                    <div className="muted" style={{ fontSize: '0.85rem' }}>{t('calendar.labelNoEvents')}</div>
                                 ) : (
                                     dayEvents.slice(0, 3).map(e => (
                                         <div key={e.id} className="event-chip" title={e.description}>
@@ -130,7 +139,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
                                     ))
                                 )}
                                 {dayEvents.length > 3 && (
-                                    <div className="muted more">+{dayEvents.length - 3} more</div>
+                                    <div className="muted more">{t('calendar.labelMoreEvents', { count: dayEvents.length - 3 })}</div>
                                 )}
                             </div>
                         </div>
@@ -140,5 +149,3 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
         </div>
     );
 };
-
-export default WeekCalendar;

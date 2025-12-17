@@ -1,0 +1,33 @@
+{
+  "settingsPage": {
+    "loading": "Instellingen laden...",
+    "errorLoading": "Fout bij het laden van instellingen: {{error}}",
+    "labelSiteTheme": "Site Thema",
+    "labelAccentColor": "Accentkleur",
+    "labelFontSize": "Lettergrootte",
+    "labelDefaultView": "Standaard Agendaweergave",
+    "labelLanguage": "Taal",
+    "buttonSave": "Instellingen opslaan",
+    "warningNotImplemented": "Nog niet geïmplementeerd"
+  },
+  "saveSettings": {
+    "messageSuccess": "Instellingen succesvol opgeslagen!",
+    "messageFailDefault": "Fout bij het opslaan van instellingen door een netwerkfout."
+  },
+  "settingsOptions": {
+    "Light": "Licht",
+    "Dark": "Donker",
+    "Blue": "Blauw",
+    "Purple": "Paars",
+    "Orange": "Oranje",
+    "Yellow": "Geel",
+    "Week": "Week",
+    "Month": "Maand",
+    "English": "Engels",
+    "Dutch": "Nederlands",
+    "Small": "Klein",
+    "Medium": "Medium",
+    "Large": "Groot",
+    "Extra Large": "Extra Groot"
+  }
+}

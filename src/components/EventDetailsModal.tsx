@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ApiDelete, ApiPost } from './ApiRequest';
+import { ApiDelete, ApiPost } from '../config/ApiRequest';
 
 export interface EventDetailsItem {
     id: string;

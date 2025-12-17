@@ -17,6 +17,7 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
     public DbSet<EventParticipationModel> EventParticipations => Set<EventParticipationModel>();
     public DbSet<OfficeAttendanceModel> OfficeAttendances => Set<OfficeAttendanceModel>();
     public DbSet<RoomBookingModel> RoomBookings => Set<RoomBookingModel>();
+    public DbSet<SettingsModel> Settings => Set<SettingsModel>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,6 +46,15 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
             .WithMany(room => room.RoomBookings)
             .HasForeignKey(rBooking => rBooking.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<SettingsModel>()
+            .HasKey(s => s.EmployeeId);
+
+        modelBuilder.Entity<SettingsModel>()
+            .HasOne(s => s.Employee)
+            .WithOne(e => e.Settings)
+            .HasForeignKey<SettingsModel>(s => s.EmployeeId)
+            .IsRequired();
 
         modelBuilder.Entity<RoomBookingModel>(builder =>
         {

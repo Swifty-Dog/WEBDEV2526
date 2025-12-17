@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../components/ApiRequest.tsx';
+import i18n from '../../utils/locales/i18n';
+import { translateFetchError } from '../../utils/locales/translateFetchError';
+import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../config/ApiRequest.ts';
 import type { Room } from '../../utils/types.ts';
 import { startGenericHub, onEvent, stopGenericHub } from '../../utils/signalR/genericHub';
 
@@ -11,7 +13,7 @@ export const useRooms = () => {
 
     const fetchRooms = useCallback(async () => {
         if (!token) {
-            setError('Je bent niet ingelogd.');
+            setError(i18n.t('general.errorNotLoggedIn'));
             setLoading(false);
             return;
         }
@@ -31,7 +33,8 @@ export const useRooms = () => {
                 location: r.location
             })));
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Kon kamers niet ophalen.');
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorFetch');
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -39,26 +42,21 @@ export const useRooms = () => {
 
     const saveRoom = useCallback(async (room: Room) => {
         if (!token) return;
-
-        try {
-            if (room.id) {
-                const saved = await ApiPut<Room>(`/Room/${room.id}`, room, {
-                    Authorization: `Bearer ${token}`,
-                });
-                setRooms(prev => prev.map(r => r.id === saved.id ? saved : r));
-            } else {
-                const dto = {
-                    roomName: room.roomName,
-                    capacity: room.capacity,
-                    location: room.location,
-                };
-                const saved = await ApiPost<Room>('/Room', dto, {
-                    Authorization: `Bearer ${token}`,
-                });
-                setRooms(prev => [...prev, saved]);
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Kon kamer niet opslaan.');
+        if (room.id) {
+            const saved = await ApiPut<Room>(`/Room/${room.id}`, room, {
+                Authorization: `Bearer ${token}`,
+            });
+            setRooms(prev => prev.map(r => r.id === saved.id ? saved : r));
+        } else {
+            const dto = {
+                roomName: room.roomName,
+                capacity: room.capacity,
+                location: room.location,
+            };
+            const saved = await ApiPost<Room>('/Room', dto, {
+                Authorization: `Bearer ${token}`,
+            });
+            setRooms(prev => [...prev, saved]);
         }
     }, [token]);
 
@@ -69,7 +67,8 @@ export const useRooms = () => {
             await ApiDelete(`/Room/${id}`, {Authorization: `Bearer ${token}`});
             setRooms(prev => prev.filter(r => r.id !== id));
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Kon kamer niet verwijderen.');
+            const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorDelete');
+            setError(errorMessage);
         }
     }, [token]);
 

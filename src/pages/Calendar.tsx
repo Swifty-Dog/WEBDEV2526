@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Calendar as CalendarComponent } from '../components/Calendar';
 import { months } from '../utils/months.ts';
-import { ApiGet } from '../components/ApiRequest';
+import { ApiGet } from '../config/ApiRequest';
 import { EventDetailsModal } from '../components/EventDetailsModal';
 
 type CalendarEvent = {
@@ -64,7 +65,9 @@ const groupEventsByDate = (events: CalendarEvent[]) => {
 };
 
 export const Calendar: React.FC = () => {
-    const [eventsHeader, setEventsHeader] = useState('Selecteer een dag');
+    const { t } = useTranslation('common');
+    const [eventsHeader, setEventsHeader] = useState(t('dashboard.headerInitial'));
+    const [hasSelected, setHasSelected] = useState(false);
     const [selectedEvents, setSelectedEvents] = useState<{ title: string; details: string }[]>([]);
     const [selectedFullEvents, setSelectedFullEvents] = useState<CalendarEvent[]>([]);
     const [detailsFor, setDetailsFor] = useState<CalendarEvent | null>(null);
@@ -90,7 +93,7 @@ export const Calendar: React.FC = () => {
                 setEventsByDate(titles);
                 setEventsByDateFull(full);
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Kon events niet laden.');
+                setError(t('networkError'));
             } finally {
                 setLoading(false);
             }
@@ -103,22 +106,23 @@ export const Calendar: React.FC = () => {
         const full = eventsByDateFull[dateString] ?? [];
 
         if (dayEvents && dayEvents.length > 0) {
-            setEventsHeader(`Events op ${displayDate} (Totaal: ${dayEvents.length})`);
-            setSelectedEvents(dayEvents.map(title => ({ title, details: 'Klik voor details...' })));
+            setEventsHeader(t('dashboard.headerEventsFound', { date: displayDate, count: dayEvents.length }));
+            setSelectedEvents(dayEvents.map(title => ({ title, details: t('dashboard.detailsClick') })));
             setSelectedFullEvents(full);
         } else {
-            setEventsHeader(`Geen events op ${displayDate}`);
+            setEventsHeader(t('dashboard.headerEventsNone', { date: displayDate }));
             setSelectedEvents([]);
             setSelectedFullEvents([]);
         }
-    }, [eventsByDateFull]);
+        setHasSelected(true);
+    }, [eventsByDateFull, t]);
 
     return (
         <div className="dashboard-grid">
             <div className="panel-fancy-borders">
                 {error && <p className="error-message">{error}</p>}
                 {loading ? (
-                    <p>Events laden...</p>
+                    <p>{t('loadingEvents')}</p>
                 ) : (
                     <CalendarComponent events={eventsByDate} onDaySelect={onDaySelect} />
                 )}
@@ -132,17 +136,17 @@ export const Calendar: React.FC = () => {
                             <div className="event-item" key={event.id ?? index}>
                                 <div className="event-details">
                                     <h4>
-                                        <button className="link-button" onClick={() => setDetailsFor(event)} title="Bekijk details">
+                                        <button className="link-button" onClick={() => setDetailsFor(event)} title={t('general.buttonViewDetails')}>
                                             {event.title}
                                         </button>
                                     </h4>
-                                    <p className="muted">Klik op de titel voor details</p>
+                                    <p className="muted">{t('dashboard.detailsClick')}</p>
                                 </div>
                             </div>
                         ))
                     ) : (
                         <div className="event-item no-events">
-                            <p>{eventsHeader === 'Selecteer een dag' ? 'Selecteer een dag op de kalender.' : 'Niks gepland.'}</p>
+                            <p>{hasSelected ? t('dashboard.statusNothingPlanned') : t('dashboard.statusSelectDay')}</p>
                         </div>
                     )}
                 </div>

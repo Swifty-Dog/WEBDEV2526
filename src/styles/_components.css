@@ -41,9 +41,94 @@
     background-color: color-mix(in srgb, var(--color-bg-secondary) 80%, var(--color-brand-primary));
 }
 
+.header-button:active:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-bg-secondary) 60%, var(--color-brand-primary));
+}
+
 .header-button:disabled {
     cursor: default;
     opacity: 0.5;
+}
+
+.header-button#extra-margins {
+    margin: 0 0.2rem;
+}
+
+.header-button-danger {
+    background: var(--color-error-primary);
+    color: var(--color-text-contrast);
+}
+
+.header-button-danger:hover:not(:disabled) {
+    background: var(--color-error-secondary);
+}
+
+.header-button-danger:active:not(:disabled) {
+    background: var(--color-error-tertiary);
+}
+
+.extra-spacing {
+    margin: 0.5rem 1.1rem;
+}
+
+.back-link {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: calc(var(--base-font-size) - 0.15rem);
+    margin-bottom: -0.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.back-link:hover {
+    color: var(--color-brand-primary);
+    transform: translateX(-0.1rem);
+}
+
+.search-bar {
+    flex-grow: 1;
+    padding: 0.5rem;
+    width: auto;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-tertiary);
+    border: 0.2rem solid var(--color-border-subtle);
+    border-radius: var(--border-radius-main);
+    box-sizing: border-box;
+    display: block;
+}
+
+.refreshing-data {
+    pointer-events: none;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+    margin: 1rem 0 0.25rem 0;
+    padding: 0 1.1rem;
+    flex-wrap: wrap;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.mid-aligned {
+    align-items: center;
+    justify-content: center;
 }
 
 .sidebar {
@@ -452,10 +537,35 @@ textarea:disabled {
     margin-top: auto;
 }
 
-.form-row { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.75rem; }
-.form-row label { width:120px; font-weight:600; color:var(--color-text-secondary); }
-.form-row input, .form-row textarea { flex:1; padding:0.5rem; border-radius:0.4rem; border:1px solid var(--color-border-subtle); background:var(--color-input-bg); color:var(--color-text-primary); }
-.form-actions { display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.75rem }
+.form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.form-row label {
+    white-space: nowrap;
+    flex: 0 0 15rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.form-row input, .form-row textarea {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-input-bg);
+    color: var(--color-text-primary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.75rem
+}
 
 /* Week calendar styles */
 .week-calendar { background: transparent; }
@@ -659,6 +769,13 @@ textarea:disabled {
     width: 100%;
 }
 
+.panel-fancy-borders .auto-size {
+    min-height: 0;
+    grid-row: auto;
+    margin: 2rem 0;
+}
+
+
 .panel-fancy-borders {
     background: linear-gradient(135deg, var(--color-bg-secondary) 0%, color-mix(in srgb, var(--color-bg-secondary) 95%, var(--color-bg-primary)) 100%);
     border-radius: var(--border-radius-main);
@@ -699,6 +816,18 @@ textarea:disabled {
     list-style: none;
     padding: 0;
     margin: 0;
+}
+
+.employee-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.employee-container .panel-fancy-borders.auto-size {
+    margin: 0;
+    height: 100%;
 }
 
 .list-item {
@@ -764,13 +893,6 @@ textarea:disabled {
     display: inline-block;
 }
 
-.section-card {
-    padding: 1.5rem;
-    background-color: var(--color-bg-secondary);
-    border-radius: var(--border-radius-main);
-    box-shadow: 0 0.25rem 0.5rem var(--color-shadow-subtle);
-}
-
 .booking-items-list {
     padding-left: 0;
     list-style: none;
@@ -807,6 +929,8 @@ textarea:disabled {
     color: var(--color-text-primary);
     font-size: 1rem;
     transition: border-color 0.3s;
+    flex: 1;
+    width: 100%;
 }
 
 .booking-input::placeholder {

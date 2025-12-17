@@ -21,23 +21,24 @@ public class RoomBookingService : IRoomBookingService
     {
         try
         {
-            var roomBooking = await _roomBookingRepo.GetOverlappingBooking(bookingDate, startTime, endTime, (int)roomId);
+            var roomBooking = await _roomBookingRepo.GetOverlappingBooking(bookingDate, startTime, endTime, roomId);
             if (roomBooking != null)
                 return new GetRoomBookingResult.Success(roomBooking);
             return new GetRoomBookingResult.NotFound();
         }
-        catch (Exception ex)
-        { return new GetRoomBookingResult.Error($"Fout bij het ophalen van de kamerreservering: {ex.Message}"); }
+        catch (Exception)
+        { return new GetRoomBookingResult.Error("general.API_ErrorUnexpected"); }
     }
 
     public async Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto, long id)
     {
         if (dto.EndTime <= dto.StartTime)
-            return new CreateRoomBookingResult.InvalidData("Eindtijd kan niet voor de begintijd zijn.");
+            return new CreateRoomBookingResult.InvalidData("roomBookings.API_ErrorEndBeforeStart");
 
         var roomModel = await _roomRepo.GetById(dto.RoomId);
         if (roomModel is null)
-            return new CreateRoomBookingResult.InvalidData("Kamer niet gevonden.");
+            return new CreateRoomBookingResult.InvalidData("rooms.API_ErrorNotFoundById",
+                new Dictionary<string, string> { { "id", dto.RoomId.ToString() } });
 
         var existingBooking = await GetRoomBookingByDateAndTime(dto.BookingDate, dto.StartTime, dto.EndTime, roomModel.Id);
         bool isRoomAvailable = existingBooking is GetRoomBookingResult.NotFound;
@@ -64,7 +65,7 @@ public class RoomBookingService : IRoomBookingService
         if (created)
             return new CreateRoomBookingResult.Success(roomBooking);
 
-        return new CreateRoomBookingResult.Error("Kamerreservering niet kunnen maken.");
+        return new CreateRoomBookingResult.Error("roomBookings.API_ErrorCreateUnexpected");
     }
 
     public async Task<GetRoomBookingListResult> GetUpcomingRoomBookingsByEmployeeId(long employeeId)
@@ -74,9 +75,9 @@ public class RoomBookingService : IRoomBookingService
             var roomBookings = await _roomBookingRepo.GetUpcomingBookingsByEmployeeId(employeeId);
             return new GetRoomBookingListResult.Success(roomBookings);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetRoomBookingListResult.Error($"Fout bij het ophalen van kamerreserveringen: {ex.Message}");
+            return new GetRoomBookingListResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -87,9 +88,9 @@ public class RoomBookingService : IRoomBookingService
             var roomBookings = await _roomBookingRepo.GetBookingsByDate(date);
             return new GetRoomBookingListResult.Success(roomBookings);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetRoomBookingListResult.Error($"Fout bij ophalen van reserveringen op datum: {ex.Message}");
+            return new GetRoomBookingListResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -99,11 +100,13 @@ public class RoomBookingService : IRoomBookingService
         {
             var rb = await _roomBookingRepo.GetById(id);
             if (rb is null)
-                return new UpdateRoomBookingResult.NotFound($"Kamerreservering met ID {dto.Id} niet gevonden.");
+                return new UpdateRoomBookingResult.NotFound("roomBookings.API_BookingErrorNotFoundById",
+                    new Dictionary<string, string> { { "id", id.ToString() } });
 
             var roomModel = await _roomRepo.GetByName(dto.RoomName);
             if (roomModel is null)
-                return new UpdateRoomBookingResult.Error($"Kamer met naam {dto.RoomName} niet gevonden.");
+                return new UpdateRoomBookingResult.Error("rooms.API_ErrorNotFoundByName",
+                    new Dictionary<string, string> { { "name", dto.RoomName } });
 
             rb.Id = id;
             rb.RoomId = roomModel.Id;
@@ -118,11 +121,11 @@ public class RoomBookingService : IRoomBookingService
             if (updated)
                 return new UpdateRoomBookingResult.Success(rb);
 
-            return new UpdateRoomBookingResult.Error("Kamerreservering kon niet worden bijgewerkt.");
+            return new UpdateRoomBookingResult.Error("roomBookings.API_ErrorUpdateUnexpected");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new UpdateRoomBookingResult.Error($"Fout bij het bijwerken van de kamerreservering: {ex.Message}");
+            return new UpdateRoomBookingResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -132,17 +135,19 @@ public class RoomBookingService : IRoomBookingService
         {
             var rb = await _roomBookingRepo.GetById(id);
             if (rb is null)
-                return new DeleteRoomBookingResult.NotFound($"Kamerreservering met ID {id} niet gevonden.");
+                return new DeleteRoomBookingResult.NotFound(
+                    "roomBookings.API_ErrorNotFoundById",
+                    new Dictionary<string, string> { { "id", id.ToString() } });
 
             bool deleted = await _roomBookingRepo.Delete(rb);
             if (deleted)
                 return new DeleteRoomBookingResult.Success();
 
-            return new DeleteRoomBookingResult.Error("Kamerreservering kon niet worden verwijderd.");
+            return new DeleteRoomBookingResult.Error("roomBookings.API_ErrorDeleteUnexpected");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new DeleteRoomBookingResult.Error($"Fout bij het verwijderen van de kamerreservering: {ex.Message}");
+            return new DeleteRoomBookingResult.Error("general.API_ErrorUnexpected");
         }
     }
 }

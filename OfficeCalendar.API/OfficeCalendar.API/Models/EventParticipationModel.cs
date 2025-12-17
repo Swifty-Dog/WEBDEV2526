@@ -16,8 +16,4 @@ public class EventParticipationModel
 
     [ForeignKey(nameof(EmployeeId))]
     public EmployeeModel Employee { get; set; } = null!;
-
-    [Required]
-    [MaxLength(50)]
-    public string Status { get; set; } = string.Empty;
 }

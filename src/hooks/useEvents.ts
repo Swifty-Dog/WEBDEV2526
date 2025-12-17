@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ApiGet } from '../components/ApiRequest';
+import { ApiGet } from '../config/ApiRequest';
 import type { EventApiItem, UseEventsResult} from '../utils/event';
 
 

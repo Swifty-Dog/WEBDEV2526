@@ -20,7 +20,8 @@ public class AttendController : BaseController
     public async Task<IActionResult> Attend([FromRoute] long eventId)
     {
         var userId = GetCurrentUserId();
-        var result = await _attendService.Attend(eventId, userId);
+        if (userId == null) return Unauthorized(new { message = "User not authenticated." });
+        var result = await _attendService.Attend(eventId, userId.Value);
         return result.Status switch
         {
             AttendStatus.Success => Ok(new { attending = true }),
@@ -35,7 +36,8 @@ public class AttendController : BaseController
     public async Task<IActionResult> Unattend([FromRoute] long eventId)
     {
         var userId = GetCurrentUserId();
-        var result = await _attendService.Unattend(eventId, userId);
+        if (userId == null) return Unauthorized(new { message = "User not authenticated." });
+        var result = await _attendService.Unattend(eventId, userId.Value);
         return result.Status switch
         {
             AttendStatus.Success => Ok(new { attending = false }),

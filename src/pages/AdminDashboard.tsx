@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
 import { EventsTable } from '../components/EventsTable';
@@ -6,8 +7,9 @@ import { EventFormModal } from '../components/EventFormModal';
 import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
-import { RegisterButton } from '../components/RegisterButton';
-import { ApiGet } from '../components/ApiRequest';
+import { ApiGet } from '../config/ApiRequest';
+import { RegisterButton } from '../components/Admin/RegisterButton.tsx';
+import {TerminateNavButton} from "../components/Admin/TerminateNavButton.tsx";
 
 export type EventItem = {
     id: string;
@@ -28,7 +30,11 @@ interface EventApiItem {
     attendees: string[];
 }
 
-export const AdminDashboard: React.FC = () => {
+interface AdminDashboardProps {
+    userRole: string | null;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const [events, setEvents] = useState<EventItem[]>([]);
     const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -37,6 +43,11 @@ export const AdminDashboard: React.FC = () => {
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tAdmin } = useTranslation('admin');
+
 
     const toDayKeyISO = (d: Date) => {
         const y = d.getFullYear();
@@ -79,7 +90,7 @@ export const AdminDashboard: React.FC = () => {
                 }));
                 setEvents(mapped);
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Kon events niet laden.');
+                setError(tCommon('networkError'));
             } finally {
                 setLoading(false);
             }
@@ -133,22 +144,35 @@ export const AdminDashboard: React.FC = () => {
         <div className="admin-dashboard page-content">
             <div className="admin-header">
                 <div>
-                    <button className="header-button" onClick={openNew}>+ New Event</button>
-                    <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                    <h1>{tCommon('menu.adminDashboard')}</h1>
+                    {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
+                </div>
+                <div>
+                    <button
+                        className="header-button"
+                        id="extra-margins"
+                        onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
+                    {userRole === 'admin' && (
+                        <RegisterButton />
+                    )}
+                    {userRole === 'admin' &&
+                        <TerminateNavButton />
+                    }
                 </div>
             </div>
 
             <section className="section section--compact">
+                <h2 className="section-title">{tCommon('calendar.weekViewTitle')}</h2>
                 {selectedDayISO && (
                     <div className="filter-row">
-                        <span className="muted">Filtered day:</span>
+                        <span className="muted">{tCommon('calendar.filteredDayLabel')}</span>
                         <span className="filter-pill">{formatISOToDisplay(selectedDayISO)}</span>
-                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>Clear filter</button>
+                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{tCommon('general.clearFilter')}</button>
                     </div>
                 )}
                 <div className="panel-fancy-borders panel-compact">
                     {error && <p className="error-message">{error}</p>}
-                    {loading && <p>Events laden...</p>}
+                    {loading && <p>{tCommon('loadingEvents')}</p>}
                     <WeekCalendar
                         events={events}
                         selectedDayISO={selectedDayISO ?? undefined}
@@ -185,8 +209,8 @@ export const AdminDashboard: React.FC = () => {
 
             {confirmDeleteFor && (
                 <ConfirmDialog
-                    title="Delete event"
-                    message={`Delete "${confirmDeleteFor.title}"? This cannot be undone.`}
+                    title={tCommon('general.buttonDelete') + ' ' + tEvents('admin.eventLabel')}
+                    message={tAdmin('adminDashboard.confirmDeleteMessage', { title: confirmDeleteFor.title })}
                     onConfirm={() => handleDelete(confirmDeleteFor)}
                     onCancel={() => setConfirmDeleteFor(null)}
                 />

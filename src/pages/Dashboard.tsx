@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { WeekCalendar } from '../components/WeekCalendar';
-import { ApiGet, ApiDelete } from '../components/ApiRequest';
+import { ApiGet, ApiDelete } from '../config/ApiRequest';
 import { EventsTable } from '../components/EventsTable';
 import { AttendeesModal } from '../components/AttendeesModal';
 import type { EventItem as AdminEventItem } from './AdminDashboard';
+import { useTranslation } from 'react-i18next';
 
 interface EventApiItem {
     id: number;
@@ -16,6 +17,7 @@ interface EventApiItem {
 }
 
 export const Dashboard: React.FC = () => {
+    const { t } = useTranslation('common');
     const [events, setEvents] = useState<Array<{
         id: string;
         title: string;
@@ -55,7 +57,7 @@ export const Dashboard: React.FC = () => {
                 }));
                 setEvents(mapped);
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Kon events niet laden.');
+                setError(t('networkError'));
             } finally {
                 setLoading(false);
             }
@@ -94,15 +96,15 @@ export const Dashboard: React.FC = () => {
             <section className="section section--compact full-width">
                 {selectedDayISO && (
                     <div className="filter-row">
-                        <span className="muted">Filtered day:</span>
+                        <span className="muted">{t('calendar.filteredDayLabel')}</span>
                         <span className="filter-pill">{selectedDayISO}</span>
-                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>Clear filter</button>
+                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{t('general.clearFilter')}</button>
                     </div>
                 )}
                 <div className="panel-fancy-borders panel-compact">
                     {error && <p className="error-message">{error}</p>}
                     {loading ? (
-                        <p>Events laden...</p>
+                        <p>{t('loadingEvents')}</p>
                     ) : (
                         <WeekCalendar
                             events={events}
@@ -119,7 +121,7 @@ export const Dashboard: React.FC = () => {
                         onDelete={(ev) => unattend(ev)}
                         onViewAttendees={(ev) => setAttendeesFor(ev)}
                         showEdit={false}
-                        deleteLabel="Unattend"
+                        deleteLabel={t('general.buttonUnattend')}
                     />
                 </div>
             </section>

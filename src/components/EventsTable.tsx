@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { EventItem } from '../pages/AdminDashboard';
 
 interface Props {
@@ -11,16 +12,19 @@ interface Props {
     deleteLabel?: string;
 }
 
-export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees, showEdit = true, showDelete = true, deleteLabel = 'Delete' }) => {
+export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees, showEdit = true, showDelete = true }) => {
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+
     return (
         <div>
             <table className="events-table">
                 <thead>
                     <tr>
-                        <th>Title</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Attendees</th>
+                        <th>{tEvents('eventsTable.headerTitle')}</th>
+                        <th>{tEvents('eventsTable.headerDate')}</th>
+                        <th>{tEvents('eventsTable.headerLocation')}</th>
+                        <th>{tEvents('eventsTable.headerAttendees')}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -28,7 +32,7 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                     {events.length === 0 && (
                         <tr>
                             <td colSpan={5} style={{ textAlign: 'center', padding: '1.25rem' }}>
-                                No events yet — create a new event to get started.
+                                {tEvents('eventsTable.empty')}
                             </td>
                         </tr>
                     )}
@@ -44,11 +48,11 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                             <td>
                                 <div className="table-actions">
                                     {showEdit && (
-                                        <button className="btn-sm" onClick={() => onEdit(ev)}>Edit</button>
+                                        <button className="btn-sm" onClick={() => onEdit(ev)}>{tCommon('general.buttonEdit')}</button>
                                     )}
-                                    <button className="btn-sm" onClick={() => onViewAttendees(ev)}>Attendees</button>
+                                    <button className="btn-sm" onClick={() => onViewAttendees(ev)}>{tEvents('eventsTable.buttonAttendees')}</button>
                                     {showDelete && (
-                                        <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>{deleteLabel}</button>
+                                        <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>{tCommon('general.buttonDelete')}</button>
                                     )}
                                 </div>
                             </td>

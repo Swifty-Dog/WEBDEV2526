@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../styles/global.css';
 import '../styles/_components.css';
 import "../styles/EventCard.css";
 import { EventCard } from "../components/EventCard";
-import { ApiGet } from "../components/ApiRequest";
+import { ApiGet } from "../config/ApiRequest";
 
 interface EventApiItem {
     id: number;
@@ -17,6 +18,7 @@ interface EventApiItem {
 }
 
 export const Events: React.FC = () => {
+    const { t } = useTranslation('common');
     const [events, setEvents] = useState<EventApiItem[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export const Events: React.FC = () => {
                 const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
                 setEvents(data.map(e => ({ ...e, date: e.date })));
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Onbekende fout bij het laden van events.');
+                setError(t('common.networkError'));
             } finally {
                 setLoading(false);
             }
@@ -41,15 +43,15 @@ export const Events: React.FC = () => {
 
     return (
         <div className="events-page">
-            <h1>Events</h1>
+            <h1>{t('menu.events')}</h1>
 
-            {/* <div className="stats-section section-card">
-                <h2>Statistieken</h2>
+            <div className="stats-section section-card">
+                <h2>{t('dashboard.statsTitle')}</h2>
                 <div className="stats-grid">
-                    <p>Total Users: 120</p>
-                    <p>Events This Month: {events.length}</p>
+                    <p>{t('dashboard.statsTotalUsers')}: 120</p>
+                    <p>{t('dashboard.statsEventsMonth')}: {events.length}</p>
                 </div>
-            </div> */}
+            </div> 
 
             {/* <div className="calender-week-selector">
                 Hier komt een component zodat de gebruiker de gewenste week kan selecteren die getoont moet worden.
@@ -58,7 +60,7 @@ export const Events: React.FC = () => {
 
 
             {error && <p className="error-message">{error}</p>}
-            {loading && <p>Events laden...</p>}
+            {loading && <p>{t('common.loadingEvents')}</p>}
             <div className="events-grid">
                 {!loading && events.map(event => (
                     <EventCard

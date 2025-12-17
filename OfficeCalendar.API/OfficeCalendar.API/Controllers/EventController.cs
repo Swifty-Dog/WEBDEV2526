@@ -39,7 +39,7 @@ public class EventController : BaseController
 				RoomName = e.Room != null ? e.Room.RoomName : null,
 				Location = e.Room != null ? e.Room.Location : null,
 				Attendees = e.EventParticipations.Select(p => p.Employee.FullName).ToList(),
-				Attending = e.EventParticipations.Any(p => p.EmployeeId == userId)
+				Attending = userId != null && e.EventParticipations.Any(p => p.EmployeeId == userId.Value)
 			})
 			.ToListAsync();
 
@@ -50,7 +50,8 @@ public class EventController : BaseController
 	public async Task<IActionResult> Attend(long eventId)
 	{
 		var userId = GetCurrentUserId();
-		var result = await _attendService.Attend(eventId, userId);
+		if (userId == null) return Unauthorized(new { message = "User not authenticated." });
+		var result = await _attendService.Attend(eventId, userId.Value);
 		return result.Status switch
 		{
 			AttendStatus.Success => Ok(new { attending = true }),
@@ -64,7 +65,8 @@ public class EventController : BaseController
 	public async Task<IActionResult> Unattend(long eventId)
 	{
 		var userId = GetCurrentUserId();
-		var result = await _attendService.Unattend(eventId, userId);
+		if (userId == null) return Unauthorized(new { message = "User not authenticated." });
+		var result = await _attendService.Unattend(eventId, userId.Value);
 		return result.Status switch
 		{
 			AttendStatus.Success => Ok(new { attending = false }),
