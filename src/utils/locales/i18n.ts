@@ -6,7 +6,7 @@ import { LANGUAGE_MAP } from '../../data/SettingsOptions.ts';
 const savedLang = localStorage.getItem('appLanguage') || 'English';
 const initialCode = LANGUAGE_MAP[savedLang] || 'en';
 
-i18n
+void i18n
     .use(Backend)
     .use(initReactI18next)
     .init({
@@ -27,6 +27,10 @@ i18n
         react: {
             useSuspense: true,
         }
+    })
+
+    .catch(err => {
+        console.error('Failed to initialize i18n:', err);
     });
 
 export default i18n;

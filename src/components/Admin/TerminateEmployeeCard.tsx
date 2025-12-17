@@ -11,6 +11,11 @@ export const TerminateEmployeeCard: React.FC<EmployeeCardProps> = ({ employee, o
     const { t: tAdmin } = useTranslation('admin');
     const { t: tCommon } = useTranslation('common');
 
+    const handleTerminate = (emp: Employee) => (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        onTerminate(emp);
+    };
+
     return (
         <div className="panel-fancy-borders auto-size">
             <p>{tCommon('form.labelId')}: {employee.id}</p>
@@ -19,7 +24,7 @@ export const TerminateEmployeeCard: React.FC<EmployeeCardProps> = ({ employee, o
             <p>{tCommon('form.labelRole')}: {tCommon(`roles.${employee.role}`)}</p>
             <button
                 className="button-primary btn-danger"
-                onClick={() => onTerminate(employee)}
+                onClick={handleTerminate(employee)}
             >
                 {tAdmin('terminateEmployee.terminate')}
             </button>
