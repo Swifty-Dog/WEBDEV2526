@@ -20,10 +20,12 @@ interface EventDetailsModalProps {
 export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onClose, onAttendChange }) => {
     const [attending, setAttending] = useState<boolean>(event.attending === true);
     const [busy, setBusy] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     const toggleAttend = async () => {
         if (busy) return;
         setBusy(true);
+        setError(null);
         try {
             const token = localStorage.getItem('authToken');
             if (attending) {
@@ -36,7 +38,8 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onC
                 onAttendChange?.(event.id, true);
             }
         } catch (e) {
-            console.error('Attend toggle failed', e);
+            const errorMsg = e instanceof Error ? e.message : 'Failed to update attendance';
+            setError(errorMsg);
         } finally {
             setBusy(false);
         }
@@ -57,6 +60,7 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onC
                         <div className="detail-row"><strong>Description:</strong> <span>{event.description}</span></div>
                     )}
                     <div className="detail-row"><strong>Attendees:</strong> <span>{(event.attendees ?? []).join(', ') || '—'}</span></div>
+                    {error && <p className="error-message" style={{ marginTop: '1rem', color: 'var(--color-error-primary)' }}>{error}</p>}
                 </div>
                 <div className="modal-footer modal-footer--right">
                     <button

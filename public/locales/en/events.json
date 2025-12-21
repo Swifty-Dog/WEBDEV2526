@@ -6,6 +6,10 @@
   "eventCard": {
     "attendeesLabel": "Attendees: {{attendees}}"
   },
+  "loading": {
+    "loadingEvents": "Loading events...",
+    "loadEventsFailed": "Failed to load events."
+  },
   "eventForm": {
     "titleEdit": "Edit Event",
     "titleNew": "New Event",

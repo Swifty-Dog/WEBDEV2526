@@ -27,8 +27,6 @@
     "listSeparator": "and",
     "networkError": "Network error"
   },
-  "loadingEvents": "Loading events...",
-  "loadEventsFailed": "Failed to load events.",
   "form": {
     "placeholderEmail": "Email",
     "placeholderPassword": "Password",

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar as CalendarComponent } from '../components/Calendar';
-import { months } from '../utils/months.ts';
 import { ApiGet } from '../config/ApiRequest';
 import { EventDetailsModal } from '../components/EventDetailsModal';
 
@@ -34,8 +33,13 @@ const toDayKeyISO = (d: Date) => {
 };
 
 const formatDisplayDate = (key: string) => {
-    const [y, m, d] = key.split('-');
-    return [d, months[+m - 1], y].join(' ');
+    const [y, m, d] = key.split('-').map(Number);
+    const date = new Date(y, (m ?? 1) - 1, d ?? 1);
+    return new Intl.DateTimeFormat(undefined, {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    }).format(date);
 };
 
 const mapApiEvent = (e: EventApiItem): CalendarEvent | null => {

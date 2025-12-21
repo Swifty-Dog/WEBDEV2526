@@ -468,6 +468,36 @@ textarea:disabled {
     border-color: var(--color-border-subtle);
 }
 
+.btn-sm-danger {
+    background: var(--color-error-primary);
+    color: var(--color-text-contrast);
+    border-color: var(--color-error-primary);
+}
+
+.btn-sm-danger:hover:not(:disabled) {
+    background: var(--color-error-secondary);
+    border-color: var(--color-error-secondary);
+}
+
+.btn-sm-danger:active:not(:disabled) {
+    background: var(--color-error-tertiary);
+}
+
+.btn-sm-primary {
+    background: var(--color-brand-accent);
+    color: var(--color-text-contrast);
+    border-color: var(--color-brand-accent);
+}
+
+.btn-sm-primary:hover:not(:disabled) {
+    background: var(--color-brand-accent-hover);
+    border-color: var(--color-brand-accent-hover);
+}
+
+.btn-sm-primary:active:not(:disabled) {
+    background: var(--color-brand-accent-active);
+}
+
 .btn-danger {
     display: flex;
     flex-direction: column;

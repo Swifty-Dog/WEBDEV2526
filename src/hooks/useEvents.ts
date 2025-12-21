@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiGet } from '../config/ApiRequest';
 import type { EventApiItem, UseEventsResult} from '../utils/event';
+import { useTranslation } from 'react-i18next';
 
 
 export function useEvents(): UseEventsResult {
     const [eventsByDate, setEventsByDate] = useState<Record<string, string[]>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation('events');
 
     const toDayKeyISO = useCallback((d: Date) => {
         const y = d.getFullYear();
@@ -34,7 +36,7 @@ export function useEvents(): UseEventsResult {
                 });
                 setEventsByDate(grouped);
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Kon events niet laden.');
+                setError(e instanceof Error ? e.message : t('loading.loadEventsFailed'));
             } finally {
                 setLoading(false);
             }

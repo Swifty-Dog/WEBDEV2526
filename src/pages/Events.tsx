@@ -10,7 +10,7 @@ interface EventApiItem {
     id: number;
     title: string;
     description?: string;
-    date: string; // ISO from backend via JsonPropertyName("date")
+    eventDate: string;
     roomName?: string;
     location?: string;
     attendees: string[];
@@ -31,7 +31,7 @@ export const Events: React.FC = () => {
                 const token = localStorage.getItem('authToken');
                 // Ensure we always hit /api base
                 const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
-                setEvents(data.map(e => ({ ...e, date: e.date })));
+                setEvents(data.map(e => ({ ...e, date: e.eventDate })));
             } catch (e) {
                 setError(t('common.networkError'));
             } finally {
@@ -45,19 +45,10 @@ export const Events: React.FC = () => {
         <div className="events-page">
             <h1>{t('menu.events')}</h1>
 
-            <div className="stats-section section-card">
-                <h2>{t('dashboard.statsTitle')}</h2>
-                <div className="stats-grid">
-                    <p>{t('dashboard.statsTotalUsers')}: 120</p>
-                    <p>{t('dashboard.statsEventsMonth')}: {events.length}</p>
-                </div>
-            </div> 
-
             {/* <div className="calender-week-selector">
                 Hier komt een component zodat de gebruiker de gewenste week kan selecteren die getoont moet worden.
 
             </div> */}
-
 
             {error && <p className="error-message">{error}</p>}
             {loading && <p>{t('common.loadingEvents')}</p>}
@@ -67,7 +58,7 @@ export const Events: React.FC = () => {
                         key={event.id}
                         id={event.id}
                         title={event.title}
-                        date={event.date}
+                        date={event.eventDate}
                         description={event.description || ''}
                         location={event.location || event.roomName || ''}
                         attendees={event.attendees}

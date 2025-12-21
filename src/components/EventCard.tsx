@@ -65,7 +65,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             {error && <p className="error-message">{error}</p>}
             <div className="table-actions">
                 <button
-                    className={`btn-sm ${attending ? 'btn-danger' : 'btn-primary-accent'}`}
+                    className={`btn-sm ${attending ? 'btn-sm-danger' : 'btn-sm-primary'}`}
                     onClick={onToggleAttend}
                     disabled={loading}
                     aria-pressed={attending}
