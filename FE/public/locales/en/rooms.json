@@ -1,0 +1,98 @@
+{
+  "generalRooms": {
+    "manageRoomsTitle": "Manage Rooms",
+    "deleteRoomsTitle": "Delete Rooms"
+  },
+  "adminRoomManagement": {
+    "title": "Room Management"
+  },
+  "bookingForm": {
+    "labelDate": "Booking Date",
+    "labelRoom": "Room",
+    "labelPurpose": "Purpose",
+    "optionLoading": "Loading availability...",
+    "optionSelectRoom": "Select a room",
+    "statusFull": "Full",
+    "placeholderPurpose": "Brief discussion, presentation...",
+    "buttonChecking": "Checking availability...",
+    "buttonReserve": "Reserve Room"
+  },
+  "bookingItem": {
+    "labelDateTime": "Date & Time",
+    "labelRoom": "Room",
+    "labelPurpose": "Purpose"
+  },
+  "currentBookings": {
+    "loading": "Loading bookings...",
+    "title": "Upcoming Room Bookings",
+    "empty": "No upcoming bookings found.",
+    "buttonShowAll": "View all my upcoming bookings >",
+    "messageUpdating": "Updating booking…",
+    "messageUpdateSuccess": "Booking successfully updated.",
+    "messageUpdateFailDefault": "Could not update booking.",
+    "messageDeleteSuccess": "Booking successfully deleted.",
+    "confirmDeleteTitle": "Delete Booking",
+    "confirmDeleteMessage": "Are you sure you want to delete the booking for '{{purpose}}' on {{date}}?"
+  },
+  "editForm": {
+    "errorRoomNotFound": "Room '{{roomName}}' not found."
+  },
+  "editModal": {
+    "loadingRooms": "Loading rooms...",
+    "title": "Edit Booking"
+  },
+  "newBooking": {
+    "loadingRooms": "Loading rooms...",
+    "title": "Create New Booking",
+    "messageSuccess": "Booking successfully created!"
+  },
+  "roomActions": {
+    "addRoom": "Add new room",
+    "manageRooms": "{{generalRooms.manageRoomsTitle}}",
+    "deleteRooms": "{{generalRooms.deleteRoomsTitle}}"
+  },
+  "roomBookingsModal": {
+    "title": "All Upcoming Bookings",
+    "empty": "No upcoming bookings found.",
+    "tooltipEdit": "Edit booking",
+    "tooltipEditPast": "Past bookings cannot be edited",
+    "tooltipDelete": "Delete booking",
+    "tooltipDeletePast": "Past bookings cannot be deleted"
+  },
+  "roomForm": {
+    "titleEdit": "Edit Room",
+    "titleAdd": "Add New Room",
+    "labelCapacity": "Capacity",
+    "labelLocation": "Location"
+  },
+  "roomListModal": {
+    "titleManage": "{{generalRooms.manageRoomsTitle}}",
+    "titleDelete": "{{generalRooms.deleteRoomsTitle}}",
+    "headerAction": "Action",
+    "empty": "No rooms found",
+    "confirmDeleteTitle": "Delete Room",
+    "confirmDeleteMessage": "Are you sure you want to delete \"{{roomName}}\"? This cannot be undone."
+  },
+  "roomError": {
+    "errorFetch": "Could not fetch rooms.",
+    "errorSave": "Could not save room.",
+    "errorDelete": "Could not delete room."
+  },
+  "roomBookingError": {
+    "errorFetchUpcoming": "Error fetching upcoming bookings.",
+    "errorFetchDaily": "Could not fetch availability.",
+    "errorCreate": "Could not create booking.",
+    "errorDelete": "Could not delete booking.",
+    "errorUpdate": "Could not update booking."
+  },
+  "timeUtils": {
+    "now": "Now",
+    "inDays_one": "in {{count}} day",
+    "inDays_other": "in {{count}} days",
+    "inHours_one": "in {{count}} hour",
+    "inHours_other": "in {{count}} hours",
+    "inMinutes_one": "in {{count}} minute",
+    "inMinutes_other": "in {{count}} minutes",
+    "and": "and"
+  }
+}

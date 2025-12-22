@@ -1,0 +1,103 @@
+{
+  "general": {
+    "errorNotLoggedIn": "You are not logged in.",
+    "labelName": "Name",
+    "labelStartTime": "Start Time",
+    "labelEndTime": "End Time",
+    "optionSelectStartTime": "Select a start time",
+    "optionSelectEndTime": "Select an end time",
+    "buttonConfirm": "Confirm",
+    "buttonCancel": "Cancel",
+    "buttonClose": "Close",
+    "buttonCreate": "Create",
+    "buttonEdit": "Edit",
+    "buttonDelete": "Delete",
+    "buttonHome": "Go to Home",
+    "buttonSave": "Save",
+    "buttonSaving": "Saving...",
+    "buttonStay": "Stay",
+    "buttonLogin": "Login",
+    "buttonRegister": "Register",
+    "buttonUnattend": "Unattend",
+    "buttonViewDetails": "View details",
+    "buttonLeaveAnyway": "Leave Anyway",
+    "confirmTitle": "Unsaved Changes",
+    "confirmMessage": "You have unsaved changes. Are you sure you want to leave?",
+    "clearFilter": "Clear Filter",
+    "listSeparator": "and",
+    "networkError": "Network error"
+  },
+  "form": {
+    "placeholderEmail": "Email",
+    "placeholderPassword": "Password",
+    "alertRequired_one": "{{fields}} is required.",
+    "alertRequired_other": "{{fields}} are required.",
+    "alertPasswordMismatch": "Passwords do not match.",
+    "registerSuccess": "Registration successful!",
+    "failDefault": "Registration failed. Please try again.",
+    "labelEmail": "Email",
+    "labelPassword": "Password",
+    "labelPasswordConfirm": "Confirm Password",
+    "labelName": "Name",
+    "labelFirstName": "First $t(form.labelName)",
+    "labelLastName": "Last $t(form.labelName)",
+    "labelRole": "Role",
+    "labelId": "ID",
+    "labelRegistering": "Registering..."
+  },
+  "dashboard": {
+    "statsTitle": "Statistics",
+    "statsTotalUsers": "Total Users",
+    "statsEventsMonth": "Events This Month",
+    "headerInitial": "Select a day",
+    "headerEventsFound": "Events on {{date}} (Total: {{count}})",
+    "headerEventsNone": "No events on {{date}}",
+    "detailsClick": "Click for details...",
+    "statusSelectDay": "Select a day on the calendar.",
+    "statusNothingPlanned": "Nothing planned."
+  },
+  "notFound": {
+    "title": "404 - Page Not Found",
+    "message": "The page you requested could not be found."
+  },
+  "menu": {
+    "adminDashboard": "Admin Dashboard",
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "events": "Events",
+    "rooms": "Rooms",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "calendar": {
+    "weekViewTitle": "Week View",
+    "monthViewTitle": "Month View",
+    "filteredDayLabel": "Filtered day: ",
+    "subtitle": "Click a day for details",
+    "titlePrevMonth": "Previous month",
+    "titleNextMonth": "Next month",
+    "titleEvents": "Events: {{events}}",
+    "titlePrevWeek": "Previous week",
+    "titleNextWeek": "Next week",
+    "titleJumpToday": "Jump to current week",
+    "buttonToday": "Today",
+    "chipSelected": "Selected",
+    "labelNoEvents": "No events",
+    "labelMoreEvents": "+{{count}} more",
+    "weekdayAbbr": {
+      "Mon": "Mon",
+      "Tue": "Tue",
+      "Wed": "Wed",
+      "Thu": "Thu",
+      "Fri": "Fri",
+      "Sat": "Sat",
+      "Sun": "Sun"
+    }
+  },
+  "roles": {
+    "Admin": "Administrator",
+    "Manager": "Manager",
+    "Employee": "Employee",
+    "Terminated": "Terminated"
+  }
+}
