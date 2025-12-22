@@ -23,7 +23,7 @@
 .top-bar-controls {
     display: flex;
     gap: 1rem;
-    align-items: center;
+        justify-content: flex-start;
 }
 
 .header-button {
@@ -300,12 +300,14 @@
 }
 
 .button-primary:hover:not(:disabled),
-.button-secondary:hover:not(:disabled) {
+.button-secondary:hover:not(:disabled),
+.btn-danger:hover:not(:disabled) {
     transform: translateY(-0.1rem);
 }
 
 .button-primary:active:not(:disabled),
-.button-secondary:active:not(:disabled) {
+.button-secondary:active:not(:disabled),
+.btn-danger:active:not(:disabled) {
     transform: translateY(0) scale(0.98);
 }
 
@@ -377,6 +379,8 @@ textarea:disabled {
     width: 90%;
     max-width: 720px;
     box-shadow: 0 0.75rem 2rem var(--color-shadow-subtle);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal .form-row {
@@ -408,6 +412,19 @@ textarea:disabled {
     max-height: 60vh;
     overflow-y: auto;
     padding-right: 0.5rem;
+}
+
+/* Ensure modal footer actions align to the bottom-right */
+.modal-footer {
+    margin-top: auto; /* push footer to bottom */
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.modal-footer--right {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .events-table {
@@ -451,10 +468,48 @@ textarea:disabled {
     border-color: var(--color-border-subtle);
 }
 
-.btn-danger {
+.btn-sm-danger {
     background: var(--color-error-primary);
     color: var(--color-text-contrast);
-    border-color: transparent;
+    border-color: var(--color-error-primary);
+}
+
+.btn-sm-danger:hover:not(:disabled) {
+    background: var(--color-error-secondary);
+    border-color: var(--color-error-secondary);
+}
+
+.btn-sm-danger:active:not(:disabled) {
+    background: var(--color-error-tertiary);
+}
+
+.btn-sm-primary {
+    background: var(--color-brand-accent);
+    color: var(--color-text-contrast);
+    border-color: var(--color-brand-accent);
+}
+
+.btn-sm-primary:hover:not(:disabled) {
+    background: var(--color-brand-accent-hover);
+    border-color: var(--color-brand-accent-hover);
+}
+
+.btn-sm-primary:active:not(:disabled) {
+    background: var(--color-brand-accent-active);
+}
+
+.btn-danger {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-contrast);
+    background: var(--color-error-primary);
+    border: none;
+    border-radius: var(--border-radius-main);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .btn-danger:hover {
@@ -763,6 +818,16 @@ textarea:disabled {
     padding: 0.5rem;
     display: flex;
     flex-direction: column;
+}
+
+.panel-fancy-borders.panel-compact {
+    min-height: 0;
+    border-width: 0.5rem;
+    padding: 0.5rem;
+}
+
+.panel-fancy-borders.panel-compact .week-day {
+    min-height: 90px;
 }
 
 .panel-fancy-borders::before {

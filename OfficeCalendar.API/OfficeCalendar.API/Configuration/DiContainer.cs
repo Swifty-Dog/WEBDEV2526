@@ -20,6 +20,12 @@ public static class DiContainer
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IRoomBookingRepository, RoomBookingRepository>();
+        services.AddScoped<IAttendRepository, AttendRepository>();
+        services.AddScoped<IRepository<EventModel>, Repository<EventModel>>();
+
+        // JWT Token Generator: Scoped to avoid consuming scoped dependencies from a singleton.
+        // If TokenService is stateless, it can still be scoped safely.
+        services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
         // Password Hasher: Must be Singleton as it is stateless and resource-intensive.
@@ -29,6 +35,8 @@ public static class DiContainer
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IRoomBookingService, RoomBookingService>();
+        services.AddScoped<IAttendService, AttendService>();
+
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<ITokenService, TokenService>();
     }

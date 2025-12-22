@@ -1,89 +1,137 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { WeekCalendar } from '../components/WeekCalendar';
+import { ApiGet, ApiDelete } from '../config/ApiRequest';
+import { EventsTable } from '../components/EventsTable';
+import { AttendeesModal } from '../components/AttendeesModal';
+import type { EventItem as AdminEventItem } from './AdminDashboard';
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback } from 'react';
-import { Calendar } from '../components/Calendar';
-import i18n from "../utils/locales/i18n.ts";
 
-interface Event {
+interface EventApiItem {
+    id: number;
     title: string;
-    details: string;
+    description?: string;
+    eventDate: string;
+    roomName?: string;
+    location?: string;
+    attendees: string[];
 }
-
-const sampleEvents = {
-    '2025-10-01': ['Team Meeting'],
-    '2025-10-03': ['Client Call'],
-    '2025-10-07': ['Project Review'],
-    '2025-10-10': ['Birthday Party'],
-    '2025-10-15': ['Conference'],
-    '2025-10-20': ['Workshop'],
-    '2025-10-25': ['Team Building'],
-    '2025-10-31': ['Halloween Party']
-};
 
 export const Dashboard: React.FC = () => {
     const { t } = useTranslation('common');
+    const [events, setEvents] = useState<Array<{
+        id: string;
+        title: string;
+        date: string; // ISO
+        location?: string;
+        description?: string;
+        attendees?: string[];
+        attending?: boolean;
+    }>>([]);
+    const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [attendeesFor, setAttendeesFor] = useState<AdminEventItem | null>(null);
 
-    const [eventsHeader, setEventsHeader] = useState<string>(t('dashboard.headerInitial'));
-    const [selectedEvents, setSelectedEvents] = useState<Event[]>([]);
+    const toDayKeyISO = (d: Date) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
 
-    const handleDaySelect = useCallback((dateString: string, dayEvents: string[] | undefined) => {
-        const dateParts = dateString.split("-");
-        const dateDisplay = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' });
+    useEffect(() => {
+        const fetchEvents = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('authToken');
+                const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                const mapped = data.map(e => ({
+                    id: String(e.id),
+                    title: e.title,
+                    date: e.eventDate,
+                    location: e.location ?? e.roomName,
+                    description: e.description,
+                    attendees: e.attendees,
+                    attending: (e as any).attending === true
+                }));
+                setEvents(mapped);
+            } catch (e) {
+                setError(t('networkError'));
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvents();
+    }, []);
 
-        if (dayEvents && dayEvents.length > 0) {
-            setEventsHeader(t('dashboard.headerEventsFound', { date: dateDisplay, count: dayEvents.length }));
+    const attendingEvents = useMemo(() => events.filter(ev => ev.attending), [events]);
+    const filtered = useMemo(() => {
+        const base = attendingEvents;
+        if (!selectedDayISO) return base;
+        return base.filter(ev => toDayKeyISO(new Date(ev.date)) === selectedDayISO);
+    }, [attendingEvents, selectedDayISO]);
 
-            const mappedEvents: Event[] = dayEvents.map(title => ({
-                title: title,
-                details: t('dashboard.detailsClick'),
-            }));
+    const toAdminItem = (e: { id: string; title: string; date: string; location?: string; description?: string; attendees?: string[]; }): AdminEventItem => ({
+        id: e.id,
+        title: e.title,
+        date: e.date,
+        location: e.location,
+        description: e.description,
+        attendees: e.attendees ?? []
+    });
 
-            setSelectedEvents(mappedEvents);
-        } else {
-            setEventsHeader(t('dashboard.headerEventsNone', { date: dateDisplay }));
-            setSelectedEvents([]);
+    const unattend = async (ev: AdminEventItem) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            await ApiDelete(`/Event/${ev.id}/attend`, token ? { Authorization: `Bearer ${token}` } : undefined);
+            setEvents(prev => prev.filter(e => e.id !== ev.id));
+        } catch (e) {
+            console.error('Unattend failed', e);
         }
-    }, [t]);
-
+    };
 
     return (
         <div className="dashboard-grid">
-            <div className="panel-fancy-borders">
-                <Calendar events={sampleEvents} onDaySelect={handleDaySelect} />
-            </div>
-
-            <div className="stats-section section-card">
-                <h2>{t('dashboard.statsTitle')}</h2>
-                <div className="stats-grid">
-                    <p>{t('dashboard.statsTotalUsers')}: 120</p>
-                    <p>{t('dashboard.statsEventsMonth')}: {Object.keys(sampleEvents).length}</p>
-                </div>
-            </div>
-
-            <div className="events-section section-card">
-                <h2>{eventsHeader}</h2>
-
-                <div className="events-list">
-                    {selectedEvents.length > 0 ? (
-                        selectedEvents.map((event, index) => (
-                            <div className="event-item" key={index}>
-                                <div className="event-details">
-                                    <h4>{event.title}</h4>
-                                    <p>{event.details}</p>
-                                </div>
-                            </div>
-                        ))
+            <section className="section section--compact full-width">
+                {selectedDayISO && (
+                    <div className="filter-row">
+                        <span className="muted">{t('calendar.filteredDayLabel')}</span>
+                        <span className="filter-pill">{selectedDayISO}</span>
+                        <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{t('general.clearFilter')}</button>
+                    </div>
+                )}
+                <div className="panel-fancy-borders panel-compact">
+                    {error && <p className="error-message">{error}</p>}
+                    {loading ? (
+                        <p>{t('loadingEvents')}</p>
                     ) : (
-                        <div className="event-item no-events">
-                            <p>
-                                {eventsHeader === t('dashboard.headerInitial')
-                                ? t('dashboard.statusSelectDay')
-                                : t('dashboard.statusNothingPlanned')}
-                            </p>
-                        </div>
+                        <WeekCalendar
+                            events={events}
+                            selectedDayISO={selectedDayISO ?? undefined}
+                            onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
+                        />
                     )}
                 </div>
-            </div>
+
+                <div className="panel-fancy-borders" style={{ marginTop: '1rem' }}>
+                    <EventsTable
+                        events={filtered.map(toAdminItem)}
+                        onEdit={() => { /* no edit on normal dashboard */ }}
+                        onDelete={(ev) => unattend(ev)}
+                        onViewAttendees={(ev) => setAttendeesFor(ev)}
+                        showEdit={false}
+                        deleteLabel={t('general.buttonUnattend')}
+                    />
+                </div>
+            </section>
+
+            {attendeesFor && (
+                <AttendeesModal
+                    eventItem={attendeesFor}
+                    onClose={() => setAttendeesFor(null)}
+                />
+            )}
         </div>
     );
 };

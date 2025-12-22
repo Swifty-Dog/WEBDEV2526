@@ -5,7 +5,6 @@ import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Register } from './components/Admin/Register.tsx';
 import { Rooms } from "./pages/Rooms";
-import { Events } from './pages/Events';
 import { Settings } from './pages/Settings';
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
@@ -16,6 +15,8 @@ import { useFetchSettings } from './hooks/Settings/useFetchSettings';
 import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
+import { Events } from './pages/Events.tsx';
+import CalendarPage from './pages/Calendar.tsx';
 import { getUserRoleFromToken, isTokenValid } from './utils/auth.ts';
 import {TerminateEmployee} from "./components/Admin/TerminateEmployee.tsx";
 
@@ -160,6 +161,16 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                     }
                 />
                 <Route path="*" element={<Navigate to="/404" replace />} />
+
+                <Route path="/calendar" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin', 'manager', 'employee']}
+                    >
+                        <CalendarPage />
+                    </ProtectedRoute>}
+                />
             </Routes>
         </Layout>
     );

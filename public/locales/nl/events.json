@@ -6,6 +6,10 @@
   "eventCard": {
     "attendeesLabel": "Deelnemers: {{attendees}}"
   },
+  "loading": {
+    "loadingEvents": "Evenementen laden...",
+    "loadEventsFailed": "Evenementen laden mislukt."
+  },
   "eventForm": {
     "titleEdit": "Evenement bewerken",
     "titleNew": "Nieuw evenement",

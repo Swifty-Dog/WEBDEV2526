@@ -7,9 +7,12 @@ interface Props {
     onEdit: (ev: EventItem) => void;
     onDelete: (ev: EventItem) => void;
     onViewAttendees: (ev: EventItem) => void;
+    showEdit?: boolean;
+    showDelete?: boolean;
+    deleteLabel?: string;
 }
 
-export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees }) => {
+export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees, showEdit = true, showDelete = true }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
 
@@ -44,9 +47,13 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                             <td>{(ev.attendees ?? []).length}</td>
                             <td>
                                 <div className="table-actions">
-                                    <button className="btn-sm" onClick={() => onEdit(ev)}>{tCommon('general.buttonEdit')}</button>
+                                    {showEdit && (
+                                        <button className="btn-sm" onClick={() => onEdit(ev)}>{tCommon('general.buttonEdit')}</button>
+                                    )}
                                     <button className="btn-sm" onClick={() => onViewAttendees(ev)}>{tEvents('eventsTable.buttonAttendees')}</button>
-                                    <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>{tCommon('general.buttonDelete')}</button>
+                                    {showDelete && (
+                                        <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>{tCommon('general.buttonDelete')}</button>
+                                    )}
                                 </div>
                             </td>
                         </tr>

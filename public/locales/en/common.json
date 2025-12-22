@@ -18,6 +18,8 @@
     "buttonStay": "Stay",
     "buttonLogin": "Login",
     "buttonRegister": "Register",
+    "buttonUnattend": "Unattend",
+    "buttonViewDetails": "View details",
     "buttonLeaveAnyway": "Leave Anyway",
     "confirmTitle": "Unsaved Changes",
     "confirmMessage": "You have unsaved changes. Are you sure you want to leave?",

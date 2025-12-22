@@ -6,6 +6,8 @@ interface Props {
     events: EventItem[];
     selectedDayISO?: string;
     onDaySelect?: (dateISO: string, eventsForDay: EventItem[]) => void;
+    startHour?: number;
+    endHour?: number;   
 }
 
 function startOfWeekMonday(date: Date): Date {
@@ -24,7 +26,7 @@ function toDayKeyISO(d: Date): string {
     return `${y}-${m}-${day}`;
 }
 
-export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect }) => {
+export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect, startHour = 0, endHour = 24 }) => {
     const { t, i18n } = useTranslation('common');
 
     const [anchor, setAnchor] = useState<Date>(() => startOfWeekMonday(new Date()));
@@ -41,6 +43,8 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
         const map = new Map<string, EventItem[]>();
         for (const ev of events) {
             const d = new Date(ev.date);
+            const hr = d.getHours();
+            if (hr < startHour || hr >= endHour) continue;
             const key = toDayKeyISO(d);
             if (!map.has(key)) map.set(key, []);
             map.get(key)!.push(ev);
@@ -51,7 +55,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
             map.set(k, arr);
         }
         return map;
-    }, [events]);
+    }, [events, startHour, endHour]);
 
     const prevWeek = () => {
         const d = new Date(anchor);

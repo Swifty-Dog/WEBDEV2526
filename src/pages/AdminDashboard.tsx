@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
@@ -7,6 +7,7 @@ import { EventFormModal } from '../components/EventFormModal';
 import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
+import { ApiGet } from '../config/ApiRequest';
 import { RegisterButton } from '../components/Admin/RegisterButton.tsx';
 import {TerminateNavButton} from "../components/Admin/TerminateNavButton.tsx";
 
@@ -19,40 +20,34 @@ export type EventItem = {
     attendees?: string[];
 };
 
-const initialSample: EventItem[] = [
-    {
-        id: '1',
-        title: 'Team Standup',
-        date: new Date().toISOString(),
-        location: 'Conference Room A',
-        description: 'Daily sync for the engineering team',
-        attendees: ['Alice', 'Bob']
-    },
-    {
-        id: '2',
-        title: 'All-hands Meeting',
-        date: new Date(Date.now() + 86400000).toISOString(),
-        location: 'Main Hall',
-        description: 'Monthly company-wide update',
-        attendees: ['Charlie', 'Dana', 'Eve']
-    }
-];
+interface EventApiItem {
+    id: number;
+    title: string;
+    description?: string;
+    eventDate: string;
+    roomName?: string;
+    location?: string;
+    attendees: string[];
+}
 
 interface AdminDashboardProps {
     userRole: string | null;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
-    const { t: tEvents } = useTranslation('events');
-    const { t: tCommon } = useTranslation('common');
-    const { t: tAdmin } = useTranslation('admin');
-
-    const [events, setEvents] = useState<EventItem[]>(initialSample);
+    const [events, setEvents] = useState<EventItem[]>([]);
     const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [attendeesFor, setAttendeesFor] = useState<EventItem | null>(null);
     const [confirmDeleteFor, setConfirmDeleteFor] = useState<EventItem | null>(null);
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tAdmin } = useTranslation('admin');
+
 
     const toDayKeyISO = (d: Date) => {
         const y = d.getFullYear();
@@ -77,6 +72,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const filteredEvents = selectedDayISO
         ? events.filter(ev => toDayKeyISO(new Date(ev.date)) === selectedDayISO)
         : events;
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('authToken');
+                const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                const mapped: EventItem[] = data.map(e => ({
+                    id: String(e.id),
+                    title: e.title,
+                    date: e.eventDate,
+                    location: e.location ?? e.roomName,
+                    description: e.description,
+                    attendees: e.attendees ?? []
+                }));
+                setEvents(mapped);
+            } catch (e) {
+                setError(tCommon('networkError'));
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvents();
+    }, []);
 
     const openNew = () => {
         setEditingEvent(null);
@@ -150,20 +170,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{tCommon('general.clearFilter')}</button>
                     </div>
                 )}
-                <WeekCalendar
-                    events={events}
-                    selectedDayISO={selectedDayISO ?? undefined}
-                    onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
-                />
+                <div className="panel-fancy-borders panel-compact">
+                    {error && <p className="error-message">{error}</p>}
+                    {loading && <p>{tCommon('loadingEvents')}</p>}
+                    <WeekCalendar
+                        events={events}
+                        selectedDayISO={selectedDayISO ?? undefined}
+                        onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
+                    />
+                </div>
             </section>
 
             <section className="section section--spacious">
-                <EventsTable
-                    events={filteredEvents}
-                    onEdit={handleEdit}
-                    onDelete={(ev: EventItem) => setConfirmDeleteFor(ev)}
-                    onViewAttendees={handleViewAttendees}
-                />
+                <div className="panel-fancy-borders">
+                    <EventsTable
+                        events={filteredEvents}
+                        onEdit={handleEdit}
+                        onDelete={(ev: EventItem) => setConfirmDeleteFor(ev)}
+                        onViewAttendees={handleViewAttendees}
+                    />
+                </div>
             </section>
 
             {isFormOpen && (
