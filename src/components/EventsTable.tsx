@@ -1,12 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { EventItem } from '../pages/AdminDashboard';
+import type { Event } from '../utils/types';
+import { formatISOToDisplay } from '../utils/date';
 
 interface Props {
-    events: EventItem[];
-    onEdit: (ev: EventItem) => void;
-    onDelete: (ev: EventItem) => void;
-    onViewAttendees: (ev: EventItem) => void;
+    events: Event[];
+    onEdit: (ev: Event) => void;
+    onDelete: (ev: Event) => void;
+    onViewAttendees: (ev: Event) => void;
 }
 
 export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees }) => {
@@ -39,9 +40,9 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                                 <div style={{ fontWeight: 600 }}>{ev.title}</div>
                                 <div style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>{ev.description}</div>
                             </td>
-                            <td>{new Date(ev.date).toLocaleString()}</td>
-                            <td>{ev.location ?? '-'}</td>
-                            <td>{(ev.attendees ?? []).length}</td>
+                            <td>{formatISOToDisplay(ev.eventDate)}</td>
+                            <td>{ev.room?.roomName ?? '-'}</td>
+                            <td>{(ev.attendeesCount ?? [])}</td>
                             <td>
                                 <div className="table-actions">
                                     <button className="btn-sm" onClick={() => onEdit(ev)}>{tCommon('general.buttonEdit')}</button>

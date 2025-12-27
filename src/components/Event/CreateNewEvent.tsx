@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import type { Room } from '../../utils/types';
-import type { EventItem } from '../../pages/AdminDashboard';
+import type { Event } from '../../utils/types';
 import { useTranslation } from 'react-i18next';
 
 
 
 interface Props {
-    existing?: EventItem;
+    existing?: Event;
     onClose: () => void;
     rooms: Room[];
-    onSave: (payload: Omit<EventItem, 'id' | 'attendees'> & { id?: number }) => void | Promise<void>;
+    onSave: (payload: Omit<Event, 'attendeesCount'> & { id?: number }) => void | Promise<void>;
 }
 
 function toInputDateTime(iso?: string | Date) {
@@ -38,8 +38,8 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
     useEffect(() => {
         if (existing) {
             setTitle(existing.title ?? '');
-            setEventDate(toInputDateTime(existing.date));
-            setRoom(existing.location);
+            setEventDate(toInputDateTime(existing.eventDate));
+            setRoom(existing.room);
             setDescription(existing.description ?? '');
         } else {
             setTitle('');
@@ -51,14 +51,20 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
 
     const submit = async (e?: React.FormEvent) => {
         e?.preventDefault();
-
-        const payload: Omit<EventItem, 'id' | 'attendees'> & { id?: number } = {
-            id: existing?.id,
-            title: title.trim(),
-            date: fromInputDateTime(eventDate),
-            description: description.trim(),
-            location: room,
-        };
+        const payload = existing?.id !== undefined
+            ? ({
+                id: existing.id,
+                title: title.trim(),
+                eventDate: fromInputDateTime(eventDate),
+                description: description.trim(),
+                room: room,
+            } as Omit<Event, 'attendeesCount'> & { id?: number })
+            : ({
+                title: title.trim(),
+                eventDate: fromInputDateTime(eventDate),
+                description: description.trim(),
+                room: room,
+            } as Omit<Event, 'attendeesCount'> & { id?: number });
 
         await onSave(payload);
     };
@@ -98,7 +104,7 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                             required
                         >
                             <option value="" disabled>
-                                {tEvents('eventForm.selectRoomPlaceholder')}
+                                {tEvents('eventForm.labelSelectRoom')}
                             </option>
                             {rooms.map(r => (
                                 <option key={r.id} value={r.id?.toString()}>

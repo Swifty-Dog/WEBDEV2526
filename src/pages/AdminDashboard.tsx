@@ -8,43 +8,12 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { RegisterButton } from '../components/RegisterButton';
 import { CreateNewEvent } from '../components/Event/CreateNewEvent';
-import type { EventModel } from "../Models/EventModel";
-import type { Room } from '../utils/types';
 import { ApiGet } from '../config/ApiRequest';
 import { ApiPut } from '../config/ApiRequest';
 import { ApiPost } from '../config/ApiRequest';
 import { ApiDelete } from '../config/ApiRequest';
-
-
-
-export type EventItem = {
-    id: number;
-    title: string;
-    description?: string;
-    date: string; // ISO
-    createdById?: number;
-    location?: Room;
-    attendees?: string[];
-};
-
-// const initialSample: EventItem[] = [
-//     {
-//         id: '1',
-//         title: 'Team Standup',
-//         date: new Date().toISOString(),
-//         location: 'Conference Room A',
-//         description: 'Daily sync for the engineering team',
-//         attendees: ['Alice', 'Bob']
-//     },
-//     {
-//         id: '2',
-//         title: 'All-hands Meeting',
-//         date: new Date(Date.now() + 86400000).toISOString(),
-//         location: 'Main Hall',
-//         description: 'Monthly company-wide update',
-//         attendees: ['Charlie', 'Dana', 'Eve']
-//     }
-// ];
+import { formatISOToDisplay } from '../utils/date';
+import type { Room, Event, EventApiDto, UpdateEventApiDto, CreateEventApiDto } from '../utils/types';
 
 
 interface AdminDashboardProps {
@@ -56,76 +25,70 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const { t: tCommon } = useTranslation('common');
     const { t: tAdmin } = useTranslation('admin');
 
-    const [events, setEvents] = useState<EventItem[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
-    const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
+    const [editingEvent, setEditingEvent] = useState<Event | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [attendeesFor, setAttendeesFor] = useState<EventItem | null>(null);
-    const [confirmDeleteFor, setConfirmDeleteFor] = useState<EventItem | null>(null);
+    const [attendeesFor, setAttendeesFor] = useState<Event | null>(null);
+    const [confirmDeleteFor, setConfirmDeleteFor] = useState<Event | null>(null);
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     // helper: zet backend model om naar EventItem
-    const mapEventModelToItem = (m: EventModel): EventItem => ({
-        id: Number((m as any).id ?? (m as any).Id), // veilig halen
-        title: (m as any).title ?? (m as any).Title ?? '',
-        date: new Date((m as any).eventDate ?? (m as any).EventDate ?? (m as any).date).toISOString(),
-        location: (m as any).location ?? (m as any).Location ?? undefined,
-        description: (m as any).description ?? (m as any).Description ?? undefined,
-        attendees: (m as any).attendees ?? (m as any).Attendees ?? []
-    });
+    const mapEventApiToEvent = (dto: EventApiDto, rooms: Room[]): Event => {
+        // Vind het room object in frontend lijst op basis van id
+        const room = dto.room?.id ? rooms.find(r => r.id === dto.room?.id) : undefined;
+
+        return {
+            id: dto.id,
+            title: dto.title,
+            description: dto.description,
+            eventDate: dto.eventDate,
+            room,
+            attendeesCount: dto.attendeesCount
+        };
+    };
+
 
     // laad events en rooms bij component mount
     React.useEffect(() => {
         let mounted = true;
-        async function load() {
+
+        const loadData = async () => {
             setLoading(true);
             setError(null);
-            try {
-                // Laad events
-                const eventsData = await ApiGet<EventModel[]>('/Event');
-                console.log('API /Event response:', eventsData);
-                if (!mounted) return;
-                setEvents(eventsData.map(mapEventModelToItem));
 
-                // Laad rooms
+            try {
+                // Laad rooms eerst zodat events direct gemapt kunnen worden
                 const roomsData = await ApiGet<Room[]>('/Room');
-                console.log('API /Room response:', roomsData);
                 if (!mounted) return;
                 setRooms(roomsData);
+
+                // Laad events
+                const eventsData = await ApiGet<EventApiDto[]>('/Event');
+                if (!mounted) return;
+
+                // Map DTO → UI type, koppel room object
+                const mappedEvents = eventsData.map(dto => mapEventApiToEvent(dto, roomsData));
+                setEvents(mappedEvents);
+
             } catch (err: any) {
                 setError(err?.message ?? 'Kon events niet laden');
             } finally {
                 if (mounted) setLoading(false);
             }
-        }
-        load();
+        };
+
+        loadData();
         return () => { mounted = false; };
     }, []);
 
-    const toDayKeyISO = (d: Date) => {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${y}-${m}-${day}`;
-    };
 
-    const formatISOToDisplay = (iso?: string | null) => {
-        if (!iso) return '';
-        const parts = iso.split('-').map(p => Number(p));
-        if (parts.length < 3 || parts.some(isNaN)) {
-            // fallback: try Date parse
-            const d = new Date(iso);
-            return isNaN(d.getTime()) ? iso : new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
-        }
-        const [y, m, day] = parts;
-        const d = new Date(y, m - 1, day);
-        return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
-    };
+
 
     const filteredEvents = selectedDayISO
-        ? events.filter(ev => ev.date.startsWith(selectedDayISO))
+        ? events.filter(ev => formatISOToDisplay(ev.eventDate, false) === formatISOToDisplay(selectedDayISO, false))
         : events;
 
     const openNew = () => {
@@ -133,76 +96,81 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         setIsFormOpen(true);
     };
 
-    const handleSave = async (payload: Omit<EventItem, 'id' | 'attendees'> & { id?: number }) => {
+    const handleSave = async (
+        payload: Omit<Event, 'attendeesCount'> & { id?: number, attendeesCount?: number }
+    ) => {
+        if (!payload.room?.id) {
+            setError('Selecteer een room');
+            return;
+        }
+
         try {
             if (payload.id) {
-                // Update via API — verwacht de bijgewerkte EventModel terug
-                const updated = await await ApiPut<EventModel>(`/Event/${payload.id}`, {
+                // Update via API
+                const dto: UpdateEventApiDto = {
                     title: payload.title,
                     description: payload.description,
-                    eventDate: payload.date,
-                    roomId: payload.location?.id,
-                    createdById: 1,
-                });
+                    eventDate: payload.eventDate,
+                    roomId: payload.room.id
+                };
 
-                setEvents(prev => prev.map(ev => ev.id == payload.id ? mapEventModelToItem(updated) : ev));
+                const updatedDto = await ApiPut<EventApiDto>(`/Event/${payload.id}`, dto);
+
+                // Map naar frontend event en koppel room uit rooms array
+                const updatedEvent: Event = {
+                    id: updatedDto.id,
+                    title: updatedDto.title,
+                    description: updatedDto.description,
+                    eventDate: updatedDto.eventDate,
+                    room: rooms.find(r => r.id === updatedDto.room?.id) ?? payload.room,
+                    attendeesCount: updatedDto.attendeesCount ?? payload.attendeesCount ?? 0
+                };
+
+                setEvents(prev =>
+                    prev.map(ev => ev.id === payload.id ? updatedEvent : ev)
+                );
+
             } else {
-                // Create via API — gebruik id uit response
-                const created = await ApiPost<EventModel>('/Event', {
+                // Create via API
+                const dto: CreateEventApiDto = {
                     title: payload.title,
                     description: payload.description,
-                    eventDate: payload.date,
-                    roomId: payload.location?.id,
-                    createdById: 1,
-                });
+                    eventDate: payload.eventDate,
+                    roomId: payload.room.id
+                };
 
-                setEvents(prev => [mapEventModelToItem(created), ...prev]);
+                const createdDto = await ApiPost<EventApiDto>('/Event', dto);
 
+                const newEvent: Event = {
+                    id: createdDto.id,
+                    title: createdDto.title,
+                    description: createdDto.description,
+                    eventDate: createdDto.eventDate,
+                    room: rooms.find(r => r.id === createdDto.room?.id) ?? payload.room,
+                    attendeesCount: createdDto.attendeesCount ?? 0
+                };
+
+                setEvents(prev => [newEvent, ...prev]);
             }
-            // if (payload.id) {
-            //     // Edit existing
-            //     setEvents(prev => prev.map(ev => ev.id === payload.id ? { ...ev, ...payload } : ev));
-            //     // TODO: call backend UPDATE endpoint, e.g. await fetch(`/api/events/${payload.id}`, {method: 'PUT', body: JSON.stringify(payload)})
-            //     await ApiPut<EventModel>(`/Event/${payload.id}`, {
-            //         title: payload.title,
-            //         eventDate: payload.date,
-            //         location: payload.location,
-            //         description: payload.description
-            //     });
-            // } else {
-            //     // Create new
-            //     const newEv: EventItem = {
-            //         id: String(Date.now()),
-            //         title: payload.title,
-            //         date: payload.date,
-            //         location: payload.location,
-            //         description: payload.description,
-            //         attendees: []
-            //     };
-            //     setEvents(prev => [newEv, ...prev]);
-            //     // TODO: call backend POST endpoint, e.g. await fetch(`/api/events`, {method: 'POST', body: JSON.stringify(newEv)})
-            //     await ApiPost<EventModel>('/Event', {
-            //         title: newEv.title,
-            //         eventDate: newEv.date,
-            //         location: newEv.location,
-            //         description: newEv.description
-            //     });
-            // }
+
         } catch (err: any) {
-            // eenvoudige foutafhandeling
             console.error(err);
             setError(err?.message ?? 'Opslaan mislukt');
         } finally {
             setIsFormOpen(false);
+            setEditingEvent(null);
         }
     };
 
-    const handleEdit = (ev: EventItem) => {
+
+
+
+    const handleEdit = (ev: Event) => {
         setEditingEvent(ev);
         setIsFormOpen(true);
     };
 
-    const handleDelete = async (ev: EventItem) => {
+    const handleDelete = async (ev: Event) => {
         // optimistic UI
         setEvents(prev => prev.filter(e => e.id !== ev.id));
         setConfirmDeleteFor(null);
@@ -210,7 +178,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         await ApiDelete<void>(`/Event/${ev.id}`);
     };
 
-    const handleViewAttendees = (ev: EventItem) => {
+    const handleViewAttendees = (ev: Event) => {
         setAttendeesFor(ev);
     };
 
@@ -238,7 +206,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 {selectedDayISO && (
                     <div className="filter-row">
                         <span className="muted">{tCommon('calendar.filteredDayLabel')}</span>
-                        <span className="filter-pill">{formatISOToDisplay(selectedDayISO)}</span>
+                        <span className="filter-pill">{formatISOToDisplay(selectedDayISO, false)}</span>
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{tCommon('general.clearFilter')}</button>
                     </div>
                 )}
@@ -253,7 +221,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 <EventsTable
                     events={filteredEvents}
                     onEdit={handleEdit}
-                    onDelete={(ev: EventItem) => setConfirmDeleteFor(ev)}
+                    onDelete={(ev: Event) => setConfirmDeleteFor(ev)}
                     onViewAttendees={handleViewAttendees}
                 />
             </section>

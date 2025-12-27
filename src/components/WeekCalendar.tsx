@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { EventItem } from '../pages/AdminDashboard';
+import type { Event } from '../utils/types';
 
 interface Props {
-    events: EventItem[];
+    events: Event[];
     selectedDayISO?: string;
-    onDaySelect?: (dateISO: string, eventsForDay: EventItem[]) => void;
+    onDaySelect?: (dateISO: string, eventsForDay: Event[]) => void;
 }
 
 function startOfWeekMonday(date: Date): Date {
@@ -38,16 +38,16 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
     }, [anchor]);
 
     const eventsByDay = useMemo(() => {
-        const map = new Map<string, EventItem[]>();
+        const map = new Map<string, Event[]>();
         for (const ev of events) {
-            const d = new Date(ev.date);
+            const d = new Date(ev.eventDate);
             const key = toDayKeyISO(d);
             if (!map.has(key)) map.set(key, []);
             map.get(key)!.push(ev);
         }
         // optional: sort by time within day
         for (const [k, arr] of map) {
-            arr.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            arr.sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
             map.set(k, arr);
         }
         return map;
@@ -83,7 +83,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
             <div className="week-header">
                 <button className="nav-btn" onClick={prevWeek} title={t('calendar.titlePrevWeek')}>❮</button>
                 <h3 style={{ margin: 0 }}>{headerLabel}</h3>
-                <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <button className="btn-sm" onClick={goToday} title={t('calendar.titleJumpToday')}>{t('calendar.buttonToday')}</button>
                     <button className="nav-btn" onClick={nextWeek} title={t('calendar.titleNextWeek')}>❯</button>
                 </div>
@@ -129,7 +129,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
                                 ) : (
                                     dayEvents.slice(0, 3).map(e => (
                                         <div key={e.id} className="event-chip" title={e.description}>
-                                            <span className="event-time">{new Date(e.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                                            <span className="event-time">{new Date(e.eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             <span className="event-title">{e.title}</span>
                                         </div>
                                     ))

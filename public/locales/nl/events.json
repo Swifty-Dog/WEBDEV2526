@@ -12,7 +12,9 @@
     "labelTitle": "Titel",
     "labelDateTime": "Datum & tijd",
     "labelLocation": "Locatie",
-    "labelDescription": "Beschrijving"
+    "labelDescription": "Beschrijving",
+    "labelRoom": "Kamer",
+    "labelSelectRoom": "Selecteer een kamer"
   },
   "eventsTable": {
     "headerTitle": "Titel",

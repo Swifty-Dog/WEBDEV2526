@@ -17,6 +17,7 @@ public class EventRepository : Repository<EventModel>, IEventRepository
         return DbSet
             .Include(e => e.CreatedBy)
             .Include(e => e.Room)
+            .Include(e => e.EventParticipations)
             .ToListAsync();
     }
 

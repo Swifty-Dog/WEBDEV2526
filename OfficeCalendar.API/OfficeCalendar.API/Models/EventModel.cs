@@ -25,7 +25,7 @@ public class EventModel
     public EmployeeModel? CreatedBy { get; set; }
 
     [Required]
-    public long? RoomId { get; set; }
+    public long RoomId { get; set; }
 
     [ForeignKey(nameof(RoomId))]
     public RoomModel? Room { get; set; }

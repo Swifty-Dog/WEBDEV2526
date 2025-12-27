@@ -12,7 +12,9 @@
     "labelTitle": "Title",
     "labelDateTime": "Date & time",
     "labelLocation": "Location",
-    "labelDescription": "Description"
+    "labelDescription": "Description",
+    "labelRoom": "Room",
+    "labelSelectRoom": "Select a room"
   },
   "eventsTable": {
     "headerTitle": "Title",

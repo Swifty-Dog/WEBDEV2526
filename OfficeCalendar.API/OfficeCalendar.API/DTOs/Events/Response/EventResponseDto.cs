@@ -1,5 +1,5 @@
 using OfficeCalendar.API.Models;
-
+using OfficeCalendar.API.DTOs.Rooms.Response;
 namespace OfficeCalendar.API.DTOs.Events.Response;
 
 public class EventResponseDto
@@ -8,7 +8,7 @@ public class EventResponseDto
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime EventDate { get; set; }
-    public long CreatedById { get; set; }
-    public long? RoomId { get; set; }
+    public RoomDto? Room { get; set; }
+    public int AttendeesCount { get; set; }
 
 }

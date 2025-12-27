@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using OfficeCalendar.API.Models;
 using SQLitePCL;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace OfficeCalendar.API.Services;
@@ -21,29 +22,37 @@ public class EventService : IEventService
     {
         _eventRepo = eventRepo;
     }
-    public async Task<CreateEventResult> CreateEvent(CreateEventDto newEventDto)
+    public async Task<CreateEventResult> CreateEvent(long CurrentUserId, CreateEventDto newEventDto)
     {
-        try
+        var EventExists = await _eventRepo.GetAllEvents();
+        if (!EventExists.Any(e => e.Title == newEventDto.Title && e.EventDate == newEventDto.EventDate))
         {
-            var newEvent = new EventModel
+            try
             {
-                Title = newEventDto.Title,
-                Description = newEventDto.Description,
-                EventDate = newEventDto.EventDate,
-                CreatedById = newEventDto.CreatedById,
-                RoomId = newEventDto.RoomId
+                var newEvent = new EventModel
+                {
+                    Title = newEventDto.Title,
+                    Description = newEventDto.Description,
+                    EventDate = newEventDto.EventDate,
+                    CreatedById = CurrentUserId,
+                    RoomId = newEventDto.RoomId
 
-            };
-            bool createdEvent = await _eventRepo.Create(newEvent);
-            if (createdEvent)
-            {
-                return new CreateEventResult.Success(newEvent);
+                };
+                bool createdEvent = await _eventRepo.Create(newEvent);
+                if (createdEvent)
+                {
+                    return new CreateEventResult.Success(newEvent);
+                }
+                return new CreateEventResult.Error("There is a unexpected error");
             }
-            return new CreateEventResult.Error("There is a unexpected error");
+            catch (Exception ex)
+            {
+                return new CreateEventResult.Error(ex.Message);
+            }
         }
-        catch (Exception ex)
+        else
         {
-            return new CreateEventResult.Error(ex.Message);
+            return new CreateEventResult.Error("Event with the same title and date already exists");
         }
     }
 
@@ -57,7 +66,22 @@ public class EventService : IEventService
                 return new GetEventResult.Error("Event is not found ");
             }
 
-            return new GetEventResult.Success(eventModel);
+            var dto = new EventResponseDto
+            {
+                Id = eventModel.Id,
+                Title = eventModel.Title,
+                Description = eventModel.Description,
+                EventDate = eventModel.EventDate,
+                Room = eventModel.Room == null ? null : new RoomDto
+                {
+                    Id = eventModel.Room.Id,
+                    RoomName = eventModel.Room.RoomName,
+                    Location = eventModel.Room.Location
+                },
+                AttendeesCount = eventModel.EventParticipations.Count
+            };
+
+            return new GetEventResult.Success(dto);
         }
         catch (Exception ex)
         {
@@ -71,14 +95,20 @@ public class EventService : IEventService
         {
             var eventModels = await _eventRepo.GetAllEvents();
 
-            var eventDtos = eventModels.Select(e => new EventModel
+            // Map naar DTO
+            var eventDtos = eventModels.Select(e => new EventResponseDto
             {
                 Id = e.Id,
                 Title = e.Title,
                 Description = e.Description,
                 EventDate = e.EventDate,
-                CreatedById = e.CreatedById,
-                RoomId = e.RoomId
+                Room = e.Room == null ? null : new RoomDto
+                {
+                    Id = e.Room.Id,
+                    RoomName = e.Room.RoomName,
+                    Location = e.Room.Location
+                },
+                AttendeesCount = e.EventParticipations.Count
             }).ToList();
 
             return new GetEventsResult.Success(eventDtos);
@@ -89,15 +119,16 @@ public class EventService : IEventService
         }
     }
 
-    public async Task<UpdateEventResult> UpdateEvent(UpdateEventDto updatedEventDto)
+
+    public async Task<UpdateEventResult> UpdateEvent(long EventId, UpdateEventDto updatedEventDto)
     {
         try
         {
-            if (updatedEventDto.Id == 0)
+            if (EventId == 0)
             {
                 return new UpdateEventResult.Error("Event ID is required");
             }
-            var eventModel = await _eventRepo.GetById(updatedEventDto.Id);
+            var eventModel = await _eventRepo.GetById(EventId);
             if (eventModel is null)
             {
                 return new UpdateEventResult.NotFound("Event not found");
@@ -144,6 +175,5 @@ public class EventService : IEventService
         {
             return new DeleteEventResult.Error(ex.Message);
         }
-        throw new NotImplementedException();
     }
 }

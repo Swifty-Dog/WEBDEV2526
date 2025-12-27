@@ -1,4 +1,4 @@
-import {getCurrentTime} from "./time.ts";
+import { getCurrentTime } from "./time.ts";
 
 export const formatDate = (isoDate: string) => {
     const date = new Date(isoDate);
@@ -50,4 +50,35 @@ export const isBookingInPast = (bookingDate: string, startTime: string): boolean
     } catch {
         return true;
     }
+};
+
+export const formatISOToDisplay = (iso?: string | null, withTime: boolean = true): string => {
+    if (!iso) return '';
+
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return iso;
+
+    if (!withTime) {
+        // Alleen datum in ISO formaat voor filtering
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Tijd formatteren locale afhankelijk (HH:MM)
+    const formattedTime = new Intl.DateTimeFormat(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).format(date);
+
+    // Datum formatteren locale afhankelijk (DD-MM-YYYY in NL)
+    const formattedDate = new Intl.DateTimeFormat(undefined, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(date);
+
+    return `${formattedTime} ${formattedDate}`;
 };

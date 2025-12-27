@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.DTOs.Events.Request;
@@ -16,12 +17,20 @@ public class EventController : BaseController
         EventService = eventService;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await EventService.CreateEvent(dto);
+        long? currentUserId = GetCurrentUserId();
+
+        if (currentUserId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await EventService.CreateEvent(currentUserId.Value, dto);
 
         return result switch
         {
@@ -42,7 +51,7 @@ public class EventController : BaseController
         return result switch
         {
             GetEventResult.Success success =>
-                Ok(success.eventModel),
+                Ok(success.eventDto),
             GetEventResult.Error error =>
                 StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
             _ => StatusCode(StatusCodes.Status500InternalServerError,
@@ -65,14 +74,13 @@ public class EventController : BaseController
                 new { message = "An unexpected error occurred while retrieving events." })
         };
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpPut("{eventId:long}")]
-    public async Task<IActionResult> UpdateEvent([FromBody] UpdateEventDto dto)
+    public async Task<IActionResult> UpdateEvent(long eventId, [FromBody] UpdateEventDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await EventService.UpdateEvent(dto);
-
+        var result = await EventService.UpdateEvent(eventId, dto);
         return result switch
         {
             UpdateEventResult.Success success =>
@@ -85,7 +93,7 @@ public class EventController : BaseController
                 new { message = "An unexpected error occurred while updating the event." })
         };
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{eventId:long}")]
     public async Task<IActionResult> DeleteEvent(long eventId)
     {
