@@ -10,6 +10,7 @@ import { WeekCalendar } from '../components/WeekCalendar';
 import { ApiGet } from '../config/ApiRequest';
 import { RegisterButton } from '../components/Admin/RegisterButton.tsx';
 import {TerminateNavButton} from "../components/Admin/TerminateNavButton.tsx";
+import {PromoteDemoteModal} from '../components/PromoteDemote.tsx';
 
 export type EventItem = {
     id: string;
@@ -43,6 +44,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [isPromoteDemoteOpen, setIsPromoteDemoteOpen] = useState(false);
 
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
@@ -148,6 +150,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
                 </div>
                 <div>
+                    <button className="header-button" onClick={() => setIsPromoteDemoteOpen(true)}>Promote / Demote</button>
                     <button
                         className="header-button"
                         id="extra-margins"
@@ -213,6 +216,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     message={tAdmin('adminDashboard.confirmDeleteMessage', { title: confirmDeleteFor.title })}
                     onConfirm={() => handleDelete(confirmDeleteFor)}
                     onCancel={() => setConfirmDeleteFor(null)}
+                />
+            )}
+            
+            {isPromoteDemoteOpen && (
+                <PromoteDemoteModal
+                    onClose={() => setIsPromoteDemoteOpen(false)}
                 />
             )}
         </div>
