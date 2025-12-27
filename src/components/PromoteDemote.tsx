@@ -6,7 +6,7 @@ import { useSettings } from '../config/SettingsContext';
 import { useTranslation } from 'react-i18next';
 
 interface Employee {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -75,7 +75,15 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
         setError(null);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/Employee/promote-demote/${employee.id}`, {
+            // Debug log for employee id
+            console.log('Promote/Demote employee.id:', employee.id, typeof employee.id);
+            const employeeId = typeof employee.id === 'string' ? parseInt(employee.id, 10) : employee.id;
+            if (isNaN(employeeId) || employeeId <= 0) {
+                setError('Invalid employee ID');
+                setLoading(false);
+                return;
+            }
+            const response = await fetch(`${API_BASE_URL}/Employee/promote-demote/${employeeId}`, {
                 method: 'GET',
             });
 

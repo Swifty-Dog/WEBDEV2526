@@ -296,4 +296,72 @@ public class EmployeeService : IEmployeeService
             return new TokenRefreshResult.Error("general.API_ErrorUnexpected");
         }
     }
+
+    public async Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId)
+    {
+        if (employeeId <= 0)
+            return new PromoteDemoteResult.InvalidData("The employee ID must be greater than zero.");
+
+        try
+        {
+            var employee = await GetEmployeeById(employeeId);
+
+            if (employee is GetEmployeeResult.Success sEmployee)
+            {
+                var emp = sEmployee.Employee;
+                var empRole = emp.Role.Trim().ToLower();
+
+                if (empRole == "admin")
+                    return new PromoteDemoteResult.InvalidData("Cannot change role of an admin employee.");
+
+                // Toggle between manager and employee roles
+                emp.Role = empRole == "manager" ? "Employee" : "Manager";
+                if (emp.Role == "User") // Just in case
+                    emp.Role = "Employee";
+                var result = await _employeeRepo.Update(emp);
+
+                if (result)
+                    return new PromoteDemoteResult.Success(emp);
+                else
+                    return new PromoteDemoteResult.Error("Failed to update employee role.");
+            }
+            
+            return new PromoteDemoteResult.NotFound();
+        }
+        catch
+        {
+            return new PromoteDemoteResult.Error("An error occurred while updating the employee role.");
+        }
+    }
+
+    public async Task<SearchResults> SearchEmployees(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return new SearchResults.InvalidData("Search query cannot be null or empty.");
+
+        try
+        {
+            var allEmployees = await _employeeRepo.GetAll();
+            allEmployees.RemoveAll(e => e.Role.Trim().ToLower() == "admin");
+            var search = query.Trim().ToLower();
+
+            var matchedEmployees = allEmployees.Where(e =>
+                e.FirstName.ToLower().Contains(search) ||
+                e.LastName.ToLower().Contains(search) ||
+                ($"{e.FirstName} {e.LastName}").ToLower().Contains(search) ||
+                e.Email.ToLower().Contains(search) ||
+                e.Role.ToLower().Contains(search) ||
+                e.Id.ToString() == search
+            ).ToList();
+
+            if (matchedEmployees.Count == 0)
+                return new SearchResults.NoResultsFound();
+
+            return new SearchResults.Success(matchedEmployees);
+        }
+        catch (Exception ex)
+        {
+            return new SearchResults.Error($"An error occurred while searching for employees: {ex.Message}");
+        }
+    }
 }

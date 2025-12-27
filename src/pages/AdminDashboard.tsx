@@ -10,7 +10,7 @@ import { WeekCalendar } from '../components/WeekCalendar';
 import { ApiGet } from '../config/ApiRequest';
 import { RegisterButton } from '../components/Admin/RegisterButton.tsx';
 import {TerminateNavButton} from "../components/Admin/TerminateNavButton.tsx";
-import {PromoteDemoteModal} from '../components/PromoteDemote.tsx';
+import PromoteDemoteModal from '../components/PromoteDemote.tsx';
 
 export type EventItem = {
     id: string;
