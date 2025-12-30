@@ -119,4 +119,32 @@ public class EmployeeController : BaseController
             _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
         };
     }
+    
+    [HttpPut("promote-demote/{employeeId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> PromoteDemoteEmployee([FromRoute] long employeeId)
+    {
+        var result = await EmployeeService.PromoteDemoteEmployee(employeeId);
+
+        return result switch
+        {
+            PromoteDemoteResult.Success =>
+                Ok(new { message = "employees.API_PromoteDemoteSuccess" }),
+            PromoteDemoteResult.NotFound =>
+                NotFound(new { message = "employees.API_ErrorEmployeeNotFound" }),
+            PromoteDemoteResult.InvalidData invalidData =>
+                BadRequest(new { message = invalidData.Message }),
+            PromoteDemoteResult.Error error =>
+                BadRequest(new { message = error.Message }),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" })
+        };
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchEmployees([FromQuery] string query)
+    {
+        var result = await EmployeeService.SearchEmployees(query);
+
+        return Ok(result);
+    }
 }

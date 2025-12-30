@@ -27,7 +27,12 @@
     "API_ErrorCannotTerminateAdmin": "Cannot terminate an admin.",
     "API_ErrorTerminationFailed": "Failed to terminate employee.",
     "API_TerminationSuccess": "Employee terminated successfully.",
-    "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token."
+    "API_PromoteDemoteSuccess": "Employee role updated successfully.",
+    "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token.",
+    "API_ErrorEmployeeNotFound": "Employee not found.",
+    "API_ErrorInvalidEmployeeId": "Invalid employee ID.",
+    "API_ErrorCannotChangeAdminRole": "Cannot change role of an admin employee.",
+    "API_ErrorRoleUpdateFailed": "Failed to update employee role."
   },
   "rooms": {
     "API_ErrorDuplicateName": "Room with the name '{{name}}' already exists.",
