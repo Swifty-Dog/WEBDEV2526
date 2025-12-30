@@ -7,7 +7,7 @@ import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
 import { RegisterButton } from '../components/RegisterButton';
-import { CreateNewEvent } from '../components/Event/CreateNewEvent';
+import { CreateNewEvent } from '../components/Event/EventFormModal';
 import { ApiGet } from '../config/ApiRequest';
 import { ApiPut } from '../config/ApiRequest';
 import { ApiPost } from '../config/ApiRequest';
@@ -45,6 +45,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
             title: dto.title,
             description: dto.description,
             eventDate: dto.eventDate,
+            eventStartTime: dto.StartTime,
+            eventEndTime: dto.EndTime,
             room,
             attendeesCount: dto.attendeesCount
         };
@@ -99,6 +101,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const handleSave = async (
         payload: Omit<Event, 'attendeesCount'> & { id?: number, attendeesCount?: number }
     ) => {
+        const startIso = `${payload.eventDate}T${payload.eventStartTime}:00`;
+        const endIso = `${payload.eventDate}T${payload.eventEndTime}:00`;
+        console.log('Saving event with startIso:', startIso, 'and endIso:', endIso);
         if (!payload.room?.id) {
             setError('Selecteer een room');
             return;
@@ -111,6 +116,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     title: payload.title,
                     description: payload.description,
                     eventDate: payload.eventDate,
+                    startTime: startIso,
+                    endTime: endIso,
                     roomId: payload.room.id
                 };
 
@@ -122,6 +129,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     title: updatedDto.title,
                     description: updatedDto.description,
                     eventDate: updatedDto.eventDate,
+                    eventStartTime: updatedDto.StartTime,
+                    eventEndTime: updatedDto.EndTime,
                     room: rooms.find(r => r.id === updatedDto.room?.id) ?? payload.room,
                     attendeesCount: updatedDto.attendeesCount ?? payload.attendeesCount ?? 0
                 };
@@ -136,6 +145,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     title: payload.title,
                     description: payload.description,
                     eventDate: payload.eventDate,
+                    startTime: startIso,
+                    endTime: endIso,
                     roomId: payload.room.id
                 };
 
@@ -146,6 +157,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     title: createdDto.title,
                     description: createdDto.description,
                     eventDate: createdDto.eventDate,
+                    eventStartTime: createdDto.StartTime,
+                    eventEndTime: createdDto.EndTime,
                     room: rooms.find(r => r.id === createdDto.room?.id) ?? payload.room,
                     attendeesCount: createdDto.attendeesCount ?? 0
                 };

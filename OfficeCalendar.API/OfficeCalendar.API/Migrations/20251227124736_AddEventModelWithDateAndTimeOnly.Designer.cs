@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OfficeCalendar.API.Models.DbContext;
 
@@ -10,9 +11,11 @@ using OfficeCalendar.API.Models.DbContext;
 namespace OfficeCalendar.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251227124736_AddEventModelWithDateAndTimeOnly")]
+    partial class AddEventModelWithDateAndTimeOnly
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.21");
@@ -100,16 +103,16 @@ namespace OfficeCalendar.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<TimeOnly>("EndTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("EventDate")
+                    b.Property<DateOnly>("EventDate")
                         .HasColumnType("TEXT");
 
                     b.Property<long>("RoomId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("StartTime")
+                    b.Property<TimeOnly>("StartTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
@@ -344,7 +347,7 @@ namespace OfficeCalendar.API.Migrations
                     b.HasOne("OfficeCalendar.API.Models.RoomModel", "Room")
                         .WithMany("Events")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("CreatedBy");

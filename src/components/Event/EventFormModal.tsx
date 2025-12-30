@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Room } from '../../utils/types';
 import type { Event } from '../../utils/types';
+import { allTimes, timeToMinutes } from '../../utils/time';
 import { useTranslation } from 'react-i18next';
 
 
@@ -32,18 +33,24 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
     // STATE
     const [title, setTitle] = useState('');
     const [eventDate, setEventDate] = useState('');
+    const [eventStartTime, setEventStartTime] = useState('');
+    const [eventEndTime, setEventEndTime] = useState('');
     const [room, setRoom] = useState<Room | undefined>(undefined);
     const [description, setDescription] = useState('');
 
     useEffect(() => {
         if (existing) {
             setTitle(existing.title ?? '');
-            setEventDate(toInputDateTime(existing.eventDate));
+            setEventDate(existing.eventDate?.slice(0, 10));
+            setEventStartTime(existing.eventStartTime ?? "");
+            setEventEndTime(existing.eventEndTime ?? "");
             setRoom(existing.room);
             setDescription(existing.description ?? '');
         } else {
             setTitle('');
-            setEventDate(toInputDateTime(new Date().toISOString()));
+            setEventDate('');
+            setEventStartTime('');
+            setEventEndTime('');
             setRoom(undefined);
             setDescription('');
         }
@@ -55,13 +62,17 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
             ? ({
                 id: existing.id,
                 title: title.trim(),
-                eventDate: fromInputDateTime(eventDate),
+                eventDate: eventDate,
+                eventStartTime: eventStartTime,
+                eventEndTime: eventEndTime,
                 description: description.trim(),
                 room: room,
             } as Omit<Event, 'attendeesCount'> & { id?: number })
             : ({
                 title: title.trim(),
-                eventDate: fromInputDateTime(eventDate),
+                eventDate: eventDate,
+                eventStartTime: eventStartTime,
+                eventEndTime: eventEndTime,
                 description: description.trim(),
                 room: room,
             } as Omit<Event, 'attendeesCount'> & { id?: number });
@@ -80,17 +91,67 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                 <form onSubmit={submit}>
                     <div className="form-row">
                         <label>{tEvents('eventForm.labelTitle')}</label>
-                        <input value={title} onChange={e => setTitle(e.target.value)} required />
+                        <input value={title} onChange={e => setTitle(e.target.value)}
+                            required />
                     </div>
 
                     <div className="form-row">
-                        <label>{tEvents('eventForm.labelDateTime')}</label>
+                        <label>{tEvents('eventForm.labelDate')}</label>
                         <input
-                            type="datetime-local"
+                            type="date"
+                            min={new Date().toISOString().split('T')[0]}
                             value={eventDate}
                             onChange={e => setEventDate(e.target.value)}
                             required
                         />
+                    </div>
+
+
+                    <div className="form-row">
+                        <label>{tEvents('eventForm.labelStartTime')}</label>
+
+                        <select
+
+                            value={eventStartTime}
+                            onChange={e => setEventStartTime(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>
+                                -- Choose StartTime --
+                            </option>
+
+                            {allTimes.map(time => (
+                                <option key={time} value={time}>
+                                    {time}
+                                </option>
+                            ))}
+                        </select>
+
+                    </div>
+
+                    <div className="form-row">
+                        <label>{tEvents('eventForm.labelEndTime')}</label>
+                        <select
+                            value={eventEndTime}
+                            onChange={e => setEventEndTime(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>
+                                -- Choose EndTime --
+                            </option>
+                            {allTimes
+                                .filter(time =>
+                                    !eventStartTime ||
+                                    timeToMinutes(time) > timeToMinutes(eventStartTime)
+                                )
+                                .map(time => (
+                                    <option key={time} value={time}>
+                                        {time}
+                                    </option>
+                                ))
+                            }
+
+                        </select>
                     </div>
 
                     <div className="form-row">

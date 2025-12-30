@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Event } from '../utils/types';
-import { formatISOToDisplay } from '../utils/date';
+import { formatEventDateTime } from '../utils/time';
 
 interface Props {
     events: Event[];
@@ -40,7 +40,7 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                                 <div style={{ fontWeight: 600 }}>{ev.title}</div>
                                 <div style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>{ev.description}</div>
                             </td>
-                            <td>{formatISOToDisplay(ev.eventDate)}</td>
+                            <td>{formatEventDateTime(ev.eventDate, ev.eventStartTime, ev.eventEndTime)}</td>
                             <td>{ev.room?.roomName ?? '-'}</td>
                             <td>{(ev.attendeesCount ?? [])}</td>
                             <td>

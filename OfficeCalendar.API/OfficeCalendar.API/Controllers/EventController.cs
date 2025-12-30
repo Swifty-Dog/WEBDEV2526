@@ -17,7 +17,7 @@ public class EventController : BaseController
         EventService = eventService;
     }
 
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto dto)
     {
@@ -74,7 +74,7 @@ public class EventController : BaseController
                 new { message = "An unexpected error occurred while retrieving events." })
         };
     }
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "admin")]
     [HttpPut("{eventId:long}")]
     public async Task<IActionResult> UpdateEvent(long eventId, [FromBody] UpdateEventDto dto)
     {
@@ -93,7 +93,7 @@ public class EventController : BaseController
                 new { message = "An unexpected error occurred while updating the event." })
         };
     }
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "admin")]
     [HttpDelete("{eventId:long}")]
     public async Task<IActionResult> DeleteEvent(long eventId)
     {

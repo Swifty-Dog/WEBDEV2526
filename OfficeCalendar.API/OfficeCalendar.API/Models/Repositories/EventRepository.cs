@@ -21,4 +21,14 @@ public class EventRepository : Repository<EventModel>, IEventRepository
             .ToListAsync();
     }
 
+    public async Task<List<EventModel>> GetEventsByRoomAndDate(long roomId, DateTime eventDate)
+    {
+        return await DbSet
+            .Include(e => e.EventParticipations)
+            .Where(e =>
+                e.RoomId == roomId &&
+                e.EventDate == eventDate.Date)
+            .ToListAsync();
+    }
+
 }

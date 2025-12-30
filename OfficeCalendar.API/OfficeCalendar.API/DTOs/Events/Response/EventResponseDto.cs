@@ -8,6 +8,8 @@ public class EventResponseDto
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateTime EventDate { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
     public RoomDto? Room { get; set; }
     public int AttendeesCount { get; set; }
 
