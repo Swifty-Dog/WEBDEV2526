@@ -58,16 +58,17 @@ public class EventService : IEventService
             Id = eventModel.Id,
             Title = eventModel.Title,
             Description = eventModel.Description,
-            EventDate = eventModel.EventDate, // frontend ziet alleen datum
-            StartTime = eventModel.StartTime, // frontend ziet alleen tijd
-            EndTime = eventModel.EndTime,
+            EventDate = DateOnly.FromDateTime(eventModel.EventDate), // frontend ziet alleen datum
+            StartTime = TimeOnly.FromDateTime(eventModel.StartTime), // frontend ziet alleen tijd
+            EndTime = TimeOnly.FromDateTime(eventModel.EndTime),
             Room = eventModel.Room == null ? null : new RoomDto
             {
                 Id = eventModel.Room.Id,
                 RoomName = eventModel.Room.RoomName,
                 Location = eventModel.Room.Location
             },
-            AttendeesCount = eventModel.EventParticipations?.Count ?? 0
+            Attendees = eventModel.EventParticipations?.Select(p => p.Employee.FullName).ToList() ?? new List<string>(),
+
         };
     }
     public async Task<CreateEventResult> CreateEvent(long currentUserId, CreateEventDto dto)
@@ -109,9 +110,12 @@ public class EventService : IEventService
             };
 
             var created = await _eventRepo.Create(newEvent);
-            return created
-                ? new CreateEventResult.Success(newEvent)
-                : new CreateEventResult.Error("Could not create event");
+            if (!created)
+                return new CreateEventResult.Error("Could not create event");
+
+            var fullEvent = await _eventRepo.GetByIdWithIncludes(newEvent.Id);
+            return new CreateEventResult.Success(fullEvent);
+
         }
         catch (Exception ex)
         {
@@ -188,9 +192,12 @@ public class EventService : IEventService
             eventModel.RoomId = dto.RoomId;
 
             var updated = await _eventRepo.Update(eventModel);
-            return updated
-                ? new UpdateEventResult.Success(eventModel)
-                : new UpdateEventResult.Error("Cannot update event");
+            if (!updated)
+                return new UpdateEventResult.Error("Cannot update event");
+
+            var fullEvent = await _eventRepo.GetByIdWithIncludes(eventId);
+            return new UpdateEventResult.Success(fullEvent);
+
         }
         catch (Exception ex)
         {

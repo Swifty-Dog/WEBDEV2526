@@ -9,12 +9,11 @@ import { WeekCalendar } from '../components/WeekCalendar';
 import { RegisterButton } from '../components/Admin/RegisterButton';
 import { CreateNewEvent } from '../components/Event/EventFormModal';
 import { ApiGet } from '../config/ApiRequest';
-import { ApiPut } from '../config/ApiRequest';
-import { ApiPost } from '../config/ApiRequest';
 import { ApiDelete } from '../config/ApiRequest';
 import { formatISOToDisplay } from '../utils/date';
-import type { Room, Event, EventApiDto, UpdateEventApiDto, CreateEventApiDto } from '../utils/types';
+import type { Room, Event, EventApiDto } from '../utils/types';
 import { TerminateNavButton } from "../components/Admin/TerminateNavButton.tsx";
+import { useSaveEvents } from '../hooks/useSaveEvents.ts';
 
 interface AdminDashboardProps {
     userRole: string | null;
@@ -26,11 +25,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const { t: tAdmin } = useTranslation('admin');
     const [events, setEvents] = useState<Event[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
+    const { saveEvent } = useSaveEvents(rooms);
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [attendeesFor, setAttendeesFor] = useState<Event | null>(null);
     const [confirmDeleteFor, setConfirmDeleteFor] = useState<Event | null>(null);
-    const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
+    const [selectedDayISO, setSelectedDayISO] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +38,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const mapEventApiToEvent = (dto: EventApiDto, rooms: Room[]): Event => {
         // Vind het room object in frontend lijst op basis van id
         const room = dto.room?.id ? rooms.find(r => r.id === dto.room?.id) : undefined;
+        console.log(dto.EndTime, dto.StartTime);
 
         return {
             id: dto.id,
@@ -47,13 +48,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
             eventStartTime: dto.StartTime,
             eventEndTime: dto.EndTime,
             room,
-            attendeesCount: dto.attendeesCount
+            attendeesCount: dto.attendees?.length ?? 0
         };
     };
 
 
     // laad events en rooms bij component mount
-    React.useEffect(() => {
+    useEffect(() => {
         let mounted = true;
 
         const loadData = async () => {
@@ -67,7 +68,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 setRooms(roomsData);
 
                 // Laad events
-                const eventsData = await ApiGet<EventApiDto[]>('/Event');
+                const token = localStorage.getItem('authToken');
+                const eventsData = await ApiGet<EventApiDto[]>('/Event', token ? { Authorization: `Bearer ${token}` } : undefined);
                 if (!mounted) return;
 
                 // Map DTO → UI type, koppel room object
@@ -89,117 +91,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         ? events.filter(ev => formatISOToDisplay(ev.eventDate, false) === formatISOToDisplay(selectedDayISO, false))
         : events;
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = localStorage.getItem('authToken');
-                const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
-                const mapped: Event[] = data.map(e => ({
-                    id: e.id,
-                    title: e.title,
-                    eventDate: e.eventDate,
-                    eventStartTime: e.StartTime,
-                    eventEndTime: e.EndTime,
-                    location: e.room?.roomName,
-                    description: e.description,
-                    attendeesCount: e.attendeesCount ?? []
-                }));
-                setEvents(mapped);
-            } catch (e) {
-                setError(tCommon('networkError'));
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchEvents();
-    }, []);
+    // useEffect(() => {
+    //     const fetchEvents = async () => {
+    //         setLoading(true);
+    //         setError(null);
+    //         try {
+    //             const token = localStorage.getItem('authToken');
+    //             const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+    //             const mapped: Event[] = data.map(e => ({
+    //                 id: e.id,
+    //                 title: e.title,
+    //                 eventDate: e.eventDate,
+    //                 eventStartTime: e.StartTime,
+    //                 eventEndTime: e.EndTime,
+    //                 location: e.room?.roomName,
+    //                 description: e.description,
+    //                 attendeesCount: e.attendees?.length ?? 0
+    //             }));
+    //             setEvents(mapped);
+    //         } catch (e) {
+    //             setError(tCommon('networkError'));
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     fetchEvents();
+    // }, []);
 
     const openNew = () => {
         setEditingEvent(null);
         setIsFormOpen(true);
     };
 
-    const handleSave = async (
-        payload: Omit<Event, 'attendeesCount'> & { id?: number, attendeesCount?: number }
-    ) => {
-        const startIso = `${payload.eventDate}T${payload.eventStartTime}:00`;
-        const endIso = `${payload.eventDate}T${payload.eventEndTime}:00`;
-        console.log('Saving event with startIso:', startIso, 'and endIso:', endIso);
-        if (!payload.room?.id) {
-            setError('Selecteer een room');
-            return;
-        }
-
+    const handleSave = async (event: Omit<Event, 'attendeesCount'>) => {
         try {
-            if (payload.id) {
-                // Update via API
-                const dto: UpdateEventApiDto = {
-                    title: payload.title,
-                    description: payload.description,
-                    eventDate: payload.eventDate,
-                    startTime: startIso,
-                    endTime: endIso,
-                    roomId: payload.room.id
-                };
+            const saved = await saveEvent(event);
 
-                const updatedDto = await ApiPut<EventApiDto>(`/Event/${payload.id}`, dto);
-
-                // Map naar frontend event en koppel room uit rooms array
-                const updatedEvent: Event = {
-                    id: updatedDto.id,
-                    title: updatedDto.title,
-                    description: updatedDto.description,
-                    eventDate: updatedDto.eventDate,
-                    eventStartTime: updatedDto.StartTime,
-                    eventEndTime: updatedDto.EndTime,
-                    room: rooms.find(r => r.id === updatedDto.room?.id) ?? payload.room,
-                    attendeesCount: updatedDto.attendeesCount ?? payload.attendeesCount ?? 0
-                };
-
-                setEvents(prev =>
-                    prev.map(ev => ev.id === payload.id ? updatedEvent : ev)
-                );
-
-            } else {
-                // Create via API
-                const dto: CreateEventApiDto = {
-                    title: payload.title,
-                    description: payload.description,
-                    eventDate: payload.eventDate,
-                    startTime: startIso,
-                    endTime: endIso,
-                    roomId: payload.room.id
-                };
-
-                const createdDto = await ApiPost<EventApiDto>('/Event', dto);
-
-                const newEvent: Event = {
-                    id: createdDto.id,
-                    title: createdDto.title,
-                    description: createdDto.description,
-                    eventDate: createdDto.eventDate,
-                    eventStartTime: createdDto.StartTime,
-                    eventEndTime: createdDto.EndTime,
-                    room: rooms.find(r => r.id === createdDto.room?.id) ?? payload.room,
-                    attendeesCount: createdDto.attendeesCount ?? 0
-                };
-
-                setEvents(prev => [newEvent, ...prev]);
-            }
-
-        } catch (err: any) {
-            console.error(err);
-            setError(err?.message ?? 'Opslaan mislukt');
-        } finally {
-            setIsFormOpen(false);
-            setEditingEvent(null);
+            setEvents(prev =>
+                event.id
+                    ? prev.map(e => e.id === saved.id ? saved : e)
+                    : [saved, ...prev]
+            );
+        } catch (e: any) {
+            setError(e.message ?? 'Opslaan mislukt');
         }
     };
-
-
-
 
     const handleEdit = (ev: Event) => {
         setEditingEvent(ev);

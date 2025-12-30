@@ -17,21 +17,12 @@ export const timeToMinutes = (time: string): number => {
 };
 
 
-export const formatEventDateTime = (
-    eventDate: string | Date,
-    startTime: string | Date,
-    endTime: string | Date
-) => {
-    const date = new Date(eventDate);
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+export function formatEventDateTime(date: Date, start: Date | undefined, end: Date | undefined) {
+    const startStr = start ? `${start.getHours().toString().padStart(2, '0')}:${start.getMinutes().toString().padStart(2, '0')}` : '--:--';
+    const endStr = end ? `${end.getHours().toString().padStart(2, '0')}:${end.getMinutes().toString().padStart(2, '0')}` : '--:--';
+    return `${date} ${startStr} - ${endStr}`;
+}
 
-    const dateStr = date.toLocaleDateString(); // alleen datum
-    const startStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const endStr = end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    return `${dateStr} ${startStr} - ${endStr}`;
-};
 
 
 

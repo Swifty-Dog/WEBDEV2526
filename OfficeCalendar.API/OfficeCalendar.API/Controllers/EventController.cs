@@ -68,21 +68,21 @@ public class EventController : BaseController
         };
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllEvents()
-    {
-        var result = await EventService.GetAllEvents();
+    // [HttpGet]
+    // public async Task<IActionResult> GetAllEvents()
+    // {
+    //     var result = await EventService.GetAllEvents();
 
-        return result switch
-        {
-            GetEventsResult.Success success =>
-                Ok(success.eventModelList),
-            GetEventsResult.Error error =>
-                StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
-            _ => StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "An unexpected error occurred while retrieving events." })
-        };
-    }
+    //     return result switch
+    //     {
+    //         GetEventsResult.Success success =>
+    //             Ok(success.eventModelList),
+    //         GetEventsResult.Error error =>
+    //             StatusCode(StatusCodes.Status500InternalServerError, new { message = error.Message }),
+    //         _ => StatusCode(StatusCodes.Status500InternalServerError,
+    //             new { message = "An unexpected error occurred while retrieving events." })
+    //     };
+    // }
     // [Authorize(Roles = "admin")]
     [HttpPut("{eventId:long}")]
     public async Task<IActionResult> UpdateEvent(long eventId, [FromBody] UpdateEventDto dto)
@@ -130,14 +130,15 @@ public class EventController : BaseController
                 .ThenInclude(p => p.Employee)
             .Include(e => e.Room)
             .OrderBy(e => e.EventDate)
-            .Select(e => new EventDto
+            .Select(e => new EventResponseDto
             {
                 Id = e.Id,
                 Title = e.Title,
                 Description = e.Description,
-                EventDate = e.EventDate,
-                RoomName = e.Room != null ? e.Room.RoomName : null,
-                Location = e.Room != null ? e.Room.Location : null,
+                EventDate = DateOnly.FromDateTime(e.EventDate),
+                StartTime = TimeOnly.FromDateTime(e.StartTime),
+                EndTime = TimeOnly.FromDateTime(e.EndTime),
+                Room = e.Room != null ? new RoomDto { RoomName = e.Room.RoomName, Location = e.Room.Location } : null,
                 Attendees = e.EventParticipations.Select(p => p.Employee.FullName).ToList(),
                 Attending = userId != null && e.EventParticipations.Any(p => p.EmployeeId == userId.Value)
             })

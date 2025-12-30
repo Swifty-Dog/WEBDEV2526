@@ -13,18 +13,6 @@ interface Props {
     onSave: (payload: Omit<Event, 'attendeesCount'> & { id?: number }) => void | Promise<void>;
 }
 
-function toInputDateTime(iso?: string | Date) {
-    if (!iso) return '';
-    const d = new Date(iso);
-    const tzOffset = d.getTimezoneOffset() * 60000;
-    const local = new Date(d.getTime() - tzOffset);
-    return local.toISOString().slice(0, 16);
-}
-
-function fromInputDateTime(val: string) {
-    if (!val) return new Date().toISOString();
-    return new Date(val).toISOString();
-}
 
 export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, rooms }) => {
     const { t: tEvents } = useTranslation('events');
@@ -41,9 +29,9 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
     useEffect(() => {
         if (existing) {
             setTitle(existing.title ?? '');
-            setEventDate(existing.eventDate?.slice(0, 10));
-            setEventStartTime(existing.eventStartTime ?? "");
-            setEventEndTime(existing.eventEndTime ?? "");
+            setEventDate(existing.eventDate?.toDateString().slice(0, 10));
+            setEventStartTime(existing.eventStartTime.toTimeString().slice(0, 5));
+            setEventEndTime(existing.eventEndTime.toTimeString().slice(0, 5));
             setRoom(existing.room);
             setDescription(existing.description ?? '');
         } else {
@@ -62,17 +50,17 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
             ? ({
                 id: existing.id,
                 title: title.trim(),
-                eventDate: eventDate,
-                eventStartTime: eventStartTime,
-                eventEndTime: eventEndTime,
+                eventDate: new Date(eventDate),
+                eventStartTime: new Date(eventStartTime),
+                eventEndTime: new Date(eventEndTime),
                 description: description.trim(),
                 room: room,
             } as Omit<Event, 'attendeesCount'> & { id?: number })
             : ({
                 title: title.trim(),
-                eventDate: eventDate,
-                eventStartTime: eventStartTime,
-                eventEndTime: eventEndTime,
+                eventDate: new Date(eventDate),
+                eventStartTime: new Date(eventStartTime),
+                eventEndTime: new Date(eventEndTime),
                 description: description.trim(),
                 room: room,
             } as Omit<Event, 'attendeesCount'> & { id?: number });

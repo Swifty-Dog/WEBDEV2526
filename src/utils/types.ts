@@ -32,9 +32,9 @@ export interface Event {
     id: number;
     title: string;
     description?: string;
-    eventDate: string;
-    eventStartTime: string;
-    eventEndTime: string;
+    eventDate: Date;
+    eventStartTime: Date;
+    eventEndTime: Date;
     room?: Room;
     attendeesCount: number;
 };
@@ -43,22 +43,23 @@ export interface EventApiDto {
     id: number;
     title: string;
     description?: string;
-    eventDate: string;
-    StartTime: string;
-    EndTime: string;
+    eventDate: Date;
+    StartTime: Date;
+    EndTime: Date;
     room?: {
         id: number;
         roomName?: string;
     };
-    attendeesCount: number;
+    attendees: [string];
+    attending: boolean;
 }
 
 export interface CreateEventApiDto {
     title: string;
     description?: string;
-    eventDate: string;  // ISO string
-    startTime: string;
-    endTime: string;
+    eventDate: Date;
+    startTime: Date;
+    endTime: Date;
     roomId: number;
 }
 

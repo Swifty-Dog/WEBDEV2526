@@ -31,4 +31,13 @@ public class EventRepository : Repository<EventModel>, IEventRepository
             .ToListAsync();
     }
 
+    public async Task<EventModel?> GetByIdWithIncludes(long id)
+    {
+        return await DbSet
+            .Include(e => e.Room)
+            .Include(e => e.EventParticipations)
+            .FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+
 }

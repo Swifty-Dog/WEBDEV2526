@@ -7,10 +7,11 @@ public class EventResponseDto
     public long Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public DateTime EventDate { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
+    public DateOnly EventDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+    public TimeOnly StartTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
+    public TimeOnly EndTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
     public RoomDto? Room { get; set; }
-    public int AttendeesCount { get; set; }
+    public List<string> Attendees { get; set; } = new();
+    public bool Attending { get; set; }
 
 }

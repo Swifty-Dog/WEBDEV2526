@@ -4,8 +4,8 @@ import type { Event } from '../utils/types';
 
 interface Props {
     events: Event[];
-    selectedDayISO?: string;
-    onDaySelect?: (dateISO: string, eventsForDay: Event[]) => void;
+    selectedDayISO?: Date;
+    onDaySelect?: (dateISO: Date, eventsForDay: Event[]) => void;
     startHour?: number;
     endHour?: number;
 }
@@ -94,8 +94,8 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
             </div>
             <div className={selectedDayISO ? 'week-grid has-selection' : 'week-grid'}>
                 {days.map((d, idx) => {
-                    const key = toDayKeyISO(d);
-                    const dayEvents = eventsByDay.get(key) ?? [];
+                    const key = d;
+                    const dayEvents = eventsByDay.get(key.toDateString()) ?? [];
                     const isToday = new Date().toDateString() === d.toDateString();
                     const isSelected = selectedDayISO === key;
                     const className = `week-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`;
@@ -104,7 +104,7 @@ export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySel
 
                     return (
                         <div
-                            key={key}
+                            key={key.toDateString()}
                             className={className}
                             title={dayTitle}
                             onClick={() => onDaySelect?.(key, dayEvents)}

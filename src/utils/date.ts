@@ -52,17 +52,16 @@ export const isBookingInPast = (bookingDate: string, startTime: string): boolean
     }
 };
 
-export const formatISOToDisplay = (iso?: string | null, withTime: boolean = true): string => {
+export const formatISOToDisplay = (iso?: Date | null, withTime: boolean = true): string => {
     if (!iso) return '';
 
-    const date = new Date(iso);
-    if (isNaN(date.getTime())) return iso;
+    if (isNaN(iso.getTime())) return iso.toDateString();
 
     if (!withTime) {
         // Alleen datum in ISO formaat voor filtering
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        const year = iso.getFullYear();
+        const month = String(iso.getMonth() + 1).padStart(2, '0');
+        const day = String(iso.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
 
@@ -71,14 +70,14 @@ export const formatISOToDisplay = (iso?: string | null, withTime: boolean = true
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
-    }).format(date);
+    }).format(iso);
 
     // Datum formatteren locale afhankelijk (DD-MM-YYYY in NL)
     const formattedDate = new Intl.DateTimeFormat(undefined, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-    }).format(date);
+    }).format(iso);
 
     return `${formattedTime} ${formattedDate}`;
 };
