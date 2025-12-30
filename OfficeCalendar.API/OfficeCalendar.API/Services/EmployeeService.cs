@@ -322,13 +322,13 @@ public class EmployeeService : IEmployeeService
 
                 if (result)
                     return new PromoteDemoteResult.Success(emp);
-                else
-                    return new PromoteDemoteResult.Error("employees.API_ErrorRoleUpdateFailed");
+                
+                return new PromoteDemoteResult.Error("employees.API_ErrorRoleUpdateFailed");
             }
             
             return new PromoteDemoteResult.NotFound();
         }
-        catch
+        catch (Exception)
         {
             return new PromoteDemoteResult.Error("general.API_ErrorUnexpected");
         }
@@ -348,7 +348,7 @@ public class EmployeeService : IEmployeeService
             var matchedEmployees = allEmployees.Where(e =>
                 e.FirstName.ToLower().Contains(search) ||
                 e.LastName.ToLower().Contains(search) ||
-                ($"{e.FirstName} {e.LastName}").ToLower().Contains(search) ||
+                $"{e.FirstName} {e.LastName}".ToLower().Contains(search) ||
                 e.Email.ToLower().Contains(search) ||
                 e.Role.ToLower().Contains(search) ||
                 e.Id.ToString() == search
@@ -359,9 +359,9 @@ public class EmployeeService : IEmployeeService
 
             return new SearchResults.Success(matchedEmployees);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new SearchResults.Error($"general.API.ErrorSearchFailed {ex.Message}");
+            return new SearchResults.Error("general.API_ErrorUnexpected");
         }
     }
 }
