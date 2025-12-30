@@ -1,8 +1,10 @@
 {
   "private": true,
   "scripts": {
+    "install-all": "npm install && npm install --prefix FE",
     "frontend": "npm --prefix FE run dev",
     "backend": "dotnet run --project BE/OfficeCalendar.API/OfficeCalendar.API.csproj",
+    "predev": "npm run install-all",
     "dev": "concurrently \"npm run frontend\" \"npm run backend\""
   },
   "devDependencies": {

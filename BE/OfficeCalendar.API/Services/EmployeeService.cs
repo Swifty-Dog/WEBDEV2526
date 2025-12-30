@@ -165,7 +165,15 @@ public class EmployeeService : IEmployeeService
 
     public async Task<RegisterResult> RegisterEmployee(RegisterDto employee)
     {
-        var hashedPassword = _hasher.HashPassword(null, employee.Password);
+        var createdEmployee = new EmployeeModel
+        {
+            FirstName = employee.FirstName,
+            LastName = employee.LastName,
+            Email = employee.Email,
+            PasswordHash = string.Empty
+        };
+
+        var hashedPassword = _hasher.HashPassword(createdEmployee, employee.Password);
 
         try
         {
@@ -175,13 +183,7 @@ public class EmployeeService : IEmployeeService
                 if (existing is GetEmployeeResult.Success)
                     throw new InvalidOperationException("employees.API_ErrorEmailExists");
 
-                var createdEmployee = new EmployeeModel
-                {
-                    FirstName = employee.FirstName,
-                    LastName = employee.LastName,
-                    Email = employee.Email,
-                    PasswordHash = hashedPassword
-                };
+                createdEmployee.PasswordHash = hashedPassword;
 
                 var created = await _employeeRepo.Create(createdEmployee);
                 if (!created) throw new Exception("employees.API_ErrorCreateFailed");
