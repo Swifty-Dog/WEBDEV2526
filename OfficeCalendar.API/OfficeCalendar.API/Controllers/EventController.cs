@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.DTOs.Events.Request;
@@ -8,7 +7,6 @@ using OfficeCalendar.API.Services.Results.Events;
 using Microsoft.EntityFrameworkCore;
 using OfficeCalendar.API.DTOs.Events.Response;
 using OfficeCalendar.API.Models.DbContext;
-using OfficeCalendar.API.Services.Interfaces;
 
 namespace OfficeCalendar.API.Controllers;
 
