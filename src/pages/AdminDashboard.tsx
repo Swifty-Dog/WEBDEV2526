@@ -150,7 +150,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
                 </div>
                 <div>
-                    <button className="header-button" onClick={() => setIsPromoteDemoteOpen(true)}>Promote / Demote</button>
+                    <button 
+                        className="header-button" 
+                        onClick={() => setIsPromoteDemoteOpen(true)}>{tAdmin('adminDashboard.promoteDemote')}</button>
                     <button
                         className="header-button"
                         id="extra-margins"

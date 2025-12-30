@@ -2,7 +2,18 @@
   "adminDashboard": {
     "subtitle": "Beheer kalenderevenementen - maak, bewerk, verwijder en bekijk deelnemers.",
     "buttonNewEvent": "+ Nieuw evenement",
-    "confirmDeleteMessage": "Verwijder \"{{title}}\"? Dit kan niet ongedaan worden gemaakt."
+    "confirmDeleteMessage": "Verwijder \"{{title}}\"? Dit kan niet ongedaan worden gemaakt.",
+    "promoteDemote": "Promoveer / Degradeer"
+  },
+  "PromoteDemoteEmployee": {
+    "promoteDemoteTitle": "Promoveer / Degradeer Werknemer",
+    "searchEmployee": "Zoek naar werknemer",
+    "searchPlaceholder": "Voer naam, e-mail of ID van werknemer in",
+    "search": "Zoeken",
+    "promoteToManager": "Promoveer tot Manager",
+    "demoteToEmployee": "Degradeer tot Werknemer",
+    "employeeNotFound": "Werknemer niet gevonden",
+    "clickSearch": "Klik op 'Zoeken' om een werknemer te vinden"
   },
   "terminateEmployee": {
     "title": "Werknemer termineren",

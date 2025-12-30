@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { API_BASE_URL } from '../config/api';
 import { useSettings } from '../config/SettingsContext';
@@ -25,13 +23,14 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
     const [error, setError] = useState<string | null>(null);
     const [searched, setSearched] = useState<boolean>(false);
     const settings = useSettings();
-    const { t } = useTranslation(['admin', 'common']);
+    const { t: tAdmin } = useTranslation('admin');
+    const { t: tCommon } = useTranslation('common');
 
     const handleSearch = async (e?: React.FormEvent | React.KeyboardEvent) => {
         e?.preventDefault();
         
         if (!searchQuery.trim()) {
-            setError('Please enter a search query');
+            setError(tCommon('form:alertRequired_one', { fields: tCommon('search') }));
             return;
         }
 
@@ -46,7 +45,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Employee not found');
+                throw new Error(tAdmin('PromoteDemoteEmployee.employeeNotFound'));
             }
 
             const result = await response.json();
@@ -54,10 +53,10 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
             if (result.employees && result.employees.length > 0) {
                 setFoundEmployees(result.employees);
             } else {
-                throw new Error('Employee not found');
+                throw new Error(tAdmin('PromoteDemoteEmployee.employeeNotFound'));
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to search employee');
+            setError(err instanceof Error ? err.message : tCommon('networkError'));
             setFoundEmployees([]);
         } finally {
             setLoading(false);
@@ -79,7 +78,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
             console.log('Promote/Demote employee.id:', employee.id, typeof employee.id);
             const employeeId = typeof employee.id === 'string' ? parseInt(employee.id, 10) : employee.id;
             if (isNaN(employeeId) || employeeId <= 0) {
-                setError('Invalid employee ID');
+                setError(tCommon('form:failDefault', 'Invalid employee ID.'));
                 setLoading(false);
                 return;
             }
@@ -89,12 +88,12 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
 
             if (!response.ok) {
                 const body = await response.json().catch(() => null);
-                throw new Error(body?.message ?? 'Failed to update employee role');
+                throw new Error(body?.message ?? tCommon('form:failDefault', 'Promotion/Demotion failed. Please try again.'));
             }
 
             const refresh = await fetch(`${API_BASE_URL}/Employee/search?query=${encodeURIComponent(searchQuery)}`, { method: 'GET' });
             if (!refresh.ok) {
-                setError('Role updated, but failed to refresh employee data');
+                setError(tCommon('form:failDefault', 'Search refresh failed. Please try again.'));
                 return;
             }
 
@@ -103,10 +102,10 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                 setFoundEmployees(refreshed.employees);
             } else {
                 setFoundEmployees([]);
-                setError('Role updated but employee not found after refresh');
+                setError(tAdmin('PromoteDemoteEmployee.employeeNotFound'));
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update role');
+            setError(err instanceof Error ? err.message : tCommon('form:failDefault', 'Promotion/Demotion failed. Please try again.'));
         } finally {
             setLoading(false);
         }
@@ -131,7 +130,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                 color: settings.theme === 'Dark' ? '#f3f3f3' : '#222',
                 borderRadius: '16px',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-                maxWidth: 520,
+                maxWidth: 700,
                 width: '95vw',
                 minHeight: 320,
                 maxHeight: '90vh',
@@ -154,23 +153,23 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                         cursor: 'pointer',
                         zIndex: 2,
                     }}
-                    aria-label={t('common:close', 'Close')}
+                    aria-label={tCommon('buttonClose')}
                 >
                     ×
                 </button>
                 <h3 style={{ margin: 0, marginBottom: '1.5rem', fontSize: '1.6rem', textAlign: 'center', fontWeight: 700, letterSpacing: 0.2 }}>
-                    {t('admin:promoteDemoteTitle', 'Promote / Demote Employee')}
+                    {tAdmin('PromoteDemoteEmployee.promoteDemoteTitle')}
                 </h3>
 
                 <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontWeight: 600, fontSize: '1rem' }}>{t('admin:searchEmployee', 'Search for Employee')}</label>
+                    <label style={{ fontWeight: 600, fontSize: '1rem' }}>{tAdmin('PromoteDemoteEmployee.searchEmployee')}</label>
                     <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            placeholder={t('admin:searchPlaceholder', 'Enter employee name, email, or ID')}
+                            placeholder={tAdmin('PromoteDemoteEmployee.searchPlaceholder')}
                             style={{
                                 flex: 1,
                                 padding: '0.7rem 1rem',
@@ -202,7 +201,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                                 transition: 'background 0.2s',
                             }}
                         >
-                            {loading ? t('common:searching', 'Searching...') : t('common:search', 'Search')}
+                            {loading ? tCommon('searching') : tCommon('search')}
                         </button>
                     </div>
                 </div>
@@ -214,7 +213,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                 )}
 
                 {foundEmployees.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                         {foundEmployees.map((emp) => (
                             <div key={emp.id} style={{
                                 border: '1px solid #e0e0e0',
@@ -229,10 +228,10 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                             }}>
                                 <h4 style={{ margin: 0, marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: 700 }}>{emp.firstName} {emp.lastName}</h4>
                                 <div style={{ marginBottom: '0.5rem', fontSize: '0.97rem', wordBreak: 'break-word' }}>
-                                    <strong>{t('common:email', 'Email')}:</strong> {emp.email}
+                                    <strong>{tCommon('form.labelEmail')}:</strong> {emp.email}
                                 </div>
                                 <div style={{ marginBottom: '0.75rem', fontSize: '0.97rem' }}>
-                                    <strong>{t('common:role', 'Role')}:</strong> <span style={{ color: 'var(--color-brand-accent, #1976d2)', fontWeight: 600 }}>{emp.role}</span>
+                                    <strong>{tCommon('form.labelRole')}:</strong> <span style={{ color: 'var(--color-brand-accent, #1976d2)', fontWeight: 600 }}>{tCommon(`roles.${emp.role}`, emp.role)}</span>
                                 </div>
                                 <button
                                     type="button"
@@ -253,10 +252,10 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                                         transition: 'background 0.2s',
                                     }}
                                 >
-                                    {loading ? t('common:updating', 'Updating...') :
+                                    {loading ? tCommon('updating') :
                                         emp.role.toLowerCase() === 'employee'
-                                            ? t('admin:promoteToManager', 'Promote to Manager')
-                                            : t('admin:demoteToEmployee', 'Demote to Employee')}
+                                            ? tAdmin('PromoteDemoteEmployee.promoteToManager')
+                                            : tAdmin('PromoteDemoteEmployee.demoteToEmployee')}
                                 </button>
                             </div>
                         ))}
@@ -265,7 +264,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
 
                 {!foundEmployees.length && searchQuery && !error && !loading && (
                     <div style={{ textAlign: 'center', color: '#999', padding: '2rem', fontSize: '1.05rem' }}>
-                        {searched ? t('admin:employeeNotFound', 'Employee not found') : t('admin:clickSearch', 'Click "Search" to find an employee')}
+                        {searched ? tAdmin('PromoteDemoteEmployee.employeeNotFound') : tAdmin('PromoteDemoteEmployee.clickSearch')}
                     </div>
                 )}
             </div>
