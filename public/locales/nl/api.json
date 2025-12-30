@@ -5,8 +5,7 @@
     "API_ErrorPermissionDenied": "U heeft geen toestemming om deze actie uit te voeren.",
     "API_ErrorUnauthorized": "U bent niet gemachtigd om deze actie uit te voeren.",
     "API_ErrorUnexpected": "Er is een onverwachte fout opgetreden.",
-    "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen.",
-    "API_ErrorSearchFailed": "Er is een fout opgetreden tijdens het zoeken naar werknemers:"
+    "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen."
   },
   "tokens": {
     "API_ErrorTokenConfig": "Genereren van token mislukt: JWT secret key is niet geconfigureerd.",

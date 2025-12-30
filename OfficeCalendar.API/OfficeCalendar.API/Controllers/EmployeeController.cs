@@ -143,8 +143,14 @@ public class EmployeeController : BaseController
     [HttpGet("search")]
     public async Task<IActionResult> SearchEmployees([FromQuery] string query)
     {
-        var result = await EmployeeService.SearchEmployees(query);
-
-        return Ok(result);
+        try
+        {
+            var result = await EmployeeService.SearchEmployees(query);
+            return Ok(result);
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "general.API_ErrorUnexpected" });
+        }
     }
 }

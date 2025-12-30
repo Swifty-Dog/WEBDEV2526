@@ -5,8 +5,7 @@
     "API_ErrorPermissionDenied": "You do not have permission to perform this action.",
     "API_ErrorUnauthorized": "You are not authorized to perform this action.",
     "API_ErrorUnexpected": "An unexpected error occurred.",
-    "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match.",
-    "API_ErrorSearchFailed": "An error occurred while searching for employees:"
+    "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match."
   },
   "tokens": {
     "API_ErrorTokenConfig": "Token generation failed: JWT secret key is not configured.",
