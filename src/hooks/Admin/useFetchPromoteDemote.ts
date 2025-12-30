@@ -21,7 +21,9 @@ export const useFetchPromoteDemote = () => {
 
         try {
             const token = localStorage.getItem('authToken');
+
             const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+            
             const result = await ApiGet<{ employees: Employee[] }>(`/Employee/search?query=${encodeURIComponent(searchQuery)}`, headers);
             if (result.employees && result.employees.length > 0) {
                 setEmployees(result.employees);
