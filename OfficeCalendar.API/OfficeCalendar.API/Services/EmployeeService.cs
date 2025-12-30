@@ -300,7 +300,7 @@ public class EmployeeService : IEmployeeService
     public async Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId)
     {
         if (employeeId <= 0)
-            return new PromoteDemoteResult.InvalidData("The employee ID must be greater than zero.");
+            return new PromoteDemoteResult.InvalidData("employees.API_ErrorInvalidEmployeeId");
 
         try
         {
@@ -312,7 +312,7 @@ public class EmployeeService : IEmployeeService
                 var empRole = emp.Role.Trim().ToLower();
 
                 if (empRole == "admin")
-                    return new PromoteDemoteResult.InvalidData("Cannot change role of an admin employee.");
+                    return new PromoteDemoteResult.InvalidData("employees.API_ErrorCannotChangeAdminRole");
 
                 // Toggle between manager and employee roles
                 emp.Role = empRole == "manager" ? "Employee" : "Manager";
@@ -323,7 +323,7 @@ public class EmployeeService : IEmployeeService
                 if (result)
                     return new PromoteDemoteResult.Success(emp);
                 else
-                    return new PromoteDemoteResult.Error("Failed to update employee role.");
+                    return new PromoteDemoteResult.Error("employees.API_ErrorRoleUpdateFailed");
             }
             
             return new PromoteDemoteResult.NotFound();
@@ -337,7 +337,7 @@ public class EmployeeService : IEmployeeService
     public async Task<SearchResults> SearchEmployees(string query)
     {
         if (string.IsNullOrWhiteSpace(query))
-            return new SearchResults.InvalidData("Search query cannot be null or empty.");
+            return new SearchResults.InvalidData("general.API_ErrorInvalidData");
 
         try
         {
@@ -361,7 +361,7 @@ public class EmployeeService : IEmployeeService
         }
         catch (Exception ex)
         {
-            return new SearchResults.Error($"An error occurred while searching for employees: {ex.Message}");
+            return new SearchResults.Error($"general.API.ErrorSearchFailed {ex.Message}");
         }
     }
 }

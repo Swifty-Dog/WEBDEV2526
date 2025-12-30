@@ -13,7 +13,8 @@
     "promoteToManager": "Promote to Manager",
     "demoteToEmployee": "Demote to Employee",
     "employeeNotFound": "Employee not found",
-    "clickSearch": "Click 'Search' to find an employee"
+    "clickSearch": "Click 'Search' to find an employee",
+    "API_ErrorNoEmployeesFound": "No employees found"
   },
   "terminateEmployee": {
     "title": "Terminate Employee",

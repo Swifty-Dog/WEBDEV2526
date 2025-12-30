@@ -5,7 +5,8 @@
     "API_ErrorPermissionDenied": "U heeft geen toestemming om deze actie uit te voeren.",
     "API_ErrorUnauthorized": "U bent niet gemachtigd om deze actie uit te voeren.",
     "API_ErrorUnexpected": "Er is een onverwachte fout opgetreden.",
-    "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen."
+    "API_ErrorUrlBodyIdMismatch": "URL ID en body ID komen niet overeen.",
+    "API_ErrorSearchFailed": "Er is een fout opgetreden tijdens het zoeken naar werknemers:"
   },
   "tokens": {
     "API_ErrorTokenConfig": "Genereren van token mislukt: JWT secret key is niet geconfigureerd.",
@@ -28,7 +29,11 @@
     "API_PromoteDemoteSuccess": "Rol van werknemer succesvol bijgewerkt.",
     "API_ErrorTerminationFailed": "Termineren van werknemer mislukt.",
     "API_ErrorCannotTerminateAdmin": "Een admin kan niet worden getermineerd.",
-    "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token."
+    "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token.",
+    "API_ErrorEmployeeNotFound": "Werknemer niet gevonden.",
+    "API_ErrorInvalidEmployeeId": "Ongeldige werknemer ID.",
+    "API_ErrorCannotChangeAdminRole": "De rol van een admin werknemer kan niet worden gewijzigd.",
+    "API_ErrorRoleUpdateFailed": "Bijwerken van werknemerrol mislukt."
   },
   "rooms": {
     "API_ErrorDuplicateName": "Kamer met de naam '{{name}}' bestaat al.",

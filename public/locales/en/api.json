@@ -5,7 +5,8 @@
     "API_ErrorPermissionDenied": "You do not have permission to perform this action.",
     "API_ErrorUnauthorized": "You are not authorized to perform this action.",
     "API_ErrorUnexpected": "An unexpected error occurred.",
-    "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match."
+    "API_ErrorUrlBodyIdMismatch": "URL ID and body ID do not match.",
+    "API_ErrorSearchFailed": "An error occurred while searching for employees:"
   },
   "tokens": {
     "API_ErrorTokenConfig": "Token generation failed: JWT secret key is not configured.",
@@ -28,7 +29,11 @@
     "API_ErrorTerminationFailed": "Failed to terminate employee.",
     "API_TerminationSuccess": "Employee terminated successfully.",
     "API_PromoteDemoteSuccess": "Employee role updated successfully.",
-    "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token."
+    "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token.",
+    "API_ErrorEmployeeNotFound": "Employee not found.",
+    "API_ErrorInvalidEmployeeId": "Invalid employee ID.",
+    "API_ErrorCannotChangeAdminRole": "Cannot change role of an admin employee.",
+    "API_ErrorRoleUpdateFailed": "Failed to update employee role."
   },
   "rooms": {
     "API_ErrorDuplicateName": "Room with the name '{{name}}' already exists.",

@@ -13,7 +13,8 @@
     "promoteToManager": "Promoveer tot Manager",
     "demoteToEmployee": "Degradeer tot Werknemer",
     "employeeNotFound": "Werknemer niet gevonden",
-    "clickSearch": "Klik op 'Zoeken' om een werknemer te vinden"
+    "clickSearch": "Klik op 'Zoeken' om een werknemer te vinden",
+    "API_ErrorNoEmployeesFound": "Geen werknemers gevonden"
   },
   "terminateEmployee": {
     "title": "Werknemer termineren",
