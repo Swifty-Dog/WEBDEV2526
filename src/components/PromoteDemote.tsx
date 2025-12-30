@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../styles/_components.css';
 import { API_BASE_URL } from '../config/api';
 import { useSettings } from '../config/SettingsContext';
 import { useTranslation } from 'react-i18next';
@@ -112,94 +113,35 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.35)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: `var(--base-font-size, 16px)`
-        }}>
-            <div style={{
-                background: settings.theme === 'Dark' ? '#23272f' : '#fff',
-                color: settings.theme === 'Dark' ? '#f3f3f3' : '#222',
-                borderRadius: '16px',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-                maxWidth: 700,
-                width: '95vw',
-                minHeight: 320,
-                maxHeight: '90vh',
-                overflowY: 'auto',
-                padding: '2.5rem 2rem 2rem 2rem',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-            }}>
+        <div className="promote-demote-modal-overlay">
+            <div className={`promote-demote-modal${settings.theme === 'Dark' ? ' dark' : ''}`}>
                 <button
                     onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: 18,
-                        right: 18,
-                        background: 'transparent',
-                        border: 'none',
-                        fontSize: 24,
-                        color: settings.theme === 'Dark' ? '#bbb' : '#888',
-                        cursor: 'pointer',
-                        zIndex: 2,
-                    }}
+                    className={`promote-demote-close${settings.theme === 'Dark' ? ' dark' : ''}`}
                     aria-label={tCommon('buttonClose')}
                 >
                     ×
                 </button>
-                <h3 style={{ margin: 0, marginBottom: '1.5rem', fontSize: '1.6rem', textAlign: 'center', fontWeight: 700, letterSpacing: 0.2 }}>
+                <h3 className="promote-demote-title">
                     {tAdmin('PromoteDemoteEmployee.promoteDemoteTitle')}
                 </h3>
 
-                <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontWeight: 600, fontSize: '1rem' }}>{tAdmin('PromoteDemoteEmployee.searchEmployee')}</label>
-                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                <div className="promote-demote-search-row">
+                    <label className="promote-demote-search-label">{tAdmin('PromoteDemoteEmployee.searchEmployee')}</label>
+                    <div className="promote-demote-search-input-row">
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             onKeyPress={handleKeyPress}
                             placeholder={tAdmin('PromoteDemoteEmployee.searchPlaceholder')}
-                            style={{
-                                flex: 1,
-                                padding: '0.7rem 1rem',
-                                fontSize: '1rem',
-                                border: '1px solid #ccc',
-                                borderRadius: '6px',
-                                outline: 'none',
-                                transition: 'border 0.2s',
-                                background: settings.theme === 'Dark' ? '#23272f' : '#fff',
-                                color: settings.theme === 'Dark' ? '#f3f3f3' : '#222',
-                            }}
+                            className={`promote-demote-search-input${settings.theme === 'Dark' ? ' dark' : ''}`}
                         />
                         <button
                             type="button"
-                            className="btn-sm"
+                            className="btn-sm promote-demote-search-btn"
                             onClick={e => handleSearch(e)}
                             disabled={loading}
-                            style={{
-                                padding: '0.7rem 1.5rem',
-                                fontSize: '1rem',
-                                background: 'var(--color-brand-accent, #1976d2)',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontWeight: 600,
-                                cursor: loading ? 'not-allowed' : 'pointer',
-                                opacity: loading ? 0.7 : 1,
-                                boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                                transition: 'background 0.2s',
-                            }}
                         >
                             {loading ? tCommon('searching') : tCommon('search')}
                         </button>
@@ -207,50 +149,25 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                 </div>
 
                 {error && (
-                    <div style={{ color: '#d32f2f', marginBottom: '1.5rem', padding: '1rem', backgroundColor: settings.theme === 'Dark' ? '#3a2323' : '#ffebee', borderRadius: '6px', fontSize: '1rem', textAlign: 'center' }}>
-                        {error}
-                    </div>
+                    <div className={`promote-demote-error${settings.theme === 'Dark' ? ' dark' : ''}`}>{error}</div>
                 )}
 
                 {foundEmployees.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div className="promote-demote-employee-list">
                         {foundEmployees.map((emp) => (
-                            <div key={emp.id} style={{
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '10px',
-                                padding: '1.2rem',
-                                backgroundColor: settings.theme === 'Dark' ? '#23272f' : '#fafbfc',
-                                color: settings.theme === 'Dark' ? '#f3f3f3' : '#222',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                minHeight: 160,
-                            }}>
-                                <h4 style={{ margin: 0, marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: 700 }}>{emp.firstName} {emp.lastName}</h4>
-                                <div style={{ marginBottom: '0.5rem', fontSize: '0.97rem', wordBreak: 'break-word' }}>
+                            <div key={emp.id} className={`promote-demote-employee-card${settings.theme === 'Dark' ? ' dark' : ''}`}> 
+                                <h4 className="promote-demote-employee-name">{emp.firstName} {emp.lastName}</h4>
+                                <div className="promote-demote-employee-email">
                                     <strong>{tCommon('form.labelEmail')}:</strong> {emp.email}
                                 </div>
-                                <div style={{ marginBottom: '0.75rem', fontSize: '0.97rem' }}>
-                                    <strong>{tCommon('form.labelRole')}:</strong> <span style={{ color: 'var(--color-brand-accent, #1976d2)', fontWeight: 600 }}>{tCommon(`roles.${emp.role}`, emp.role)}</span>
+                                <div className="promote-demote-employee-role">
+                                    <strong>{tCommon('form.labelRole')}:</strong> <span className="promote-demote-role-span">{tCommon(`roles.${emp.role}`, emp.role)}</span>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => handlePromoteDemote(emp)}
                                     disabled={loading}
-                                    style={{
-                                        background: 'var(--color-brand-accent, #1976d2)',
-                                        color: 'white',
-                                        padding: '0.6rem 1.2rem',
-                                        fontSize: '1rem',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        cursor: loading ? 'not-allowed' : 'pointer',
-                                        opacity: loading ? 0.7 : 1,
-                                        fontWeight: 600,
-                                        marginTop: 'auto',
-                                        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                                        transition: 'background 0.2s',
-                                    }}
+                                    className="promote-demote-action-btn"
                                 >
                                     {loading ? tCommon('updating') :
                                         emp.role.toLowerCase() === 'employee'
@@ -263,7 +180,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                 )}
 
                 {!foundEmployees.length && searchQuery && !error && !loading && (
-                    <div style={{ textAlign: 'center', color: '#999', padding: '2rem', fontSize: '1.05rem' }}>
+                    <div className="promote-demote-empty">
                         {searched ? tAdmin('PromoteDemoteEmployee.employeeNotFound') : tAdmin('PromoteDemoteEmployee.clickSearch')}
                     </div>
                 )}
