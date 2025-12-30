@@ -25,6 +25,7 @@
     "API_ErrorMissingToken": "Ontbrekende of ongeldige autorisatieheader.",
     "API_ErrorInvalidToken": "Ongeldige of verlopen token.",
     "API_TerminationSuccess": "Werknemer succesvol getermineerd.",
+    "API_PromoteDemoteSuccess": "Rol van werknemer succesvol bijgewerkt.",
     "API_ErrorTerminationFailed": "Termineren van werknemer mislukt.",
     "API_ErrorCannotTerminateAdmin": "Een admin kan niet worden getermineerd.",
     "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token."

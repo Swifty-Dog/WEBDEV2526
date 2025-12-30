@@ -330,7 +330,7 @@ public class EmployeeService : IEmployeeService
         }
         catch
         {
-            return new PromoteDemoteResult.Error("An error occurred while updating the employee role.");
+            return new PromoteDemoteResult.Error("general.API_ErrorUnexpected");
         }
     }
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../../styles/_components.css';
-import { API_BASE_URL } from '../../config/api';
+import { useFetchPromoteDemote } from '../../hooks/Admin/useFetchPromoteDemote';
+import { useUpdatePromoteDemote } from '../../hooks/Admin/useUpdatePromoteDemote';
 import { useSettings } from '../../config/SettingsContext';
 import { useTranslation } from 'react-i18next';
 
@@ -18,50 +19,23 @@ interface Props {
 
 
 export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
-    const [searchQuery, setSearchQuery] = useState<string>('');
-    const [foundEmployees, setFoundEmployees] = useState<Employee[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [searched, setSearched] = useState<boolean>(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searched, setSearched] = useState(false);
     const settings = useSettings();
     const { t: tAdmin } = useTranslation('admin');
     const { t: tCommon } = useTranslation('common');
+    const { t: tApi } = useTranslation('api');
+
+    const { fetchPromoteDemote, loading, error, employees } = useFetchPromoteDemote();
+    const { updatePromoteDemote, loading: updateLoading, error: updateError, success } = useUpdatePromoteDemote();
 
     const handleSearch = async (e?: React.FormEvent | React.KeyboardEvent) => {
         e?.preventDefault();
-        
         if (!searchQuery.trim()) {
-            setError(tCommon('form:alertRequired_one', { fields: tCommon('search') }));
             return;
         }
-
-        setLoading(true);
-        setError(null);
-        setFoundEmployees([]);
         setSearched(true);
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/Employee/search?query=${encodeURIComponent(searchQuery)}`, {
-                method: 'GET',
-            });
-
-            if (!response.ok) {
-                throw new Error(tAdmin('PromoteDemoteEmployee.employeeNotFound'));
-            }
-
-            const result = await response.json();
-
-            if (result.employees && result.employees.length > 0) {
-                setFoundEmployees(result.employees);
-            } else {
-                throw new Error(tAdmin('PromoteDemoteEmployee.employeeNotFound'));
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : tCommon('networkError'));
-            setFoundEmployees([]);
-        } finally {
-            setLoading(false);
-        }
+        await fetchPromoteDemote(searchQuery);
     };
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -71,45 +45,13 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
     };
 
     const handlePromoteDemote = async (employee: Employee) => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            // Debug log for employee id
-            console.log('Promote/Demote employee.id:', employee.id, typeof employee.id);
-            const employeeId = typeof employee.id === 'string' ? parseInt(employee.id, 10) : employee.id;
-            if (isNaN(employeeId) || employeeId <= 0) {
-                setError(tCommon('form:failDefault', 'Invalid employee ID.'));
-                setLoading(false);
-                return;
-            }
-            const response = await fetch(`${API_BASE_URL}/Employee/promote-demote/${employeeId}`, {
-                method: 'GET',
-            });
-
-            if (!response.ok) {
-                const body = await response.json().catch(() => null);
-                throw new Error(body?.message ?? tCommon('form:failDefault', 'Promotion/Demotion failed. Please try again.'));
-            }
-
-            const refresh = await fetch(`${API_BASE_URL}/Employee/search?query=${encodeURIComponent(searchQuery)}`, { method: 'GET' });
-            if (!refresh.ok) {
-                setError(tCommon('form:failDefault', 'Search refresh failed. Please try again.'));
-                return;
-            }
-
-            const refreshed = await refresh.json();
-            if (refreshed.employees && refreshed.employees.length > 0) {
-                setFoundEmployees(refreshed.employees);
-            } else {
-                setFoundEmployees([]);
-                setError(tAdmin('PromoteDemoteEmployee.employeeNotFound'));
-            }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : tCommon('form:failDefault', 'Promotion/Demotion failed. Please try again.'));
-        } finally {
-            setLoading(false);
+        const employeeId = typeof employee.id === 'string' ? parseInt(employee.id, 10) : employee.id;
+        if (isNaN(employeeId) || employeeId <= 0) {
+            return;
         }
+
+        await updatePromoteDemote(employeeId);
+        await fetchPromoteDemote(searchQuery);
     };
 
     return (
@@ -148,13 +90,16 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                     </div>
                 </div>
 
-                {error && (
-                    <div className={`promote-demote-error${settings.theme === 'Dark' ? ' dark' : ''}`}>{error}</div>
+                {(error || updateError) && (
+                    <div className={`promote-demote-error${settings.theme === 'Dark' ? ' dark' : ''}`}>{error || updateError}</div>
+                )}
+                {success && (
+                    <div className="success-message">{tApi(success)}</div>
                 )}
 
-                {foundEmployees.length > 0 && (
+                {employees.length > 0 && (
                     <div className="promote-demote-employee-list">
-                        {foundEmployees.map((emp) => (
+                        {employees.map((emp) => (
                             <div key={emp.id} className={`promote-demote-employee-card${settings.theme === 'Dark' ? ' dark' : ''}`}> 
                                 <h4 className="promote-demote-employee-name">{emp.firstName} {emp.lastName}</h4>
                                 <div className="promote-demote-employee-email">
@@ -166,10 +111,10 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                                 <button
                                     type="button"
                                     onClick={() => handlePromoteDemote(emp)}
-                                    disabled={loading}
+                                    disabled={loading || updateLoading}
                                     className="promote-demote-action-btn"
                                 >
-                                    {loading ? tCommon('updating') :
+                                    {(loading || updateLoading) ? tCommon('updating') :
                                         emp.role.toLowerCase() === 'employee'
                                             ? tAdmin('PromoteDemoteEmployee.promoteToManager')
                                             : tAdmin('PromoteDemoteEmployee.demoteToEmployee')}
@@ -179,7 +124,7 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                     </div>
                 )}
 
-                {!foundEmployees.length && searchQuery && !error && !loading && (
+                {!employees.length && searchQuery && !error && !loading && (
                     <div className="promote-demote-empty">
                         {searched ? tAdmin('PromoteDemoteEmployee.employeeNotFound') : tAdmin('PromoteDemoteEmployee.clickSearch')}
                     </div>

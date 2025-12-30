@@ -27,6 +27,7 @@
     "API_ErrorCannotTerminateAdmin": "Cannot terminate an admin.",
     "API_ErrorTerminationFailed": "Failed to terminate employee.",
     "API_TerminationSuccess": "Employee terminated successfully.",
+    "API_PromoteDemoteSuccess": "Employee role updated successfully.",
     "API_ErrorUserIdMissing": "User ID claim is missing or invalid in the token."
   },
   "rooms": {
