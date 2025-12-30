@@ -1,33 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
+import { ApiDelete, ApiPost } from "../config/ApiRequest";
+import "../styles/EventCard.css";
+import "../styles/_components.css";
 import { useTranslation } from 'react-i18next';
 
 interface EventCardProps {
-    id: number;                     // C# long → TS number
-    title: string;                  // C# string
-    description?: string | null;    // C# string? → TS string | null
-    eventDate: string;              // C# DateTime → TS string (ISO)
-    roomName?: string | null;         // C# long? → TS number | null
-    attendees?: string[];           // mapping van EventParticipations (optioneel)
+    id: string | number;
+    title: string;
+    date: string;
+    location: string;
+    description: string;
+    attendees: string[];
+    initialAttending?: boolean;
 }
 
 export const EventCard: React.FC<EventCardProps> = ({
+    id,
     title,
-    eventDate,
-    roomName,
+    date,
+    location,
     description,
-    attendees
+    attendees,
+    initialAttending = false
 }) => {
+    const [attending, setAttending] = useState<boolean>(initialAttending);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const authHeader = () => {
+        const token = localStorage.getItem('authToken');
+        return token ? { Authorization: `Bearer ${token}` } : undefined;
+    };
+
+    const onToggleAttend = async () => {
+        setError(null);
+        setLoading(true);
+        try {
+            if (attending) {
+                const res = await ApiDelete<{ attending: boolean }>(`/Event/${id}/attend`, authHeader());
+                setAttending(!!res?.attending);
+            } else {
+                const res = await ApiPost<{ attending: boolean }>(`/Event/${id}/attend`, {}, authHeader());
+                setAttending(!!res?.attending);
+            }
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Er is iets misgegaan.";
+            setError(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const { t } = useTranslation('events');
 
     return (
         <div className="event-card">
             <h3 className="event-title">{title}</h3>
-            <p className="event-date">{new Date(eventDate).toLocaleDateString()}</p>
-            <p className="location">{roomName}</p>
+            <p className="event-date">{new Date(date).toLocaleDateString()}</p>
+            <p className="location">{location}</p>
             <p className="description">{description}</p>
             <p className="attendees">
                 {t('eventCard.attendeesLabel', { attendees: attendees?.join(', ') })}
             </p>
+            {error && <p className="error-message">{error}</p>}
+            <div className="table-actions">
+                <button
+                    className={`btn-sm ${attending ? 'btn-sm-danger' : 'btn-sm-primary'}`}
+                    onClick={onToggleAttend}
+                    disabled={loading}
+                    aria-pressed={attending}
+                    aria-label={attending ? 'Unattend event' : 'Attend event'}
+                >
+                    {loading ? 'Bezig…' : attending ? 'Unattend' : 'Attend'}
+                </button>
+            </div>
         </div>
     );
 }

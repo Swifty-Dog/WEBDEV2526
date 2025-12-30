@@ -93,7 +93,7 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
                 required
             />
 
-            {errorMessage && <p className="login-error">{errorMessage}</p>}
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
 
             <button type="submit" className="button-primary">
                 {tCommon('general.buttonLogin')}

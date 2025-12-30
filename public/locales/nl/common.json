@@ -18,6 +18,8 @@
     "buttonStay": "Blijf",
     "buttonLogin": "Inloggen",
     "buttonRegister": "Registreren",
+    "buttonUnattend": "Afmelden",
+    "buttonViewDetails": "Bekijk details",
     "buttonLeaveAnyway": "Toch verlaten",
     "confirmTitle": "Niet-opgeslagen wijzigingen",
     "confirmMessage": "Je hebt nog niet-opgeslagen wijzigingen. Weet je zeker dat je wilt verlaten?",
@@ -25,6 +27,8 @@
     "listSeparator": "en",
     "networkError": "Netwerkfout"
   },
+  "loadingEvents": "Evenementen laden...",
+  "loadEventsFailed": "Kon evenementen niet laden.",
   "form": {
     "placeholderEmail": "E-mail",
     "placeholderPassword": "Wachtwoord",
@@ -36,8 +40,11 @@
     "labelEmail": "E-mail",
     "labelPassword": "Wachtwoord",
     "labelPasswordConfirm": "Wachtwoord bevestigen",
+    "labelName": "Naam",
     "labelFirstName": "Voornaam",
     "labelLastName": "Achternaam",
+    "labelRole": "Rol",
+    "labelId": "ID",
     "labelRegistering": "Registreren..."
   },
   "dashboard": {
@@ -88,5 +95,11 @@
       "Sat": "Za",
       "Sun": "Zo"
     }
+  },
+  "roles": {
+    "Admin": "Beheerder",
+    "Manager": "Manager",
+    "Employee": "Werknemer",
+    "Terminated": "Getermineerd"
   }
 }

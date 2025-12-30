@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
@@ -6,7 +6,7 @@ import { EventsTable } from '../components/EventsTable';
 import { AttendeesModal } from '../components/AttendeesModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { WeekCalendar } from '../components/WeekCalendar';
-import { RegisterButton } from '../components/RegisterButton';
+import { RegisterButton } from '../components/Admin/RegisterButton';
 import { CreateNewEvent } from '../components/Event/EventFormModal';
 import { ApiGet } from '../config/ApiRequest';
 import { ApiPut } from '../config/ApiRequest';
@@ -14,7 +14,7 @@ import { ApiPost } from '../config/ApiRequest';
 import { ApiDelete } from '../config/ApiRequest';
 import { formatISOToDisplay } from '../utils/date';
 import type { Room, Event, EventApiDto, UpdateEventApiDto, CreateEventApiDto } from '../utils/types';
-
+import { TerminateNavButton } from "../components/Admin/TerminateNavButton.tsx";
 
 interface AdminDashboardProps {
     userRole: string | null;
@@ -24,7 +24,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
     const { t: tAdmin } = useTranslation('admin');
-
     const [events, setEvents] = useState<Event[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -86,12 +85,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         return () => { mounted = false; };
     }, []);
 
-
-
-
     const filteredEvents = selectedDayISO
         ? events.filter(ev => formatISOToDisplay(ev.eventDate, false) === formatISOToDisplay(selectedDayISO, false))
         : events;
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const token = localStorage.getItem('authToken');
+                const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                const mapped: Event[] = data.map(e => ({
+                    id: e.id,
+                    title: e.title,
+                    eventDate: e.eventDate,
+                    eventStartTime: e.StartTime,
+                    eventEndTime: e.EndTime,
+                    location: e.room?.roomName,
+                    description: e.description,
+                    attendeesCount: e.attendeesCount ?? []
+                }));
+                setEvents(mapped);
+            } catch (e) {
+                setError(tCommon('networkError'));
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvents();
+    }, []);
 
     const openNew = () => {
         setEditingEvent(null);
@@ -207,10 +230,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
                 </div>
                 <div>
-                    <button className="header-button" onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
+                    <button
+                        className="header-button"
+                        id="extra-margins"
+                        onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
                     {userRole === 'admin' && (
-                        <RegisterButton style={{ marginLeft: '0.5rem' }} />
+                        <RegisterButton />
                     )}
+                    {userRole === 'admin' &&
+                        <TerminateNavButton />
+                    }
                 </div>
             </div>
 
@@ -223,20 +252,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{tCommon('general.clearFilter')}</button>
                     </div>
                 )}
-                <WeekCalendar
-                    events={events}
-                    selectedDayISO={selectedDayISO ?? undefined}
-                    onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
-                />
+                <div className="panel-fancy-borders panel-compact">
+                    {error && <p className="error-message">{error}</p>}
+                    {loading && <p>{tCommon('loadingEvents')}</p>}
+                    <WeekCalendar
+                        events={events}
+                        selectedDayISO={selectedDayISO ?? undefined}
+                        onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
+                    />
+                </div>
             </section>
 
             <section className="section section--spacious">
-                <EventsTable
-                    events={filteredEvents}
-                    onEdit={handleEdit}
-                    onDelete={(ev: Event) => setConfirmDeleteFor(ev)}
-                    onViewAttendees={handleViewAttendees}
-                />
+                <div className="panel-fancy-borders">
+                    <EventsTable
+                        events={filteredEvents}
+                        onEdit={handleEdit}
+                        onDelete={(ev: Event) => setConfirmDeleteFor(ev)}
+                        onViewAttendees={handleViewAttendees}
+                    />
+                </div>
             </section>
 
             {isFormOpen && (

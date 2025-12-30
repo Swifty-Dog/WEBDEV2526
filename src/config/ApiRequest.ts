@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './api.ts';
 import type { ApiErrorData } from '../utils/types.ts';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import i18n from "../utils/locales/i18n.ts";
 
 type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE';
@@ -68,16 +68,18 @@ const refreshAccessToken = async (): Promise<RefreshResponse> => {
 
 const isTokenExpired = (token: string): boolean => {
     try {
-        const decoded: any = jwtDecode(token);
+        const decoded: JwtPayload = jwtDecode(token);
+        if (!decoded || !decoded.exp) return true;
+
         const currentTime = Date.now() / 1000;
         return decoded.exp < currentTime + 10;
-    } catch (e) {
+    } catch {
         return true;
     }
 };
 
 export const getValidToken = async (): Promise<string> => {
-    let token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken');
 
     if (!token || isTokenExpired(token)) {
         if (isRefreshing) {
@@ -123,6 +125,13 @@ export const handleLogout = () => {
     sessionStorage.removeItem('refreshToken');
     localStorage.removeItem('userRole');
     window.location.href = '/login';
+};
+
+const translateError = (translator: typeof i18n) => (namespace: string) => (error: ApiErrorData) => {
+    return translator.t(error.message ?? 'error.unknown', {
+        ...error.arguments,
+        ns: namespace
+    });
 };
 
 async function apiRequest<T>(
@@ -216,10 +225,8 @@ async function apiRequest<T>(
         const errorData = data as ApiErrorData;
 
         if (errorData?.message) {
-            const structuredError = i18n.t(errorData.message, {
-                ...errorData.arguments,
-                ns: 'api'
-            });
+            const formatApiError = translateError(i18n)('api');
+            const structuredError = formatApiError(errorData);
 
             throw new Error(structuredError);
         }

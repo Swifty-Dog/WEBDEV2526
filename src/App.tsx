@@ -3,9 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { Register } from './components/Register';
+import { Register } from './components/Admin/Register.tsx';
 import { Rooms } from "./pages/Rooms";
-import { Events } from './pages/Events';
 import { Settings } from './pages/Settings';
 import { NotFound } from './pages/NotFound';
 import { Layout } from './components/Layout';
@@ -16,7 +15,10 @@ import { useFetchSettings } from './hooks/Settings/useFetchSettings';
 import './styles/global.css';
 import './styles/_layout.css';
 import './styles/_components.css';
+import { Events } from './pages/Events.tsx';
+import CalendarPage from './pages/Calendar.tsx';
 import { getUserRoleFromToken, isTokenValid } from './utils/auth.ts';
+import {TerminateEmployee} from "./components/Admin/TerminateEmployee.tsx";
 
 export function App() {
     const token = localStorage.getItem('authToken');
@@ -85,6 +87,16 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                     </ProtectedRoute>
                 } />
 
+                <Route path="/admin/terminate" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin']}
+                    >
+                        <TerminateEmployee isLoggedIn={isLoggedIn} />
+                    </ProtectedRoute>
+                } />
+
                 <Route path="/admin-dashboard" element={
                     <ProtectedRoute
                         isLoggedIn={isLoggedIn}
@@ -149,6 +161,16 @@ const AppInner: React.FC<AppInnerProps> = ({isLoggedIn, setIsLoggedIn, userRole,
                     }
                 />
                 <Route path="*" element={<Navigate to="/404" replace />} />
+
+                <Route path="/calendar" element={
+                    <ProtectedRoute
+                        isLoggedIn={isLoggedIn}
+                        userRole={userRole}
+                        allowedRoles={['admin', 'manager', 'employee']}
+                    >
+                        <CalendarPage />
+                    </ProtectedRoute>}
+                />
             </Routes>
         </Layout>
     );
