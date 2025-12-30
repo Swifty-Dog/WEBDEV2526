@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import '../styles/_components.css';
-import { API_BASE_URL } from '../config/api';
-import { useSettings } from '../config/SettingsContext';
+import '../../styles/_components.css';
+import { API_BASE_URL } from '../../config/api';
+import { useSettings } from '../../config/SettingsContext';
 import { useTranslation } from 'react-i18next';
 
 interface Employee {

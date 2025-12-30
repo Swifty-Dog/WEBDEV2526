@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
@@ -10,7 +10,7 @@ import { WeekCalendar } from '../components/WeekCalendar';
 import { ApiGet } from '../config/ApiRequest';
 import { RegisterButton } from '../components/Admin/RegisterButton.tsx';
 import {TerminateNavButton} from "../components/Admin/TerminateNavButton.tsx";
-import PromoteDemoteModal from '../components/PromoteDemote.tsx';
+import PromoteDemoteModal from '../components/Admin/PromoteDemote.tsx';
 
 export type EventItem = {
     id: string;
@@ -150,17 +150,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     {/* <p className="muted">{tAdmin('adminDashboard.subtitle')}</p> */}
                 </div>
                 <div>
-                    <button 
-                        className="header-button" 
-                        onClick={() => setIsPromoteDemoteOpen(true)}>{tAdmin('adminDashboard.promoteDemote')}</button>
+                    {userRole === 'admin' && (
+                        <button
+                            className="header-button"
+                            onClick={() => setIsPromoteDemoteOpen(true)}>
+                            {tAdmin('adminDashboard.promoteDemote')}
+                        </button>
+                    )}
                     <button
                         className="header-button"
                         id="extra-margins"
                         onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
-                    {userRole === 'admin' && (
+                    {userRole === 'admin' && 
                         <RegisterButton />
-                    )}
-                    {userRole === 'admin' &&
+                    }
+                    {userRole === 'admin' && 
                         <TerminateNavButton />
                     }
                 </div>
@@ -196,6 +200,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     />
                 </div>
             </section>
+            
 
             {isFormOpen && (
                 <EventFormModal
@@ -221,10 +226,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 />
             )}
             
-            {isPromoteDemoteOpen && (
-                <PromoteDemoteModal
-                    onClose={() => setIsPromoteDemoteOpen(false)}
-                />
+            {isPromoteDemoteOpen && userRole === 'admin' && (
+                <PromoteDemoteModal onClose={() => setIsPromoteDemoteOpen(false)} />
             )}
         </div>
     );
