@@ -121,6 +121,7 @@ public class EmployeeController : BaseController
     }
     
     [HttpPut("promote-demote/{employeeId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PromoteDemoteEmployee([FromRoute] long employeeId)
     {
         var result = await EmployeeService.PromoteDemoteEmployee(employeeId);

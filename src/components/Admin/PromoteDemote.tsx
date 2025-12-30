@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/_components.css';
 import { useFetchPromoteDemote } from '../../hooks/Admin/useFetchPromoteDemote';
 import { useUpdatePromoteDemote } from '../../hooks/Admin/useUpdatePromoteDemote';
@@ -27,7 +27,10 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
     const { t: tApi } = useTranslation('api');
 
     const { fetchPromoteDemote, loading, error, employees } = useFetchPromoteDemote();
+    const [localError, setLocalError] = useState<string | null>(null);
+    const retryIntervalRef = useRef<number | null>(null);
     const { updatePromoteDemote, loading: updateLoading, error: updateError, success } = useUpdatePromoteDemote();
+    const [localUpdateError, setLocalUpdateError] = useState<string | null>(null);
 
     const handleSearch = async (e?: React.FormEvent | React.KeyboardEvent) => {
         e?.preventDefault();
@@ -37,6 +40,39 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
         setSearched(true);
         await fetchPromoteDemote(searchQuery);
     };
+    
+    useEffect(() => {
+        if (error && searchQuery) {
+            setLocalError(error);
+            if (retryIntervalRef.current === null) {
+                retryIntervalRef.current = window.setInterval(() => {
+                    fetchPromoteDemote(searchQuery);
+                }, 1000);
+            }
+        } else {
+            if (retryIntervalRef.current !== null) {
+                clearInterval(retryIntervalRef.current);
+                retryIntervalRef.current = null;
+            }
+        }
+        return () => {
+            if (retryIntervalRef.current !== null) {
+                clearInterval(retryIntervalRef.current);
+                retryIntervalRef.current = null;
+            }
+        };
+    }, [error, searchQuery, fetchPromoteDemote, loading]);
+
+    useEffect(() => {
+        if (employees.length > 0) {
+            setLocalError(null);
+            setLocalUpdateError(null);
+        }
+    }, [employees]);
+
+    useEffect(() => {
+        setLocalUpdateError(updateError);
+    }, [updateError]);
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -90,8 +126,8 @@ export const PromoteDemoteModal: React.FC<Props> = ({ onClose }) => {
                     </div>
                 </div>
 
-                {(error || updateError) && (
-                    <div className={`promote-demote-error${settings.theme === 'Dark' ? ' dark' : ''}`}>{error || updateError}</div>
+                {(localError || localUpdateError) && (
+                    <div className={`promote-demote-error${settings.theme === 'Dark' ? ' dark' : ''}`}>{localError || localUpdateError}</div>
                 )}
                 {success && (
                     <div className="success-message">{tApi(success)}</div>
