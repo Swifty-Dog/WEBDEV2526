@@ -113,10 +113,10 @@ export const Register: React.FC = () => {
     return (
         <form onSubmit={handleSubmit} className="login">
                 <input id="firstName" name="firstName" value={firstName} onChange={e => setFirstName(e.target.value)}
-                className="login-input" placeholder={t('form.labelFirstName')} />
+                className="login-input" placeholder={t('form.labelFirstName', { labelName: 'name' })} />
 
                 <input id="lastName" name="lastName" value={lastName} onChange={e => setLastName(e.target.value)}
-                className="login-input" placeholder={t('form.labelLastName')} />
+                className="login-input" placeholder={t('form.labelLastName', { labelName: 'name' })} />
 
                 <input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
                 className="login-input" placeholder={t('form.labelEmail')} />

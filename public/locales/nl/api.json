@@ -25,9 +25,14 @@
     "API_ErrorMissingToken": "Ontbrekende of ongeldige autorisatieheader.",
     "API_ErrorInvalidToken": "Ongeldige of verlopen token.",
     "API_TerminationSuccess": "Werknemer succesvol getermineerd.",
+    "API_PromoteDemoteSuccess": "Rol van werknemer succesvol bijgewerkt.",
     "API_ErrorTerminationFailed": "Termineren van werknemer mislukt.",
     "API_ErrorCannotTerminateAdmin": "Een admin kan niet worden getermineerd.",
-    "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token."
+    "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token.",
+    "API_ErrorEmployeeNotFound": "Werknemer niet gevonden.",
+    "API_ErrorInvalidEmployeeId": "Ongeldige werknemer ID.",
+    "API_ErrorCannotChangeAdminRole": "De rol van een admin werknemer kan niet worden gewijzigd.",
+    "API_ErrorRoleUpdateFailed": "Bijwerken van werknemerrol mislukt."
   },
   "rooms": {
     "API_ErrorDuplicateName": "Kamer met de naam '{{name}}' bestaat al.",
