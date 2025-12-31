@@ -28,47 +28,34 @@ export interface DailyBookingWithRoom {
     endTime: string;
 }
 
-export interface Event {
-    id: number;
-    title: string;
-    description?: string;
-    eventDate: Date;
-    eventStartTime: Date;
-    eventEndTime: Date;
-    room?: Room;
-    attendeesCount: number;
-};
-
 export interface EventApiDto {
     id: number;
     title: string;
     description?: string;
-    eventDate: Date;
-    StartTime: Date;
-    EndTime: Date;
+    eventDate: string;
+    startTime: string;
+    endTime: string;
     room?: {
         id: number;
         roomName?: string;
-    };
-    attendees: [string];
-    attending: boolean;
+    } | null;
+    attendees?: [];
+    attending?: boolean;
 }
 
 export interface CreateEventApiDto {
     title: string;
     description?: string;
-    eventDate: Date;
-    startTime: Date;
-    endTime: Date;
+    eventDate: string;
+    startTime: string;
+    endTime: string;
     roomId: number;
 }
 
 export interface UpdateEventApiDto extends CreateEventApiDto { }
 
-
-
 export interface Room {
-    id: number | null;
+    id: number;
     roomName: string;
     capacity: number;
     location: string;

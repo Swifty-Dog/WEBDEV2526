@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
 import { ApiDelete, ApiPost } from '../config/ApiRequest';
+import type { EventApiDto } from '../utils/types';
 
-export interface EventDetailsItem {
-    id: string;
-    title: string;
-    date: string; 
-    location?: string;
-    description?: string;
-    attendees?: string[];
-    attending?: boolean;
-}
+
 
 interface EventDetailsModalProps {
-    event: EventDetailsItem;
+    event: EventApiDto;
     onClose: (finalAttending?: boolean) => void;
-    onAttendChange?: (eventId: string, attending: boolean) => void;
+    onAttendChange?: (eventId: number, attending: boolean) => void;
 }
 
 export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onClose, onAttendChange }) => {
@@ -52,9 +45,9 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onC
                     <h3>{event.title}</h3>
                 </div>
                 <div className="modal-body">
-                    <div className="detail-row"><strong>Date:</strong> <span>{new Date(event.date).toLocaleString()}</span></div>
-                    {event.location && (
-                        <div className="detail-row"><strong>Location:</strong> <span>{event.location}</span></div>
+                    <div className="detail-row"><strong>Date:</strong> <span>{new Date(event.eventDate).toLocaleString()}</span></div>
+                    {event.room?.roomName && (
+                        <div className="detail-row"><strong>Location:</strong> <span>{event.room?.roomName}</span></div>
                     )}
                     {event.description && (
                         <div className="detail-row"><strong>Description:</strong> <span>{event.description}</span></div>

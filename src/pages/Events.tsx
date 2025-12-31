@@ -5,13 +5,13 @@ import '../styles/global.css';
 import '../styles/_components.css';
 import "../styles/EventCard.css";
 import { EventCard } from "../components/EventCard";
-import type { EventApiItem } from '../utils/event';
+import type { EventApiDto } from '../utils/types';
 
 
 
 export const Events: React.FC = () => {
     const { t } = useTranslation('common');
-    const [events, setEvents] = useState<EventApiItem[]>([]);
+    const [events, setEvents] = useState<EventApiDto[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +22,7 @@ export const Events: React.FC = () => {
             try {
                 const token = localStorage.getItem('authToken');
                 // Ensure we always hit /api base
-                const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
                 setEvents(data.map(e => ({ ...e, date: e.eventDate })));
             } catch (e) {
                 setError(t('common.networkError'));
@@ -51,8 +51,10 @@ export const Events: React.FC = () => {
                         id={event.id}
                         title={event.title}
                         date={event.eventDate}
+                        startTime={event.startTime}
+                        endTime={event.endTime}
                         description={event.description || ''}
-                        location={event.location || event.roomName || ''}
+                        location={event.room?.roomName || ''}
                         attendees={event.attendees}
                         initialAttending={event.attending}
                     />

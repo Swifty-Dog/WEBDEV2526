@@ -1,69 +1,68 @@
 import React, { useEffect, useState } from 'react';
-import type { Room } from '../../utils/types';
-import type { Event } from '../../utils/types';
+import type { EventApiDto, Room } from '../../utils/types';
 import { allTimes, timeToMinutes } from '../../utils/time';
 import { useTranslation } from 'react-i18next';
 
-
-
 interface Props {
-    existing?: Event;
+    existing?: EventApiDto;
     onClose: () => void;
     rooms: Room[];
-    onSave: (payload: Omit<Event, 'attendeesCount'> & { id?: number }) => void | Promise<void>;
+    onSave: (payload: EventApiDto & { id?: number }) => void | Promise<void>;
 }
-
 
 export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, rooms }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
 
-    // STATE
     const [title, setTitle] = useState('');
     const [eventDate, setEventDate] = useState('');
     const [eventStartTime, setEventStartTime] = useState('');
     const [eventEndTime, setEventEndTime] = useState('');
-    const [room, setRoom] = useState<Room | undefined>(undefined);
+    const [room, setRoom] = useState('');
     const [description, setDescription] = useState('');
 
     useEffect(() => {
         if (existing) {
             setTitle(existing.title ?? '');
-            setEventDate(existing.eventDate?.toDateString().slice(0, 10));
-            setEventStartTime(existing.eventStartTime.toTimeString().slice(0, 5));
-            setEventEndTime(existing.eventEndTime.toTimeString().slice(0, 5));
-            setRoom(existing.room);
+            // eventDate is ISO (YYYY-MM-DD or full ISO) — take date portion
+            setEventDate(existing.eventDate ? existing.eventDate.slice(0, 10) : '');
+            // startTime/endTime might be ISO or 'HH:MM' — derive time portion
+            setEventStartTime(existing.startTime ? (existing.startTime.includes('T') ? existing.startTime.slice(existing.startTime.indexOf('T') + 1, existing.startTime.indexOf('T') + 6) : existing.startTime.slice(0, 5)) : '');
+            setEventEndTime(existing.endTime ? (existing.endTime.includes('T') ? existing.endTime.slice(existing.endTime.indexOf('T') + 1, existing.endTime.indexOf('T') + 6) : existing.endTime.slice(0, 5)) : '');
+            setRoom(existing.room?.id?.toString() ?? '');
             setDescription(existing.description ?? '');
         } else {
             setTitle('');
             setEventDate('');
             setEventStartTime('');
             setEventEndTime('');
-            setRoom(undefined);
+            setRoom('');
             setDescription('');
         }
     }, [existing]);
 
     const submit = async (e?: React.FormEvent) => {
         e?.preventDefault();
+        const startIso = eventStartTime.includes('T') ? eventStartTime : `${eventDate}T${eventStartTime}${eventStartTime.length === 5 ? ':00' : ''}`;
+        const endIso = eventEndTime.includes('T') ? eventEndTime : `${eventDate}T${eventEndTime}${eventEndTime.length === 5 ? ':00' : ''}`;
+
+        const selectedRoom = rooms.find(r => r.id === Number(room));
+
+        const basePayload: EventApiDto = {
+            id: existing?.id ?? 0,
+            title: title.trim(),
+            eventDate: eventDate,
+            startTime: startIso,
+            endTime: endIso,
+            description: description.trim(),
+            room: selectedRoom ? { id: selectedRoom.id, roomName: selectedRoom.roomName } : undefined,
+            attendees: existing?.attendees ?? [],
+            attending: existing?.attending ?? false
+        };
+
         const payload = existing?.id !== undefined
-            ? ({
-                id: existing.id,
-                title: title.trim(),
-                eventDate: new Date(eventDate),
-                eventStartTime: new Date(eventStartTime),
-                eventEndTime: new Date(eventEndTime),
-                description: description.trim(),
-                room: room,
-            } as Omit<Event, 'attendeesCount'> & { id?: number })
-            : ({
-                title: title.trim(),
-                eventDate: new Date(eventDate),
-                eventStartTime: new Date(eventStartTime),
-                eventEndTime: new Date(eventEndTime),
-                description: description.trim(),
-                room: room,
-            } as Omit<Event, 'attendeesCount'> & { id?: number });
+            ? { ...basePayload, id: existing.id } as EventApiDto & { id?: number }
+            : { ...basePayload, id: 0 } as EventApiDto & { id?: number };
 
         await onSave(payload);
     };
@@ -71,7 +70,6 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
     return (
         <div className="modal-overlay">
             <div className="modal">
-
                 <h3 style={{ marginTop: 0 }}>
                     {existing ? tEvents('eventForm.titleEdit') : tEvents('eventForm.titleNew')}
                 </h3>
@@ -94,12 +92,9 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                         />
                     </div>
 
-
                     <div className="form-row">
                         <label>{tEvents('eventForm.labelStartTime')}</label>
-
                         <select
-
                             value={eventStartTime}
                             onChange={e => setEventStartTime(e.target.value)}
                             required
@@ -107,14 +102,12 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                             <option value="" disabled>
                                 -- Choose StartTime --
                             </option>
-
                             {allTimes.map(time => (
                                 <option key={time} value={time}>
                                     {time}
                                 </option>
                             ))}
                         </select>
-
                     </div>
 
                     <div className="form-row">
@@ -138,17 +131,17 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                                     </option>
                                 ))
                             }
-
                         </select>
                     </div>
 
                     <div className="form-row">
                         <label>{tEvents('eventForm.labelRoom')}</label>
                         <select
-                            value={room?.id ?? ''}
+                            value={room ?? ''}
                             onChange={e => {
                                 const selectedRoom = rooms.find(r => r.id === Number(e.target.value));
-                                setRoom(selectedRoom);
+                                if (selectedRoom)
+                                    setRoom(selectedRoom.id.toString());
                             }}
                             required
                         >
@@ -162,7 +155,6 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                             ))}
                         </select>
                     </div>
-
 
                     <div className="form-row">
                         <label>{tEvents('eventForm.labelDescription')}</label>
@@ -187,7 +179,6 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     );

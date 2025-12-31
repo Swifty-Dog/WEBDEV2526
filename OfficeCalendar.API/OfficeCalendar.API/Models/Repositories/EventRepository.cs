@@ -12,14 +12,26 @@ public class EventRepository : Repository<EventModel>, IEventRepository
     {
     }
 
-    public Task<List<EventModel>> GetAllEvents()
+    // Voor 1 event
+    public async Task<EventModel?> GetByIdWithIncludes(long id)
     {
-        return DbSet
-            .Include(e => e.CreatedBy)
+        return await DbSet
             .Include(e => e.Room)
             .Include(e => e.EventParticipations)
+                .ThenInclude(ep => ep.Employee)
+            .FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    // Voor alle events
+    public async Task<List<EventModel>> GetAllEvents()
+    {
+        return await DbSet
+            .Include(e => e.Room)
+            .Include(e => e.EventParticipations)
+                .ThenInclude(ep => ep.Employee)
             .ToListAsync();
     }
+
 
     public async Task<List<EventModel>> GetEventsByRoomAndDate(long roomId, DateTime eventDate)
     {
@@ -29,14 +41,6 @@ public class EventRepository : Repository<EventModel>, IEventRepository
                 e.RoomId == roomId &&
                 e.EventDate == eventDate.Date)
             .ToListAsync();
-    }
-
-    public async Task<EventModel?> GetByIdWithIncludes(long id)
-    {
-        return await DbSet
-            .Include(e => e.Room)
-            .Include(e => e.EventParticipations)
-            .FirstOrDefaultAsync(e => e.Id == id);
     }
 
 

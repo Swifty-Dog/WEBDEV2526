@@ -10,8 +10,7 @@ import { RegisterButton } from '../components/Admin/RegisterButton';
 import { CreateNewEvent } from '../components/Event/EventFormModal';
 import { ApiGet } from '../config/ApiRequest';
 import { ApiDelete } from '../config/ApiRequest';
-import { formatISOToDisplay } from '../utils/date';
-import type { Room, Event, EventApiDto } from '../utils/types';
+import type { Room, EventApiDto } from '../utils/types';
 import { TerminateNavButton } from "../components/Admin/TerminateNavButton.tsx";
 import { useSaveEvents } from '../hooks/useSaveEvents.ts';
 
@@ -20,35 +19,38 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
+    const token = localStorage.getItem('authToken');
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
     const { t: tAdmin } = useTranslation('admin');
-    const [events, setEvents] = useState<Event[]>([]);
+    const [events, setEvents] = useState<EventApiDto[]>([]);
     const [rooms, setRooms] = useState<Room[]>([]);
-    const { saveEvent } = useSaveEvents(rooms);
-    const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+    const { saveEvent } = useSaveEvents();
+    const [editingEvent, setEditingEvent] = useState<EventApiDto | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [attendeesFor, setAttendeesFor] = useState<Event | null>(null);
-    const [confirmDeleteFor, setConfirmDeleteFor] = useState<Event | null>(null);
-    const [selectedDayISO, setSelectedDayISO] = useState<Date | null>(null);
+    const [attendeesFor, setAttendeesFor] = useState<EventApiDto | null>(null);
+    const [confirmDeleteFor, setConfirmDeleteFor] = useState<EventApiDto | null>(null);
+    const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     // helper: zet backend model om naar EventItem
-    const mapEventApiToEvent = (dto: EventApiDto, rooms: Room[]): Event => {
+    const mapEventApiToEvent = (dto: EventApiDto, rooms: Room[]): EventApiDto => {
         // Vind het room object in frontend lijst op basis van id
-        const room = dto.room?.id ? rooms.find(r => r.id === dto.room?.id) : undefined;
-        console.log(dto.EndTime, dto.StartTime);
+        const roomId = dto.room?.id ?? 0;
+        const room = rooms.find(r => r.id === roomId);
+        console.log(room?.roomName);
 
         return {
             id: dto.id,
             title: dto.title,
             description: dto.description,
             eventDate: dto.eventDate,
-            eventStartTime: dto.StartTime,
-            eventEndTime: dto.EndTime,
-            room,
-            attendeesCount: dto.attendees?.length ?? 0
+            startTime: dto.startTime,
+            endTime: dto.endTime,
+            room: { id: roomId, roomName: room?.roomName },
+            attendees: dto.attendees,
+            attending: dto.attending
         };
     };
 
@@ -68,7 +70,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 setRooms(roomsData);
 
                 // Laad events
-                const token = localStorage.getItem('authToken');
                 const eventsData = await ApiGet<EventApiDto[]>('/Event', token ? { Authorization: `Bearer ${token}` } : undefined);
                 if (!mounted) return;
 
@@ -88,42 +89,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     }, []);
 
     const filteredEvents = selectedDayISO
-        ? events.filter(ev => formatISOToDisplay(ev.eventDate, false) === formatISOToDisplay(selectedDayISO, false))
+        ? events.filter(ev => ev.eventDate === selectedDayISO)
         : events;
-
-    // useEffect(() => {
-    //     const fetchEvents = async () => {
-    //         setLoading(true);
-    //         setError(null);
-    //         try {
-    //             const token = localStorage.getItem('authToken');
-    //             const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
-    //             const mapped: Event[] = data.map(e => ({
-    //                 id: e.id,
-    //                 title: e.title,
-    //                 eventDate: e.eventDate,
-    //                 eventStartTime: e.StartTime,
-    //                 eventEndTime: e.EndTime,
-    //                 location: e.room?.roomName,
-    //                 description: e.description,
-    //                 attendeesCount: e.attendees?.length ?? 0
-    //             }));
-    //             setEvents(mapped);
-    //         } catch (e) {
-    //             setError(tCommon('networkError'));
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     fetchEvents();
-    // }, []);
 
     const openNew = () => {
         setEditingEvent(null);
         setIsFormOpen(true);
     };
 
-    const handleSave = async (event: Omit<Event, 'attendeesCount'>) => {
+    const handleSave = async (event: EventApiDto) => {
         try {
             const saved = await saveEvent(event);
 
@@ -137,20 +111,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
         }
     };
 
-    const handleEdit = (ev: Event) => {
+    const handleEdit = (ev: EventApiDto) => {
         setEditingEvent(ev);
         setIsFormOpen(true);
     };
 
-    const handleDelete = async (ev: Event) => {
+    const handleDelete = async (ev: EventApiDto) => {
         // optimistic UI
         setEvents(prev => prev.filter(e => e.id !== ev.id));
         setConfirmDeleteFor(null);
         // TODO: call backend DELETE endpoint, e.g. await fetch(`/api/events/${ev.id}`, { method: 'DELETE' })
-        await ApiDelete<void>(`/Event/${ev.id}`);
+        await ApiDelete<void>(`/Event/${ev.id}`, token ? { Authorization: `Bearer ${token}` } : undefined);
     };
 
-    const handleViewAttendees = (ev: Event) => {
+    const handleViewAttendees = (ev: EventApiDto) => {
         setAttendeesFor(ev);
     };
 
@@ -184,7 +158,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 {selectedDayISO && (
                     <div className="filter-row">
                         <span className="muted">{tCommon('calendar.filteredDayLabel')}</span>
-                        <span className="filter-pill">{formatISOToDisplay(selectedDayISO, false)}</span>
+                        <span className="filter-pill">{selectedDayISO}</span>
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{tCommon('general.clearFilter')}</button>
                     </div>
                 )}
@@ -204,7 +178,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     <EventsTable
                         events={filteredEvents}
                         onEdit={handleEdit}
-                        onDelete={(ev: Event) => setConfirmDeleteFor(ev)}
+                        onDelete={(ev: EventApiDto) => setConfirmDeleteFor(ev)}
                         onViewAttendees={handleViewAttendees}
                     />
                 </div>

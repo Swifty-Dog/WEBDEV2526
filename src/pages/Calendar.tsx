@@ -3,27 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Calendar as CalendarComponent } from '../components/Calendar';
 import { ApiGet } from '../config/ApiRequest';
 import { EventDetailsModal } from '../components/EventDetailsModal';
+import type { EventApiDto } from '../utils/types';
+import { EventCard } from '../components/EventCard';
 
-type CalendarEvent = {
-    id: string;
-    title: string;
-    date: string;
-    location?: string;
-    description?: string;
-    attendees?: string[];
-    attending?: boolean;
-};
-
-type EventApiItem = {
-    id: number;
-    title: string;
-    description?: string;
-    eventDate: string;
-    roomName?: string;
-    location?: string;
-    attendees?: string[];
-    attending?: boolean;
-};
 
 const toDayKeyISO = (d: Date) => {
     const y = d.getFullYear();
@@ -42,26 +24,26 @@ const formatDisplayDate = (key: string) => {
     }).format(date);
 };
 
-const mapApiEvent = (e: EventApiItem): CalendarEvent | null => {
-    const iso = e.eventDate;
-    const attending = e.attending === true;
-    if (!iso || !attending) return null; // only show attending events with a date
+const mapApiEvent = (e: EventApiDto): EventApiDto | null => {
+    if (!e.eventDate || !e.attending) return null; // alleen attending = true
     return {
-        id: String(e.id),
+        id: e.id,
         title: e.title,
-        date: iso,
-        location: e.location ?? e.roomName,
+        eventDate: e.eventDate,
+        startTime: e.startTime,
+        endTime: e.endTime,
+        room: e.room,
         description: e.description,
         attendees: e.attendees ?? [],
-        attending
+        attending: true
     };
 };
 
-const groupEventsByDate = (events: CalendarEvent[]) => {
+const groupEventsByDate = (events: EventApiDto[]) => {
     const titles: Record<string, string[]> = {};
-    const full: Record<string, CalendarEvent[]> = {};
+    const full: Record<string, EventApiDto[]> = {};
     for (const ev of events) {
-        const key = toDayKeyISO(new Date(ev.date));
+        const key = toDayKeyISO(new Date(ev.eventDate));
         (titles[key] ||= []).push(ev.title);
         (full[key] ||= []).push(ev);
     }
@@ -73,10 +55,10 @@ export const Calendar: React.FC = () => {
     const [eventsHeader, setEventsHeader] = useState(t('dashboard.headerInitial'));
     const [hasSelected, setHasSelected] = useState(false);
     const [selectedEvents, setSelectedEvents] = useState<{ title: string; details: string }[]>([]);
-    const [selectedFullEvents, setSelectedFullEvents] = useState<CalendarEvent[]>([]);
-    const [detailsFor, setDetailsFor] = useState<CalendarEvent | null>(null);
+    const [selectedFullEvents, setSelectedFullEvents] = useState<EventApiDto[]>([]);
+    const [detailsFor, setDetailsFor] = useState<EventApiDto | null>(null);
     const [eventsByDate, setEventsByDate] = useState<Record<string, string[]>>({});
-    const [eventsByDateFull, setEventsByDateFull] = useState<Record<string, CalendarEvent[]>>({});
+    const [eventsByDateFull, setEventsByDateFull] = useState<Record<string, EventApiDto[]>>({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -86,13 +68,15 @@ export const Calendar: React.FC = () => {
             setError(null);
             try {
                 const token = localStorage.getItem('authToken');
-                const data = await ApiGet<EventApiItem[]>(
+
+                const data = await ApiGet<EventApiDto[]>(
                     '/Event',
                     token ? { Authorization: `Bearer ${token}` } : undefined
                 );
                 const mapped = data
                     .map(mapApiEvent)
-                    .filter((e): e is CalendarEvent => e !== null);
+                    .filter((e): e is EventApiDto => e !== null && e.attending === true); // alleen attending
+                console.log('Mapped events for calendar:', mapped);
                 const { titles, full } = groupEventsByDate(mapped);
                 setEventsByDate(titles);
                 setEventsByDateFull(full);
@@ -103,7 +87,7 @@ export const Calendar: React.FC = () => {
             }
         };
         fetchEvents();
-    }, []);
+    }, [t]);
 
     const onDaySelect = useCallback((dateString: string, dayEvents?: string[]) => {
         const displayDate = formatDisplayDate(dateString);
@@ -135,18 +119,41 @@ export const Calendar: React.FC = () => {
             <div className="events-section panel-fancy-borders calendar-events">
                 <h2>{eventsHeader}</h2>
                 <div className="events-list">
-                    {selectedEvents.length > 0 ? (
-                        selectedFullEvents.map((event, index) => (
-                            <div className="event-item" key={event.id ?? index}>
-                                <div className="event-details">
-                                    <h4>
-                                        <button className="link-button" onClick={() => setDetailsFor(event)} title={t('general.buttonViewDetails')}>
-                                            {event.title}
-                                        </button>
-                                    </h4>
-                                    <p className="muted">{t('dashboard.detailsClick')}</p>
-                                </div>
-                            </div>
+                    {selectedFullEvents.length > 0 ? (
+                        selectedFullEvents.map(event => (
+                            <EventCard
+                                key={event.id}
+                                id={event.id}
+                                title={event.title}
+                                date={event.eventDate}
+                                startTime={event.startTime}
+                                endTime={event.endTime}
+                                location={event.room?.roomName || ''}
+                                description={event.description || ''}
+                                attendees={event.attendees}
+                                initialAttending={event.attending}
+                                onAttendChange={(id, attending) => {
+                                    // update Calendar state
+                                    setSelectedFullEvents(prev =>
+                                        prev.map(ev => ev.id === id ? { ...ev, attending } : ev).filter(ev => ev.attending)
+                                    );
+                                    setEventsByDateFull(prev => {
+                                        const nextFull: Record<string, EventApiDto[]> = {};
+                                        for (const key of Object.keys(prev)) {
+                                            const filtered = prev[key].map(ev => ev.id === id ? { ...ev, attending } : ev)
+                                                .filter(ev => ev.attending);
+                                            if (filtered.length > 0) nextFull[key] = filtered;
+                                        }
+                                        // update titles
+                                        const nextTitles: Record<string, string[]> = {};
+                                        for (const key of Object.keys(nextFull)) {
+                                            nextTitles[key] = nextFull[key].map(ev => ev.title);
+                                        }
+                                        setEventsByDate(nextTitles);
+                                        return nextFull;
+                                    });
+                                }}
+                            />
                         ))
                     ) : (
                         <div className="event-item no-events">
@@ -154,6 +161,7 @@ export const Calendar: React.FC = () => {
                         </div>
                     )}
                 </div>
+
             </div>
 
             {detailsFor && (
@@ -165,7 +173,7 @@ export const Calendar: React.FC = () => {
                             setSelectedFullEvents(prev => prev.filter(ev => ev.id !== eventId));
                             setSelectedEvents(prev => prev.filter(ev => (ev as any).id !== eventId));
                             setEventsByDateFull(prev => {
-                                const nextFull: Record<string, CalendarEvent[]> = {};
+                                const nextFull: Record<string, EventApiDto[]> = {};
                                 for (const key of Object.keys(prev)) {
                                     const filtered = prev[key].filter(ev => ev.id !== eventId);
                                     if (filtered.length > 0) nextFull[key] = filtered;
@@ -181,9 +189,13 @@ export const Calendar: React.FC = () => {
                         setDetailsFor(null);
                     }}
                     onAttendChange={(eventId, nowAttending) => {
-                        setSelectedFullEvents(prev => prev.map(ev => ev.id === eventId ? { ...ev, attending: nowAttending } : ev));
-                        if (detailsFor && detailsFor.id === eventId) {
-                            setDetailsFor({ ...detailsFor, attending: nowAttending });
+                        setSelectedFullEvents(prev => prev
+                            .map(ev => ev.id === eventId ? { ...ev, attending: nowAttending } : ev)
+                            .filter(ev => ev.attending) // verwijder events die niet meer attending zijn
+                        );
+
+                        if (detailsFor && detailsFor.id === eventId && !nowAttending) {
+                            setDetailsFor(null); // sluit modal als event niet meer attending is
                         }
                     }}
                 />

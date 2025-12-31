@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiGet } from '../config/ApiRequest';
-import type { EventApiItem, UseEventsResult} from '../utils/event';
+import type { EventApiDto } from '../utils/types';
+import { formatEventDateTime } from '../utils/time';
+import type { UseEventsResult } from '../utils/event';
 import { useTranslation } from 'react-i18next';
 
 
@@ -23,14 +25,17 @@ export function useEvents(): UseEventsResult {
             setError(null);
             try {
                 const token = localStorage.getItem('authToken');
-                const data = await ApiGet<EventApiItem[]>(
+                const data = await ApiGet<EventApiDto[]>(
                     '/Event',
                     token ? { Authorization: `Bearer ${token}` } : undefined
                 );
                 const grouped: Record<string, string[]> = {};
                 data.forEach(e => {
-                    const iso = e.eventDate;
-                    const dateKey = toDayKeyISO(new Date(iso));
+                    const eDate = e.eventDate;
+                    const eStartTime = e.startTime;
+                    const eEndTime = e.endTime;
+                    formatEventDateTime(eDate, eStartTime, eEndTime); // just to ensure correct format
+                    const dateKey = toDayKeyISO(new Date(eDate));
                     if (!grouped[dateKey]) grouped[dateKey] = [];
                     grouped[dateKey].push(e.title);
                 });

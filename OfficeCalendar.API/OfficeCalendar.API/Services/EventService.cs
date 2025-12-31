@@ -1,16 +1,11 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using OfficeCalendar.API.DTOs.Events.Response;
 using OfficeCalendar.API.DTOs.Events.Request;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Events;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using OfficeCalendar.API.Models;
-using SQLitePCL;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace OfficeCalendar.API.Services;
 
@@ -23,6 +18,7 @@ public class EventService : IEventService
         _eventRepo = eventRepo;
     }
 
+    // ------------------ Private Helpers ------------------
     private async Task<bool> HasRoomConflict(
         long roomId,
         DateTime eventDate,
@@ -47,39 +43,41 @@ public class EventService : IEventService
         });
     }
 
-    private EventResponseDto MapEventToDto(EventModel eventModel)
+    private EventResponseDto MapEventToDto(EventModel eventModel, long? currentUserId)
     {
-        // Combineer eventDate + StartTime/EndTime voor ISO strings
-        var startIso = eventModel.EventDate.Date + eventModel.StartTime.TimeOfDay;
-        var endIso = eventModel.EventDate.Date + eventModel.EndTime.TimeOfDay;
-
         return new EventResponseDto
         {
             Id = eventModel.Id,
             Title = eventModel.Title,
             Description = eventModel.Description,
-            EventDate = DateOnly.FromDateTime(eventModel.EventDate), // frontend ziet alleen datum
-            StartTime = TimeOnly.FromDateTime(eventModel.StartTime), // frontend ziet alleen tijd
-            EndTime = TimeOnly.FromDateTime(eventModel.EndTime),
+            EventDate = DateOnly.FromDateTime(eventModel.EventDate),
+            StartTime = eventModel.StartTime,
+            EndTime = eventModel.EndTime,
             Room = eventModel.Room == null ? null : new RoomDto
             {
                 Id = eventModel.Room.Id,
                 RoomName = eventModel.Room.RoomName,
                 Location = eventModel.Room.Location
             },
-            Attendees = eventModel.EventParticipations?.Select(p => p.Employee.FullName).ToList() ?? new List<string>(),
-
+            // Namen van deelnemers
+            Attendees = eventModel.EventParticipations?
+                .Select(ep => ep.Employee.FullName)
+                .ToList() ?? new List<string>(),
+            // Check of de huidige gebruiker aanwezig is
+            Attending = currentUserId.HasValue &&
+                        eventModel.EventParticipations?.Any(ep => ep.EmployeeId == currentUserId.Value) == true
         };
     }
+
+
+    // ------------------ Public Methods ------------------
     public async Task<CreateEventResult> CreateEvent(long currentUserId, CreateEventDto dto)
     {
         try
         {
-            // Parse de ISO strings als lokale tijd
             var startIso = dto.StartTime.ToLocalTime();
             var endIso = dto.EndTime.ToLocalTime();
 
-            // Split datum en tijd
             var eventDate = startIso.Date;
             var startTime = new DateTime(1, 1, 1, startIso.Hour, startIso.Minute, 0);
             var endTime = new DateTime(1, 1, 1, endIso.Hour, endIso.Minute, 0);
@@ -94,7 +92,6 @@ public class EventService : IEventService
             if (startTime.TimeOfDay < TimeSpan.FromHours(8) || endTime.TimeOfDay > TimeSpan.FromHours(18))
                 return new CreateEventResult.Error("Event must be within office hours (08:00–18:00)");
 
-            // Check op room conflicts
             if (await HasRoomConflict(dto.RoomId, eventDate, startTime, endTime))
                 return new CreateEventResult.Error("Room is already booked for this time slot");
 
@@ -114,8 +111,9 @@ public class EventService : IEventService
                 return new CreateEventResult.Error("Could not create event");
 
             var fullEvent = await _eventRepo.GetByIdWithIncludes(newEvent.Id);
-            return new CreateEventResult.Success(fullEvent);
+            var dtoResult = MapEventToDto(fullEvent, currentUserId);
 
+            return new CreateEventResult.Success(dtoResult);
         }
         catch (Exception ex)
         {
@@ -123,17 +121,15 @@ public class EventService : IEventService
         }
     }
 
-
-
-    public async Task<GetEventResult> GetEventById(long eventId)
+    public async Task<GetEventResult> GetEventById(long eventId, long? currentUserId = null)
     {
         try
         {
-            var eventModel = await _eventRepo.GetById(eventId);
-            if (eventModel is null)
-                return new GetEventResult.Error("Event is not found");
+            var eventModel = await _eventRepo.GetByIdWithIncludes(eventId);
+            if (eventModel == null)
+                return new GetEventResult.Error("Event not found");
 
-            var dto = MapEventToDto(eventModel);
+            var dto = MapEventToDto(eventModel, currentUserId);
             return new GetEventResult.Success(dto);
         }
         catch (Exception ex)
@@ -142,13 +138,13 @@ public class EventService : IEventService
         }
     }
 
-    public async Task<GetEventsResult> GetAllEvents()
+    public async Task<GetEventsResult> GetAllEvents(long? currentUserId = null)
     {
         try
         {
             var eventModels = await _eventRepo.GetAllEvents();
-            var eventDtos = eventModels.Select(MapEventToDto).ToList();
-            return new GetEventsResult.Success(eventDtos);
+            var dtos = eventModels.Select(e => MapEventToDto(e, currentUserId)).ToList();
+            return new GetEventsResult.Success(dtos);
         }
         catch (Exception ex)
         {
@@ -156,13 +152,12 @@ public class EventService : IEventService
         }
     }
 
-
-    public async Task<UpdateEventResult> UpdateEvent(long eventId, UpdateEventDto dto)
+    public async Task<UpdateEventResult> UpdateEvent(long eventId, UpdateEventDto dto, long? currentUserId = null)
     {
         try
         {
             var eventModel = await _eventRepo.GetById(eventId);
-            if (eventModel is null)
+            if (eventModel == null)
                 return new UpdateEventResult.NotFound("Event not found");
 
             var startIso = dto.StartTime.ToLocalTime();
@@ -196,8 +191,9 @@ public class EventService : IEventService
                 return new UpdateEventResult.Error("Cannot update event");
 
             var fullEvent = await _eventRepo.GetByIdWithIncludes(eventId);
-            return new UpdateEventResult.Success(fullEvent);
+            var dtoResult = MapEventToDto(fullEvent, currentUserId);
 
+            return new UpdateEventResult.Success(dtoResult);
         }
         catch (Exception ex)
         {
@@ -205,22 +201,17 @@ public class EventService : IEventService
         }
     }
 
-
-
     public async Task<DeleteEventResult> DeleteEvent(long eventId)
     {
         try
         {
             var eventModel = await _eventRepo.GetById(eventId);
-            if (eventModel is null)
-            {
+            if (eventModel == null)
                 return new DeleteEventResult.NotFound("Event not found");
-            }
 
             var deleted = await _eventRepo.Delete(eventModel);
             if (!deleted)
                 return new DeleteEventResult.Error("Cannot delete event");
-
 
             return new DeleteEventResult.Success();
         }

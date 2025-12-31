@@ -1,13 +1,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Event } from '../utils/types';
+import type { EventApiDto } from '../utils/types';
 import { formatEventDateTime } from '../utils/time';
 
 interface Props {
-    events: Event[];
-    onEdit: (ev: Event) => void;
-    onDelete: (ev: Event) => void;
-    onViewAttendees: (ev: Event) => void;
+    events: EventApiDto[];
+    onEdit: (ev: EventApiDto) => void;
+    onDelete: (ev: EventApiDto) => void;
+    onViewAttendees: (ev: EventApiDto) => void;
     showEdit?: boolean;
     showDelete?: boolean;
     deleteLabel?: string;
@@ -43,9 +43,9 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                                 <div style={{ fontWeight: 600 }}>{ev.title}</div>
                                 <div style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>{ev.description}</div>
                             </td>
-                            <td>{formatEventDateTime(ev.eventDate, ev.eventStartTime, ev.eventEndTime)}</td>
+                            <td>{formatEventDateTime(ev.eventDate, ev.startTime, ev.endTime)}</td>
                             <td>{ev.room?.roomName ?? '-'}</td>
-                            <td>{(ev.attendeesCount ?? [])}</td>
+                            <td>{(ev.attendees?.length ?? 0)}</td>
                             <td>
                                 <div className="table-actions">
                                     {showEdit && (

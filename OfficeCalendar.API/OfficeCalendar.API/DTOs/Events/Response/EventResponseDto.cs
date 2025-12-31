@@ -8,10 +8,10 @@ public class EventResponseDto
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public DateOnly EventDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
-    public TimeOnly StartTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
-    public TimeOnly EndTime { get; set; } = TimeOnly.FromDateTime(DateTime.Now);
+    public DateTime StartTime { get; set; } = DateTime.Now;
+    public DateTime EndTime { get; set; } = DateTime.Now;
     public RoomDto? Room { get; set; }
-    public List<string> Attendees { get; set; } = new();
+    public List<string> Attendees { get; set; } = new List<string>();
     public bool Attending { get; set; }
 
 }

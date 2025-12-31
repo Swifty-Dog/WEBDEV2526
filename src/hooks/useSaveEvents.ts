@@ -4,15 +4,17 @@ import type {
     EventApiDto,
     CreateEventApiDto,
     UpdateEventApiDto,
-    Event,
-    Room
 } from '../utils/types';
 
-type SaveEventPayload = Omit<Event, 'attendeesCount'>;
+export function useSaveEvents() {
+    const normalizeToIso = (dateStr: string, timeOrIso: string): string => {
+        if (!timeOrIso) return `${dateStr}T00:00:00`;
+        if (timeOrIso.includes('T')) return timeOrIso;
+        // time like "HH:MM"
+        return `${dateStr}T${timeOrIso}${timeOrIso.length === 5 ? ':00' : ''}`;
+    };
 
-
-export function useSaveEvents(rooms: Room[]) {
-    const saveEvent = async (event: SaveEventPayload): Promise<Event> => {
+    const saveEvent = async (event: EventApiDto): Promise<EventApiDto> => {
         if (!event.room?.id) {
             throw new Error('Selecteer een room');
         }
@@ -21,8 +23,8 @@ export function useSaveEvents(rooms: Room[]) {
             throw new Error('Niet geautoriseerd');
         }
 
-        const startIso = new Date(`${event.eventDate}T${event.eventStartTime}:00`);
-        const endIso = new Date(`${event.eventDate}T${event.eventEndTime}:00`);
+        const startIso = normalizeToIso(event.eventDate, event.startTime);
+        const endIso = normalizeToIso(event.eventDate, event.endTime);
 
         if (event.id) {
             return update(event, startIso, endIso, token);
@@ -32,11 +34,11 @@ export function useSaveEvents(rooms: Room[]) {
     };
 
     const update = async (
-        event: SaveEventPayload,
-        startIso: Date,
-        endIso: Date,
+        event: EventApiDto,
+        startIso: string,
+        endIso: string,
         token: string | null
-    ): Promise<Event> => {
+    ): Promise<EventApiDto> => {
         const dto: UpdateEventApiDto = {
             title: event.title,
             description: event.description,
@@ -48,16 +50,15 @@ export function useSaveEvents(rooms: Room[]) {
 
         const updated = await ApiPut<EventApiDto>(`/Event/${event.id}`, dto,
             token ? { Authorization: `Bearer ${token}` } : undefined);
-        return mapApiToEvent(updated, event.room!);
+        return mapApiToEvent(updated);
     };
 
     const create = async (
-        event: SaveEventPayload,
-        startIso: Date,
-        endIso: Date,
+        event: EventApiDto,
+        startIso: string,
+        endIso: string,
         token: string | null
-
-    ): Promise<Event> => {
+    ): Promise<EventApiDto> => {
         const dto: CreateEventApiDto = {
             title: event.title,
             description: event.description,
@@ -69,21 +70,21 @@ export function useSaveEvents(rooms: Room[]) {
 
         const created = await ApiPost<EventApiDto>('/Event', dto,
             token ? { Authorization: `Bearer ${token}` } : undefined);
-        return mapApiToEvent(created, event.room!);
+        return mapApiToEvent(created);
     };
 
     const mapApiToEvent = (
         dto: EventApiDto,
-        fallbackRoom: Room
-    ): Event => ({
+    ): EventApiDto => ({
         id: dto.id,
         title: dto.title,
         description: dto.description,
         eventDate: dto.eventDate,
-        eventStartTime: dto.StartTime,
-        eventEndTime: dto.EndTime,
-        room: rooms.find(r => r.id === dto.room?.id) ?? fallbackRoom,
-        attendeesCount: dto.attendees?.length ?? 0
+        startTime: dto.startTime,
+        endTime: dto.endTime,
+        room: dto.room ? { id: dto.room.id, roomName: dto.room.roomName || '' } : undefined,
+        attendees: dto.attendees,
+        attending: dto.attending
     });
 
     return { saveEvent };
