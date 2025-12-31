@@ -5,6 +5,7 @@ import { EventsTable } from '../components/EventsTable';
 import { AttendeesModal } from '../components/AttendeesModal';
 import type { EventApiDto } from '../utils/types';
 import { useTranslation } from 'react-i18next';
+import {getUserRoleFromToken} from "../utils/auth.ts";
 
 export const Dashboard: React.FC = () => {
     const { t } = useTranslation('common');
@@ -13,6 +14,7 @@ export const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [attendeesFor, setAttendeesFor] = useState<EventApiDto | null>(null);
+    const token = localStorage.getItem('authToken');
 
     const toDayKeyISO = (d: Date) => {
         const y = d.getFullYear();
@@ -26,7 +28,6 @@ export const Dashboard: React.FC = () => {
             setLoading(true);
             setError(null);
             try {
-                const token = localStorage.getItem('authToken');
                 const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
                 setEvents(data);
             } catch (e) {
@@ -49,7 +50,7 @@ export const Dashboard: React.FC = () => {
 
     const unattend = async (ev: EventApiDto) => {
         try {
-            const token = localStorage.getItem('authToken');
+
             await ApiDelete(`/Event/${ev.id}/attend`, token ? { Authorization: `Bearer ${token}` } : undefined);
             setEvents(prev => prev.filter(e => e.id !== ev.id));
         } catch (e) {
@@ -87,6 +88,7 @@ export const Dashboard: React.FC = () => {
                         onDelete={(ev) => unattend(ev)}
                         onViewAttendees={(ev) => setAttendeesFor(ev)}
                         showEdit={false}
+                        showDelete={getUserRoleFromToken(token) !== "employee"}
                         deleteLabel={t('general.buttonUnattend')}
                     />
                 </div>

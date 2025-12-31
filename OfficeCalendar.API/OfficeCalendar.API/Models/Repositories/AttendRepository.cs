@@ -39,4 +39,13 @@ public class AttendRepository : IAttendRepository
         var written = await _context.SaveChangesAsync();
         return written > 0;
     }
+
+    public async Task<List<string>> GetAttendeeNames(long eventId)
+    {
+        return await _context.EventParticipations
+            .Where(ep => ep.EventId == eventId)
+            .Include(ep => ep.Employee)
+            .Select(ep => ep.Employee.FullName)
+            .ToListAsync();
+    }
 }

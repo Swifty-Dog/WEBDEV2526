@@ -3,7 +3,7 @@ import i18n from '../../utils/locales/i18n';
 import { translateFetchError} from "../../utils/locales/translateFetchError";
 import type { DailyBookingWithRoom } from "../../utils/types.ts";
 import { ApiGet } from "../../config/ApiRequest.ts";
-import { startGenericHub, onEvent, stopGenericHub } from "../../utils/signalR/genericHub";
+import { startGenericHub, onEvent } from "../../utils/signalR/genericHub";
 
 export const useDailyBookings = (date: string | null) => {
     const [bookings, setBookings] = useState<DailyBookingWithRoom[]>([]);
@@ -63,7 +63,6 @@ export const useDailyBookings = (date: string | null) => {
 
         return () => {
             unsubscribe();
-            stopGenericHub().catch(err => console.error('Error stopping SignalR hub for daily bookings:', err));
         };
     }, [token, fetchBookings]);
 
