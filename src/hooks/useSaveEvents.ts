@@ -21,15 +21,12 @@ export function useSaveEvents() {
         if (!event.room?.id) {
             throw new Error(t('useSaveEvents.errors.roomRequired'));
         }
-
         const token = localStorage.getItem('authToken');
         if (!token || !isTokenValid(token)) {
             throw new Error(t('useSaveEvents.errors.notAuthorized'));
         }
-
         const startIso = normalizeToIso(event.eventDate, event.startTime);
         const endIso = normalizeToIso(event.eventDate, event.endTime);
-
         if (event.id) {
             return update(event, startIso, endIso, token);
         }
@@ -52,7 +49,6 @@ export function useSaveEvents() {
             endTime: endIso,
             roomId: event.room!.id!
         };
-
         const updated = await ApiPut<EventApiDto>(`/Event/${event.id}`, dto,
             token ? { Authorization: `Bearer ${token}` } : undefined);
         return mapApiToEvent(updated);

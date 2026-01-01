@@ -9,7 +9,6 @@ export function useEvents() {
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation('events');
 
-    // Helper om een date key te maken voor grouping (YYYY-MM-DD)
     const toDayKeyISO = useCallback((d: Date) => {
         const y = d.getFullYear();
         const m = String(d.getMonth() + 1).padStart(2, '0');

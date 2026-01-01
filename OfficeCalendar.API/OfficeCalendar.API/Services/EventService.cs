@@ -18,7 +18,6 @@ public class EventService : IEventService
         _eventRepo = eventRepo;
     }
 
-    // ------------------ Private Helpers ------------------
     private async Task<bool> HasRoomConflict(
         long roomId,
         DateTime eventDate,
@@ -59,30 +58,27 @@ public class EventService : IEventService
                 RoomName = eventModel.Room.RoomName,
                 Location = eventModel.Room.Location
             },
-            // Namen van deelnemers
+
             Attendees = eventModel.EventParticipations?
                 .Select(ep => ep.Employee.FullName)
                 .ToList() ?? new List<string>(),
-            // Check of de huidige gebruiker aanwezig is
+
             Attending = currentUserId.HasValue &&
                         eventModel.EventParticipations?.Any(ep => ep.EmployeeId == currentUserId.Value) == true
         };
     }
 
-
-    // ------------------ Public Methods ------------------
     public async Task<CreateEventResult> CreateEvent(long currentUserId, CreateEventDto dto)
     {
         try
         {
-            var startIso = dto.StartTime.ToLocalTime();
-            var endIso = dto.EndTime.ToLocalTime();
+            var startIso = dto.StartTime;
+            var endIso = dto.EndTime;
 
             var eventDate = startIso.Date;
             var startTime = new DateTime(1, 1, 1, startIso.Hour, startIso.Minute, 0);
             var endTime = new DateTime(1, 1, 1, endIso.Hour, endIso.Minute, 0);
 
-            // Validatie
             if (eventDate < DateTime.Today)
                 return new CreateEventResult.Error("Event date cannot be in the past");
 
@@ -160,9 +156,8 @@ public class EventService : IEventService
             if (eventModel == null)
                 return new UpdateEventResult.NotFound("Event not found");
 
-            var startIso = dto.StartTime.ToLocalTime();
-            var endIso = dto.EndTime.ToLocalTime();
-
+            var startIso = dto.StartTime;
+            var endIso = dto.EndTime;
             var eventDate = startIso.Date;
             var startTime = new DateTime(1, 1, 1, startIso.Hour, startIso.Minute, 0);
             var endTime = new DateTime(1, 1, 1, endIso.Hour, endIso.Minute, 0);
