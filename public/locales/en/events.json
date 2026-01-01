@@ -4,6 +4,12 @@
     "empty": "No attendees signed up yet."
   },
   "eventCard": {
+    "attend": "Attend",
+    "unattend": "Unattend",
+    "loading": "Loading…",
+    "errorGeneric": "Something went wrong.",
+    "ariaAttend": "Attend event",
+    "ariaUnattend": "Unattend event",
     "attendeesLabel": "Attendees: {{attendees}}"
   },
   "loading": {
@@ -20,7 +26,9 @@
     "labelLocation": "Location",
     "labelDescription": "Description",
     "labelRoom": "Room",
-    "labelSelectRoom": "Select a room"
+    "labelSelectRoom": "Select a room",
+    "placeholderStartTime": "-- Choose Start Time --",
+    "placeholderEndTime": "-- Choose End Time --"
   },
   "eventsTable": {
     "headerTitle": "Title",
@@ -32,5 +40,19 @@
   },
   "admin": {
     "eventLabel": "event"
+  },
+  "useSaveEvents": {
+    "errors": {
+      "roomRequired": "Please select a room",
+      "notAuthorized": "Not authorized"
+    }
+  },
+  "eventDetails": {
+    "date": "Date",
+    "location": "Location",
+    "description": "Description",
+    "attendees": "Attendees",
+    "buttonAttend": "Attend",
+    "buttonUnattend": "Unattend"
   }
 }

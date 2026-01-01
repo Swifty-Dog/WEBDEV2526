@@ -68,7 +68,6 @@ export const Calendar: React.FC = () => {
             setError(null);
             try {
                 const token = localStorage.getItem('authToken');
-
                 const data = await ApiGet<EventApiDto[]>(
                     '/Event',
                     token ? { Authorization: `Bearer ${token}` } : undefined
@@ -76,7 +75,6 @@ export const Calendar: React.FC = () => {
                 const mapped = data
                     .map(mapApiEvent)
                     .filter((e): e is EventApiDto => e !== null && e.attending === true); // alleen attending
-                console.log('Mapped events for calendar:', mapped);
                 const { titles, full } = groupEventsByDate(mapped);
                 setEventsByDate(titles);
                 setEventsByDateFull(full);

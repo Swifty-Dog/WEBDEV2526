@@ -4,6 +4,7 @@ using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.DTOs.Events.Request;
 using OfficeCalendar.API.Services.Results.Events;
 
+
 namespace OfficeCalendar.API.Controllers;
 
 [ApiController]
@@ -11,13 +12,11 @@ namespace OfficeCalendar.API.Controllers;
 [Authorize]
 public class EventController : BaseController
 {
-    private readonly IAttendService _attendService;
     private IEventService _eventService;
 
-    public EventController(IEmployeeService employeeService, IAttendService attendService, IEventService eventService)
+    public EventController(IEmployeeService employeeService, IEventService eventService)
         : base(employeeService)
     {
-        _attendService = attendService;
         _eventService = eventService;
     }
 

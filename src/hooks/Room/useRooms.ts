@@ -27,7 +27,7 @@ export const useRooms = () => {
             });
 
             setRooms(data.map(r => ({
-                id: r.id || null,
+                id: r.id!,
                 roomName: r.roomName,
                 capacity: r.capacity,
                 location: r.location
@@ -64,7 +64,7 @@ export const useRooms = () => {
         if (!token) return;
 
         try {
-            await ApiDelete(`/Room/${id}`, {Authorization: `Bearer ${token}`});
+            await ApiDelete(`/Room/${id}`, { Authorization: `Bearer ${token}` });
             setRooms(prev => prev.filter(r => r.id !== id));
         } catch (err) {
             const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorDelete');
@@ -89,5 +89,5 @@ export const useRooms = () => {
         };
     }, [token, fetchRooms]);
 
-    return {rooms, loading, error, fetchRooms, saveRoom, deleteRoom};
+    return { rooms, loading, error, fetchRooms, saveRoom, deleteRoom };
 };

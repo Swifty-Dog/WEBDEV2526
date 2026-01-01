@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiGet } from '../config/ApiRequest';
 import type { EventApiDto } from '../utils/types';
-import { formatEventDateTime } from '../utils/time';
-import type { UseEventsResult } from '../utils/event';
 import { useTranslation } from 'react-i18next';
 
-
-export function useEvents(): UseEventsResult {
-    const [eventsByDate, setEventsByDate] = useState<Record<string, string[]>>({});
+export function useEvents() {
+    const [eventsByDate, setEventsByDate] = useState<Record<string, EventApiDto[]>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation('events');
 
+    // Helper om een date key te maken voor grouping (YYYY-MM-DD)
     const toDayKeyISO = useCallback((d: Date) => {
         const y = d.getFullYear();
         const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -19,35 +17,36 @@ export function useEvents(): UseEventsResult {
         return `${y}-${m}-${day}`;
     }, []);
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = localStorage.getItem('authToken');
-                const data = await ApiGet<EventApiDto[]>(
-                    '/Event',
-                    token ? { Authorization: `Bearer ${token}` } : undefined
-                );
-                const grouped: Record<string, string[]> = {};
-                data.forEach(e => {
-                    const eDate = e.eventDate;
-                    const eStartTime = e.startTime;
-                    const eEndTime = e.endTime;
-                    formatEventDateTime(eDate, eStartTime, eEndTime); // just to ensure correct format
-                    const dateKey = toDayKeyISO(new Date(eDate));
-                    if (!grouped[dateKey]) grouped[dateKey] = [];
-                    grouped[dateKey].push(e.title);
-                });
-                setEventsByDate(grouped);
-            } catch (e) {
-                setError(e instanceof Error ? e.message : t('loading.loadEventsFailed'));
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchEvents();
-    }, [toDayKeyISO]);
+    const fetchEvents = useCallback(async () => {
+        setLoading(true);
+        setError(null);
 
-    return { eventsByDate, loading, error };
+        const token = localStorage.getItem('authToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+
+        try {
+            const data = await ApiGet<EventApiDto[]>('/Event', headers);
+
+            const grouped: Record<string, EventApiDto[]> = {};
+            data.forEach(event => {
+                const dateKey = toDayKeyISO(new Date(event.eventDate));
+                if (!grouped[dateKey]) grouped[dateKey] = [];
+                grouped[dateKey].push(event);
+            });
+
+            setEventsByDate(grouped);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : t('general.API_ErrorUnexpected');
+            setError(msg);
+        } finally {
+            setLoading(false);
+        }
+    }, [t, toDayKeyISO]);
+
+    // initial fetch
+    useEffect(() => {
+        void fetchEvents();
+    }, [fetchEvents]);
+
+    return { eventsByDate, loading, error, refetch: fetchEvents };
 }

@@ -6,6 +6,7 @@ import { useRooms } from '../../hooks/Room/useRooms.ts';
 import { useMakeNewBooking } from '../../hooks/Room/useMakeNewBooking.ts';
 import { useBookingFormLogic } from '../../hooks/Room/useBookingFormLogic.ts';
 import { getInitialBookingDate } from '../../utils/date';
+import '../../styles/_components.css';
 
 export const EventRoom: React.FC<{
     onCancel?: () => void;
@@ -35,7 +36,7 @@ export const EventRoom: React.FC<{
         ...formProps
     } = useBookingFormLogic(rooms, initialBookingDetails);
 
-    // GEBRUIKER SELECTEERT KAMER
+
     const handleRoomSelect = (roomId: number) => {
         const room = rooms.find(r => r.id === roomId);
         if (!room) return;
@@ -88,7 +89,7 @@ export const EventRoom: React.FC<{
                 bookingDetails={bookingDetails}
                 onChange={handleChange}
                 onSubmit={handleSubmit}
-                onRoomSelect={handleRoomSelect}    // <- BELANGRIJK
+                onRoomSelect={handleRoomSelect}
                 message={messageToShow}
                 fetchError={hasError}
                 loadingAvailability={isLoading}
@@ -100,13 +101,13 @@ export const EventRoom: React.FC<{
             {onCancel && (
                 <button
                     type="button"
-                    className="btn-sm"
-                    style={{ marginBottom: '1rem' }}
+                    className="btn-sm btn-cancel-margin"
                     onClick={onCancel}
                 >
                     {t('common:general.buttonCancel')}
                 </button>
             )}
+
         </div>
     );
 };

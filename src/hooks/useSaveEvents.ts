@@ -5,22 +5,26 @@ import type {
     CreateEventApiDto,
     UpdateEventApiDto,
 } from '../utils/types';
+import { useTranslation } from 'react-i18next';
+
 
 export function useSaveEvents() {
+    const { t } = useTranslation('events');
+
     const normalizeToIso = (dateStr: string, timeOrIso: string): string => {
         if (!timeOrIso) return `${dateStr}T00:00:00`;
         if (timeOrIso.includes('T')) return timeOrIso;
-        // time like "HH:MM"
         return `${dateStr}T${timeOrIso}${timeOrIso.length === 5 ? ':00' : ''}`;
     };
 
     const saveEvent = async (event: EventApiDto): Promise<EventApiDto> => {
         if (!event.room?.id) {
-            throw new Error('Selecteer een room');
+            throw new Error(t('useSaveEvents.errors.roomRequired'));
         }
+
         const token = localStorage.getItem('authToken');
         if (!token || !isTokenValid(token)) {
-            throw new Error('Niet geautoriseerd');
+            throw new Error(t('useSaveEvents.errors.notAuthorized'));
         }
 
         const startIso = normalizeToIso(event.eventDate, event.startTime);
@@ -32,6 +36,7 @@ export function useSaveEvents() {
 
         return create(event, startIso, endIso, token);
     };
+
 
     const update = async (
         event: EventApiDto,

@@ -1,9 +1,17 @@
 /* Header row: title + new event button */
 .admin-header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+    padding: 1rem 0;
 }
+
+.admin-header-actions {
+    display: flex;
+    gap: 0.5rem;
+    /* ruimte tussen buttons */
+}
+
 
 /* Section spacing variants */
 .section {

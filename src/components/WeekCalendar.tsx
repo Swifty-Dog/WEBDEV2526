@@ -23,6 +23,7 @@ const combineDateAndTime = (date: string | Date, time: string | Date): Date => {
         const [hh, mm] = time.split(':').map(Number);
         return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm, 0, 0);
     }
+
     return new Date(
         t.getFullYear(),
         t.getMonth(),
@@ -71,9 +72,11 @@ export const WeekCalendar: React.FC<Props> = ({
 
         Object.values(map).forEach(list =>
             list.sort((a, b) =>
+
                 combineDateAndTime(a.eventDate, a.startTime).getTime() -
                 combineDateAndTime(b.eventDate, b.startTime).getTime()
             )
+
         );
 
         return map;

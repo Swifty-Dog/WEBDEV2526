@@ -10,7 +10,7 @@ interface Props {
     onSave: (payload: EventApiDto & { id?: number }) => void | Promise<void>;
 }
 
-export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, rooms }) => {
+export const EventFormModal: React.FC<Props> = ({ existing, onClose, onSave, rooms }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
 
@@ -100,8 +100,9 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                             required
                         >
                             <option value="" disabled>
-                                -- Choose StartTime --
+                                {tEvents('eventForm.placeholderStartTime')}
                             </option>
+
                             {allTimes.map(time => (
                                 <option key={time} value={time}>
                                     {time}
@@ -118,7 +119,7 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
                             required
                         >
                             <option value="" disabled>
-                                -- Choose EndTime --
+                                {tEvents('eventForm.placeholderEndTime')}
                             </option>
                             {allTimes
                                 .filter(time =>
@@ -172,11 +173,11 @@ export const CreateNewEvent: React.FC<Props> = ({ existing, onClose, onSave, roo
 
                         <button
                             type="submit"
-                            className="btn-sm"
-                            style={{ background: 'var(--color-brand-accent)', color: 'white' }}
+                            className="btn-sm btn-sm-primary"
                         >
                             {existing ? tCommon('general.buttonSave') : tCommon('general.buttonCreate')}
                         </button>
+
                     </div>
                 </form>
             </div>

@@ -15,7 +15,7 @@ interface EventCardProps {
     description: string;
     attendees?: string[];
     initialAttending?: boolean;
-    onAttendChange?: (eventId: string | number, attending: boolean) => void; // Callback naar Calendar
+    onAttendChange?: (eventId: string | number, attending: boolean) => void;
 }
 
 type AttendResponse = { attending: boolean };
@@ -35,6 +35,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     const { t } = useTranslation('events');
     const settings = useSettings();
     const locale = LANGUAGE_MAP[settings.language] || undefined;
+
     const [attending, setAttending] = useState<boolean>(initialAttending);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -49,21 +50,21 @@ export const EventCard: React.FC<EventCardProps> = ({
         setLoading(true);
         try {
             let res: AttendResponse;
+
             if (attending) {
-                // Afmelden van event
                 res = await ApiDelete<AttendResponse>(`/attend/events/${id}`, authHeader());
             } else {
-                // Aanmelden voor event
                 res = await ApiPost<AttendResponse>(`/attend/events/${id}`, {}, authHeader());
             }
+
             const nowAttending = res.attending;
             setAttending(nowAttending);
-            // Callback naar Calendar
-            if (onAttendChange) onAttendChange(id, nowAttending);
 
+            if (onAttendChange) {
+                onAttendChange(id, nowAttending);
+            }
         } catch (e) {
-            const msg = e instanceof Error ? e.message : "Er is iets misgegaan.";
-            setError(msg);
+            setError(t('eventCard.errorGeneric'));
         } finally {
             setLoading(false);
         }
@@ -72,26 +73,42 @@ export const EventCard: React.FC<EventCardProps> = ({
     return (
         <div className="event-card">
             <h3 className="event-title">{title}</h3>
-            <p className="event-date">{new Date(date).toLocaleDateString(locale)}</p>
+
+            <p className="event-date">
+                {new Date(date).toLocaleDateString(locale)}
+            </p>
+
             <p className="event-time">
-                {new Date(startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} -
+                {new Date(startTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })} –
                 {new Date(endTime).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
             </p>
+
             <p className="location">{location}</p>
             <p className="description">{description}</p>
+
             <p className="attendees">
                 {t('eventCard.attendeesLabel', { attendees: attendees?.join(', ') })}
             </p>
+
             {error && <p className="error-message">{error}</p>}
+
             <div className="table-actions">
                 <button
                     className={`btn-sm ${attending ? 'btn-sm-danger' : 'btn-sm-primary'}`}
                     onClick={onToggleAttend}
                     disabled={loading}
                     aria-pressed={attending}
-                    aria-label={attending ? 'Unattend event' : 'Attend event'}
+                    aria-label={
+                        attending
+                            ? t('eventCard.ariaUnattend')
+                            : t('eventCard.ariaAttend')
+                    }
                 >
-                    {loading ? 'Bezig…' : attending ? 'Unattend' : 'Attend'}
+                    {loading
+                        ? t('eventCard.loading')
+                        : attending
+                            ? t('eventCard.unattend')
+                            : t('eventCard.attend')}
                 </button>
             </div>
         </div>

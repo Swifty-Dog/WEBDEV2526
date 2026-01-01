@@ -4,6 +4,12 @@
     "empty": "Nog geen deelnemers aangemeld."
   },
   "eventCard": {
+    "attend": "Aanmelden",
+    "unattend": "Afmelden",
+    "loading": "Bezig…",
+    "errorGeneric": "Er is iets misgegaan.",
+    "ariaAttend": "Aanmelden voor evenement",
+    "ariaUnattend": "Afmelden voor evenement",
     "attendeesLabel": "Deelnemers: {{attendees}}"
   },
   "loading": {
@@ -20,7 +26,9 @@
     "labelLocation": "Locatie",
     "labelDescription": "Beschrijving",
     "labelRoom": "Kamer",
-    "labelSelectRoom": "Selecteer een kamer"
+    "labelSelectRoom": "Selecteer een kamer",
+    "placeholderStartTime": "-- Kies starttijd --",
+    "placeholderEndTime": "-- Kies eindtijd --"
   },
   "eventsTable": {
     "headerTitle": "Titel",
@@ -32,5 +40,19 @@
   },
   "admin": {
     "eventLabel": "evenement"
+  },
+  "useSaveEvents": {
+    "errors": {
+      "roomRequired": "Selecteer een ruimte",
+      "notAuthorized": "Niet geautoriseerd"
+    }
+  },
+  "eventDetails": {
+    "date": "Datum",
+    "location": "Locatie",
+    "description": "Beschrijving",
+    "attendees": "Deelnemers",
+    "buttonAttend": "Aanmelden",
+    "buttonUnattend": "Afmelden"
   }
 }

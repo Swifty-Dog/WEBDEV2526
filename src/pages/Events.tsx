@@ -11,6 +11,7 @@ import type { EventApiDto } from '../utils/types';
 
 export const Events: React.FC = () => {
     const { t } = useTranslation('common');
+    const { t: tEvents } = useTranslation('events');
     const [events, setEvents] = useState<EventApiDto[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,6 @@ export const Events: React.FC = () => {
             setError(null);
             try {
                 const token = localStorage.getItem('authToken');
-                // Ensure we always hit /api base
                 const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
                 setEvents(data.map(e => ({ ...e, date: e.eventDate })));
             } catch (e) {
@@ -37,13 +37,8 @@ export const Events: React.FC = () => {
         <div className="events-page">
             <h1>{t('menu.events')}</h1>
 
-            {/* <div className="calender-week-selector">
-                Hier komt een component zodat de gebruiker de gewenste week kan selecteren die getoont moet worden.
-
-            </div> */}
-
             {error && <p className="error-message">{error}</p>}
-            {loading && <p>{t('common.loadingEvents')}</p>}
+            {loading && <p>{tEvents('loading.loadingEvents')}</p>}
             <div className="events-grid">
                 {!loading && events.map(event => (
                     <EventCard
