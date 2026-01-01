@@ -54,7 +54,7 @@ export const Calendar: React.FC = () => {
     const { t } = useTranslation('common');
     const [eventsHeader, setEventsHeader] = useState(t('dashboard.headerInitial'));
     const [hasSelected, setHasSelected] = useState(false);
-    const [selectedEvents, setSelectedEvents] = useState<{ title: string; details: string }[]>([]);
+    const [, setSelectedEvents] = useState<{ title: string; details: string }[]>([]);
     const [selectedFullEvents, setSelectedFullEvents] = useState<EventApiDto[]>([]);
     const [detailsFor, setDetailsFor] = useState<EventApiDto | null>(null);
     const [eventsByDate, setEventsByDate] = useState<Record<string, string[]>>({});
@@ -78,7 +78,7 @@ export const Calendar: React.FC = () => {
                 const { titles, full } = groupEventsByDate(mapped);
                 setEventsByDate(titles);
                 setEventsByDateFull(full);
-            } catch (e) {
+            } catch {
                 setError(t('networkError'));
             } finally {
                 setLoading(false);

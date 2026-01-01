@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { ApiDelete, ApiPost } from "../config/ApiRequest";
+import React, { useEffect, useState, useCallback } from "react";
+import { ApiDelete, ApiPost, ApiGet } from "../config/ApiRequest";
 import "../styles/EventCard.css";
 import { useSettings } from '../config/SettingsContext';
 import { LANGUAGE_MAP } from '../data/SettingsOptions';
 import { useTranslation } from 'react-i18next';
+import { onEvent } from "../utils/signalR/genericHub.ts";
 
 interface EventCardProps {
     id: string | number;
@@ -18,17 +19,9 @@ interface EventCardProps {
     onAttendChange?: (eventId: string | number, attending: boolean) => void;
 }
 
-type AttendResponse = { attending: boolean };
-
 export const EventCard: React.FC<EventCardProps> = ({
-    id,
-    title,
-    date,
-    startTime,
-    endTime,
-    location,
-    description,
-    attendees,
+    id, title, date, startTime, endTime, location, description,
+    attendees = [],
     initialAttending = false,
     onAttendChange
 }) => {
@@ -37,38 +30,67 @@ export const EventCard: React.FC<EventCardProps> = ({
     const locale = LANGUAGE_MAP[settings.language] || undefined;
 
     const [attending, setAttending] = useState<boolean>(initialAttending);
+    const [localAttendees, setLocalAttendees] = useState<string[]>(Array.isArray(attendees) ? attendees : []);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const authHeader = () => {
-        const token = localStorage.getItem('authToken');
-        return token ? { Authorization: `Bearer ${token}` } : undefined;
-    };
+    const token = localStorage.getItem('authToken');
 
-    const onToggleAttend = async () => {
+    useEffect(() => {
+        if (Array.isArray(attendees)) {
+            setLocalAttendees(attendees);
+        }
+    }, [attendees]);
+
+    const refreshData = useCallback(async () => {
+        if (!token) return;
+        try {
+            const data = await ApiGet<{ attendees: string[], isAttending: boolean }>(
+                `/Attend/events/${id}/status`,
+                { Authorization: `Bearer ${token}` }
+            );
+
+            if (data && Array.isArray(data.attendees)) {
+                setLocalAttendees(data.attendees);
+                setAttending(data.isAttending);
+            }
+        } catch (e) {
+            console.error("Failed to refresh event data", e);
+        }
+    }, [id, token]);
+
+    const handleManualToggle = async () => {
         setError(null);
         setLoading(true);
         try {
-            let res: AttendResponse;
+            const auth = { Authorization: `Bearer ${token}` };
+            const res = attending
+                ? await ApiDelete<{ attending: boolean }>(`/Attend/events/${id}`, auth)
+                : await ApiPost<{ attending: boolean }>(`/Attend/events/${id}`, {}, auth);
 
-            if (attending) {
-                res = await ApiDelete<AttendResponse>(`/attend/events/${id}`, authHeader());
-            } else {
-                res = await ApiPost<AttendResponse>(`/attend/events/${id}`, {}, authHeader());
-            }
+            setAttending(res.attending);
 
-            const nowAttending = res.attending;
-            setAttending(nowAttending);
+            await refreshData();
 
-            if (onAttendChange) {
-                onAttendChange(id, nowAttending);
-            }
+            if (onAttendChange) onAttendChange(id, res.attending);
         } catch (e) {
-            setError(t('eventCard.errorGeneric'));
+            setError(e instanceof Error ? e.message : String(e));
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!token) return;
+
+        const unsubscribe = onEvent("AttendanceChanged", () => {
+            void refreshData();
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, [token, refreshData]);
 
     return (
         <div className="event-card">
@@ -87,7 +109,9 @@ export const EventCard: React.FC<EventCardProps> = ({
             <p className="description">{description}</p>
 
             <p className="attendees">
-                {t('eventCard.attendeesLabel', { attendees: attendees?.join(', ') })}
+                {t('eventCard.attendeesLabel', {
+                    attendees: Array.isArray(localAttendees) ? localAttendees.join(', ') : ''
+                })}
             </p>
 
             {error && <p className="error-message">{error}</p>}
@@ -95,7 +119,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             <div className="table-actions">
                 <button
                     className={`btn-sm ${attending ? 'btn-sm-danger' : 'btn-sm-primary'}`}
-                    onClick={onToggleAttend}
+                    onClick={handleManualToggle}
                     disabled={loading}
                     aria-pressed={attending}
                     aria-label={

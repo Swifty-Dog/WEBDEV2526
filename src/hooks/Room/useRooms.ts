@@ -3,7 +3,7 @@ import i18n from '../../utils/locales/i18n';
 import { translateFetchError } from '../../utils/locales/translateFetchError';
 import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../config/ApiRequest.ts';
 import type { Room } from '../../utils/types.ts';
-import { startGenericHub, onEvent, stopGenericHub } from '../../utils/signalR/genericHub';
+import { startGenericHub, onEvent } from '../../utils/signalR/genericHub';
 
 export const useRooms = () => {
     const token = localStorage.getItem('authToken');
@@ -27,7 +27,7 @@ export const useRooms = () => {
             });
 
             setRooms(data.map(r => ({
-                id: r.id!,
+                id: r.id,
                 roomName: r.roomName,
                 capacity: r.capacity,
                 location: r.location
@@ -85,7 +85,6 @@ export const useRooms = () => {
 
         return () => {
             unsubscribe();
-            stopGenericHub().catch(err => console.error('Error stopping SignalR hub for rooms:', err));
         };
     }, [token, fetchRooms]);
 

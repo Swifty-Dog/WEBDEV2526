@@ -28,8 +28,16 @@ public class AttendController : BaseController
             return Unauthorized(new { message = "general.Unauthorized" });
 
         await _genericHub.BroadcastEvent("AttendanceChanged");
+        if (userId == null) return Unauthorized();
 
         var result = await _attendService.Attend(eventId, userId.Value);
+
+        if (result.Status == AttendStatus.Success)
+        {
+            await _genericHub.BroadcastEvent("AttendanceChanged");
+            return Ok(new { attending = true });
+        }
+
         return result.Status switch
         {
             AttendStatus.Success => Ok(new { attending = true }),
@@ -48,8 +56,18 @@ public class AttendController : BaseController
             return Unauthorized(new { message = "general.Unauthorized" });
 
         await _genericHub.BroadcastEvent("AttendanceChanged");
+        if (userId == null) return Unauthorized();
 
         var result = await _attendService.Unattend(eventId, userId.Value);
+
+        if (result.Status == AttendStatus.Success)
+        {
+            var updatedAttendees = await _attendService.GetAttendeeNames(eventId);
+            await _genericHub.BroadcastEvent("AttendanceChanged", new { eventId, attendees = updatedAttendees });
+
+            return Ok(new { attending = false });
+        }
+
         return result.Status switch
         {
             AttendStatus.Success => Ok(new { attending = false }),
@@ -60,4 +78,14 @@ public class AttendController : BaseController
         };
     }
 
+    [HttpGet("events/{eventId:long}/status")]
+    public async Task<IActionResult> GetEventStatus([FromRoute] long eventId)
+    {
+        if (GetCurrentUserId() is not { } userId) return Unauthorized();
+
+        var attendees = await _attendService.GetAttendeeNames(eventId);
+        var isAttending = await _attendService.IsUserAttending(eventId, userId);
+
+        return Ok(new { attendees, isAttending });
+    }
 }

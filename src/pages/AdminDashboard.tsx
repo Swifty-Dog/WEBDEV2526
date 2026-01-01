@@ -13,6 +13,11 @@ import { useSaveEvents } from '../hooks/useSaveEvents';
 import { useEvents } from '../hooks/useEvents';
 import { useRooms } from '../hooks/Room/useRooms.ts';
 import '../styles/admin-dashboard.css';
+import PromoteDemoteModal from '../components/Admin/PromoteDemote.tsx';
+import '../styles/_components.css';
+import '../styles/admin-dashboard.css';
+
+
 
 interface AdminDashboardProps {
     userRole: string | null;
@@ -31,6 +36,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const [confirmDeleteFor, setConfirmDeleteFor] = useState<EventApiDto | null>(null);
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isPromoteDemoteOpen, setIsPromoteDemoteOpen] = useState(false);
+
 
     const filteredEvents: EventApiDto[] = selectedDayISO
         ? eventsByDate[selectedDayISO] ?? []
@@ -75,12 +82,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 <div>
                     <h1>{tCommon('menu.adminDashboard')}</h1>
                 </div>
-                <div className="admin-header-actions">
-                    <button className="header-button" onClick={openNew}>
-                        {tAdmin('adminDashboard.buttonNewEvent')}
-                    </button>
-                    {userRole === 'admin' && <RegisterButton />}
-                    {userRole === 'admin' && <TerminateNavButton />}
+                <div>
+                    {userRole === 'admin' && (
+                        <button
+                            className="header-button"
+                            onClick={() => setIsPromoteDemoteOpen(true)}>
+                            {tAdmin('adminDashboard.promoteDemote')}
+                        </button>
+                    )}
+                    <button
+                        className="header-button"
+                        id="extra-margins"
+                        onClick={openNew}>{tAdmin('adminDashboard.buttonNewEvent')}</button>
+                    {userRole === 'admin' &&
+                        <RegisterButton />
+                    }
+                    {userRole === 'admin' &&
+                        <TerminateNavButton />
+                    }
                 </div>
             </div>
 
@@ -119,6 +138,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                 </div>
             </section>
 
+
             {isFormOpen && (
                 <EventFormModal
                     existing={editingEvent ?? undefined}
@@ -139,6 +159,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                     onConfirm={() => handleDelete(confirmDeleteFor)}
                     onCancel={() => setConfirmDeleteFor(null)}
                 />
+            )}
+
+            {isPromoteDemoteOpen && userRole === 'admin' && (
+                <PromoteDemoteModal onClose={() => setIsPromoteDemoteOpen(false)} />
             )}
         </div>
     );

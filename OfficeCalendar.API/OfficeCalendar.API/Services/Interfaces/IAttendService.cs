@@ -14,4 +14,6 @@ public interface IAttendService
 {
     Task<AttendResult> Attend(long eventId, long employeeId);
     Task<AttendResult> Unattend(long eventId, long employeeId);
+    Task<List<string>> GetAttendeeNames(long eventId);
+    Task<bool> IsUserAttending(long eventId, long employeeId);
 }
