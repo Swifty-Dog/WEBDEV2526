@@ -298,4 +298,72 @@ public class EmployeeService : IEmployeeService
             return new TokenRefreshResult.Error("general.API_ErrorUnexpected");
         }
     }
+
+    public async Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId)
+    {
+        if (employeeId <= 0)
+            return new PromoteDemoteResult.InvalidData("employees.API_ErrorInvalidEmployeeId");
+
+        try
+        {
+            var employee = await GetEmployeeById(employeeId);
+
+            if (employee is GetEmployeeResult.Success sEmployee)
+            {
+                var emp = sEmployee.Employee;
+                var empRole = emp.Role.Trim().ToLower();
+
+                if (empRole == "admin")
+                    return new PromoteDemoteResult.InvalidData("employees.API_ErrorCannotChangeAdminRole");
+
+                // Toggle between manager and employee roles
+                emp.Role = empRole == "manager" ? "Employee" : "Manager";
+                if (emp.Role == "User") // Just in case
+                    emp.Role = "Employee";
+                var result = await _employeeRepo.Update(emp);
+
+                if (result)
+                    return new PromoteDemoteResult.Success(emp);
+                
+                return new PromoteDemoteResult.Error("employees.API_ErrorRoleUpdateFailed");
+            }
+            
+            return new PromoteDemoteResult.NotFound();
+        }
+        catch (Exception)
+        {
+            return new PromoteDemoteResult.Error("general.API_ErrorUnexpected");
+        }
+    }
+
+    public async Task<SearchResults> SearchEmployees(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return new SearchResults.InvalidData("general.API_ErrorInvalidData");
+
+        try
+        {
+            var allEmployees = await _employeeRepo.GetAll();
+            allEmployees.RemoveAll(e => e.Role.Trim().ToLower() == "admin");
+            var search = query.Trim().ToLower();
+
+            var matchedEmployees = allEmployees.Where(e =>
+                e.FirstName.ToLower().Contains(search) ||
+                e.LastName.ToLower().Contains(search) ||
+                $"{e.FirstName} {e.LastName}".ToLower().Contains(search) ||
+                e.Email.ToLower().Contains(search) ||
+                e.Role.ToLower().Contains(search) ||
+                e.Id.ToString() == search
+            ).ToList();
+
+            if (matchedEmployees.Count == 0)
+                return new SearchResults.NoResultsFound();
+
+            return new SearchResults.Success(matchedEmployees);
+        }
+        catch (Exception)
+        {
+            return new SearchResults.Error("general.API_ErrorUnexpected");
+        }
+    }
 }

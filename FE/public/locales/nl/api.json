@@ -25,9 +25,14 @@
     "API_ErrorMissingToken": "Ontbrekende of ongeldige autorisatieheader.",
     "API_ErrorInvalidToken": "Ongeldige of verlopen token.",
     "API_TerminationSuccess": "Werknemer succesvol getermineerd.",
+    "API_PromoteDemoteSuccess": "Rol van werknemer succesvol bijgewerkt.",
     "API_ErrorTerminationFailed": "Termineren van werknemer mislukt.",
     "API_ErrorCannotTerminateAdmin": "Een admin kan niet worden getermineerd.",
-    "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token."
+    "API_ErrorUserIdMissing": "Gebruikers-ID claim ontbreekt of is ongeldig in de token.",
+    "API_ErrorEmployeeNotFound": "Werknemer niet gevonden.",
+    "API_ErrorInvalidEmployeeId": "Ongeldige werknemer ID.",
+    "API_ErrorCannotChangeAdminRole": "De rol van een admin werknemer kan niet worden gewijzigd.",
+    "API_ErrorRoleUpdateFailed": "Bijwerken van werknemerrol mislukt."
   },
   "rooms": {
     "API_ErrorDuplicateName": "Kamer met de naam '{{name}}' bestaat al.",
@@ -38,7 +43,6 @@
     "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de kamer.",
     "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de kamer.",
     "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de kamer."
-
   },
   "roomBookings": {
     "API_ErrorConflict": "Er is een conflict met een bestaande reservering.",
@@ -56,5 +60,15 @@
     "API_ErrorCreateUnexpected": "Er is een onverwachte fout opgetreden bij het aanmaken van de instellingen.",
     "API_ErrorDeleteUnexpected": "Er is een onverwachte fout opgetreden bij het verwijderen van de instellingen.",
     "API_ErrorUpdateUnexpected": "Er is een onverwachte fout opgetreden bij het bijwerken van de instellingen."
+  },
+  "events": {
+    "API_ErrorEventDatePast": "De evenementdatum mag niet in het verleden liggen.",
+    "API_ErrorEndBeforeStart": "De eindtijd moet na de starttijd liggen.",
+    "API_ErrorOutsideOfficeHours": "Het evenement moet binnen kantooruren plaatsvinden (08:00–18:00).",
+    "API_ErrorRoomAlreadyBooked": "De geselecteerde kamer is al gereserveerd op dit tijdstip.",
+    "API_ErrorCreateFailed": "Aanmaken van het evenement is mislukt.",
+    "API_ErrorUpdateFailed": "Bijwerken van het evenement is mislukt.",
+    "API_ErrorDeleteFailed": "Verwijderen van het evenement is mislukt.",
+    "API_ErrorNotFound": "Evenement niet gevonden."
   }
 }

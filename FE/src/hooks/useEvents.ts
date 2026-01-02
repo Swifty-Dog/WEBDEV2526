@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiGet } from '../config/ApiRequest';
-import type { EventApiItem, UseEventsResult} from '../utils/event';
+import type { EventApiDto } from '../utils/types';
 import { useTranslation } from 'react-i18next';
 
-
-export function useEvents(): UseEventsResult {
-    const [eventsByDate, setEventsByDate] = useState<Record<string, string[]>>({});
+export function useEvents() {
+    const [eventsByDate, setEventsByDate] = useState<Record<string, EventApiDto[]>>({});
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation('events');
@@ -17,32 +16,36 @@ export function useEvents(): UseEventsResult {
         return `${y}-${m}-${day}`;
     }, []);
 
-    useEffect(() => {
-        const fetchEvents = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const token = localStorage.getItem('authToken');
-                const data = await ApiGet<EventApiItem[]>(
-                    '/Event',
-                    token ? { Authorization: `Bearer ${token}` } : undefined
-                );
-                const grouped: Record<string, string[]> = {};
-                data.forEach(e => {
-                    const iso = e.eventDate;
-                    const dateKey = toDayKeyISO(new Date(iso));
-                    if (!grouped[dateKey]) grouped[dateKey] = [];
-                    grouped[dateKey].push(e.title);
-                });
-                setEventsByDate(grouped);
-            } catch (e) {
-                setError(e instanceof Error ? e.message : t('loading.loadEventsFailed'));
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchEvents();
-    }, [toDayKeyISO]);
+    const fetchEvents = useCallback(async () => {
+        setLoading(true);
+        setError(null);
 
-    return { eventsByDate, loading, error };
+        const token = localStorage.getItem('authToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+
+        try {
+            const data = await ApiGet<EventApiDto[]>('/Event', headers);
+
+            const grouped: Record<string, EventApiDto[]> = {};
+            data.forEach(event => {
+                const dateKey = toDayKeyISO(new Date(event.eventDate));
+                if (!grouped[dateKey]) grouped[dateKey] = [];
+                grouped[dateKey].push(event);
+            });
+
+            setEventsByDate(grouped);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : t('general.API_ErrorUnexpected');
+            setError(msg);
+        } finally {
+            setLoading(false);
+        }
+    }, [t, toDayKeyISO]);
+
+    // initial fetch
+    useEffect(() => {
+        void fetchEvents();
+    }, [fetchEvents]);
+
+    return { eventsByDate, loading, error, refetch: fetchEvents };
 }

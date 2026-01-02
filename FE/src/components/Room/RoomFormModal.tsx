@@ -60,7 +60,7 @@ export const RoomFormModal: React.FC<RoomFormModalProps> = ({ existing, onClose,
         setError(null);
 
         const payload: Room = {
-            id: existing?.id || null,
+            id: existing?.id ?? 0,
             roomName: name.trim(),
             capacity,
             location: location.trim(),

@@ -13,6 +13,7 @@ interface BookingFormProps {
     fetchError: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
+    onRoomSelect?: (roomId: number) => void;
     message?: { text: string | null; type: 'success' | 'error' } | null;
 }
 
@@ -27,6 +28,7 @@ export const BookingForm: React.FC<BookingFormProps> = (
         fetchError,
         onChange,
         onSubmit,
+        onRoomSelect,
         message
     }) => {
 
@@ -34,6 +36,8 @@ export const BookingForm: React.FC<BookingFormProps> = (
     const { t: tCommon } = useTranslation('common');
     const timesAreDisabled = loadingAvailability || fetchError || availableStartTimes.length === 0 || bookingDetails.roomId === 0;
     const formIsDisabled = fetchError || loadingAvailability;
+
+
 
     return (
         <form onSubmit={onSubmit} className="form-container">
@@ -60,7 +64,16 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         name="roomId"
                         className="booking-input"
                         value={bookingDetails.roomId}
-                        onChange={onChange}
+                        onChange={e => {
+                            // roep normale onChange aan zodat het form-veld werkt
+                            onChange(e);
+
+                            // extra callback naar oudercomponent
+                            if (onRoomSelect) {
+                                const roomId = parseInt(e.target.value, 10);
+                                onRoomSelect(roomId);
+                            }
+                        }}
                         required
                         disabled={formIsDisabled}
                     >
@@ -70,12 +83,13 @@ export const BookingForm: React.FC<BookingFormProps> = (
                         {rooms.map(room => {
                             const isFull = roomIsFullMap.get(room.id ?? 0) || false;
                             return (
-                                <option key={room.id} value={room.id ?? undefined } disabled={isFull}>
+                                <option key={room.id} value={room.id ?? undefined} disabled={isFull}>
                                     {room.roomName} {isFull ? `(${tRooms('bookingForm.statusFull')})` : ""}
                                 </option>
                             );
                         })}
                     </select>
+
                 </div>
 
                 <div className="form-row">

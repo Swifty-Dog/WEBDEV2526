@@ -19,13 +19,19 @@ public class EventModel
     public DateTime EventDate { get; set; }
 
     [Required]
+    public DateTime StartTime { get; set; }
+
+    [Required]
+    public DateTime EndTime { get; set; }
+
+    [Required]
     public long CreatedById { get; set; }
 
     [ForeignKey(nameof(CreatedById))]
     public EmployeeModel? CreatedBy { get; set; }
 
     [Required]
-    public long? RoomId { get; set; }
+    public long RoomId { get; set; }
 
     [ForeignKey(nameof(RoomId))]
     public RoomModel? Room { get; set; }

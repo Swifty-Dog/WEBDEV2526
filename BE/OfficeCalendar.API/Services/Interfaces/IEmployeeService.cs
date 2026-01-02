@@ -14,4 +14,6 @@ public interface IEmployeeService
     Task<RegisterResult> RegisterEmployee(RegisterDto employee);
     Task<TerminateEmployeeResult> TerminateEmployee(long id);
     Task<TokenRefreshResult> RefreshToken(string refreshToken);
+    Task<PromoteDemoteResult> PromoteDemoteEmployee(long employeeId);
+    Task<SearchResults> SearchEmployees(string query);
 }

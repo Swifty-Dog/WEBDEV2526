@@ -1,5 +1,4 @@
-import { getCurrentTime } from "./time";
-import { useTranslation } from "react-i18next";
+import { getCurrentTime } from "./time.ts";
 
 export const formatDate = (isoDate: string) => {
     const date = new Date(isoDate);
@@ -9,31 +8,25 @@ export const formatDate = (isoDate: string) => {
     return `${day}-${month}-${year}`;
 };
 
-export const FormatTimeUntil = (bookingDate: string, startTime: string) => {
+export const formatTimeUntil = (bookingDate: string, startTime: string) => {
     const now = new Date();
     const bookingDateTime = new Date(`${bookingDate}T${startTime}`);
     const diffMs = bookingDateTime.getTime() - now.getTime();
 
-    const {t} = useTranslation('rooms');
-
-    if (diffMs <= 0) return t('timeUtils.now');
+    if (diffMs <= 0) return 'Nu';
     const diffMinutes = Math.ceil(diffMs / 60000);
     const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffDays > 0) return t('timeUtils.inDays', { count: diffDays });
+    if (diffDays > 0) return `in ${diffDays} dag${diffDays > 1 ? 'en' : ''}`;
 
     if (diffHours > 0) {
         const remainingMinutes = diffMinutes % 60;
-        const hour = t('timeUtils.inHours', { count: diffHours });
-        if (remainingMinutes === 0) return hour;
-        const minutes = t('timeUtils.inMinutes', { count: remainingMinutes })
-            .replace(/in\s|in\s?/, '');
-
-        return `${hour} ${t('timeUtils.and')} ${minutes}`;
+        if (remainingMinutes === 0) return `in ${diffHours} uur`;
+        return `in ${diffHours} uur en ${remainingMinutes} ${remainingMinutes !== 1 ? 'minuten' : 'minuut'}`;
     }
 
-    return t('timeUtils.inMinutes', { count: diffMinutes });
+    return `in ${diffMinutes} ${diffMinutes > 1 ? 'minuten' : 'minuut'}`;
 };
 
 export const getTodayDate = (): string => new Date().toISOString().split('T')[0];
@@ -57,4 +50,34 @@ export const isBookingInPast = (bookingDate: string, startTime: string): boolean
     } catch {
         return true;
     }
+};
+
+export const formatISOToDisplay = (iso?: Date | null, withTime: boolean = true): string => {
+    if (!iso) return '';
+
+    if (isNaN(iso.getTime())) return iso.toDateString();
+
+    if (!withTime) {
+        // Alleen datum in ISO formaat voor filtering
+        const year = iso.getFullYear();
+        const month = String(iso.getMonth() + 1).padStart(2, '0');
+        const day = String(iso.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Tijd formatteren locale afhankelijk (HH:MM)
+    const formattedTime = new Intl.DateTimeFormat(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    }).format(iso);
+
+    // Datum formatteren locale afhankelijk (DD-MM-YYYY in NL)
+    const formattedDate = new Intl.DateTimeFormat(undefined, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(iso);
+
+    return `${formattedTime} ${formattedDate}`;
 };

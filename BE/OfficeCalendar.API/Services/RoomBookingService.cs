@@ -21,13 +21,16 @@ public class RoomBookingService : IRoomBookingService
     {
         try
         {
+
             var roomBooking = await _roomBookingRepo.GetOverlappingBooking(bookingDate, startTime, endTime, roomId);
             if (roomBooking != null)
                 return new GetRoomBookingResult.Success(roomBooking);
             return new GetRoomBookingResult.NotFound();
         }
         catch (Exception)
-        { return new GetRoomBookingResult.Error("general.API_ErrorUnexpected"); }
+        {
+            return new GetRoomBookingResult.Error("general.API_ErrorUnexpected");
+        }
     }
 
     public async Task<CreateRoomBookingResult> CreateRoomBooking(CreateRoomBookingDto dto, long id)
@@ -40,14 +43,9 @@ public class RoomBookingService : IRoomBookingService
             return new CreateRoomBookingResult.InvalidData("rooms.API_ErrorNotFoundById",
                 new Dictionary<string, string> { { "id", dto.RoomId.ToString() } });
 
-        var existingBooking = await GetRoomBookingByDateAndTime(dto.BookingDate, dto.StartTime, dto.EndTime, roomModel.Id);
-        bool isRoomAvailable = existingBooking is GetRoomBookingResult.NotFound;
-        if (!isRoomAvailable)
-        {
-            if (existingBooking is GetRoomBookingResult.Error error)
-                return new CreateRoomBookingResult.Error(error.Message);
+        var hasConflict = await _roomBookingRepo.HasConflict(dto.RoomId, dto.BookingDate, dto.StartTime, dto.EndTime);
+        if (hasConflict)
             return new CreateRoomBookingResult.RoomNotAvailable();
-        }
 
         var roomBooking = new RoomBookingModel
         {
@@ -108,6 +106,10 @@ public class RoomBookingService : IRoomBookingService
                 return new UpdateRoomBookingResult.Error("rooms.API_ErrorNotFoundByName",
                     new Dictionary<string, string> { { "name", dto.RoomName } });
 
+            var hasConflict = await _roomBookingRepo.HasConflict(roomModel.Id, dto.BookingDate, dto.StartTime, dto.EndTime, rb.EventId);
+            if (hasConflict)
+                return new UpdateRoomBookingResult.Error("roomBookings.API_ErrorRoomAlreadyBooked");
+
             rb.Id = id;
             rb.RoomId = roomModel.Id;
             rb.BookingDate = dto.BookingDate;
@@ -115,7 +117,6 @@ public class RoomBookingService : IRoomBookingService
             rb.EndTime = dto.EndTime;
             rb.Purpose = dto.Purpose;
             rb.EmployeeId = employeeId;
-
 
             bool updated = await _roomBookingRepo.Update(rb);
             if (updated)

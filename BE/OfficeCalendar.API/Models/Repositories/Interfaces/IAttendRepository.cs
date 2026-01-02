@@ -7,4 +7,5 @@ public interface IAttendRepository
 {
     Task<bool> Attend(long eventId, long employeeId);
     Task<bool> Unattend(long eventId, long employeeId);
+    Task<List<string>> GetAttendeeNames(long eventId);
 }

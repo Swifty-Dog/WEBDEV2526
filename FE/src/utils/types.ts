@@ -1,8 +1,6 @@
-export interface Room {
-    id: number | null;
-    roomName: string;
-    capacity: number;
-    location: string;
+export interface ApiErrorData {
+    message?: string;
+    arguments?: Record<string, string>;
 }
 
 export interface Booking {
@@ -30,7 +28,35 @@ export interface DailyBookingWithRoom {
     endTime: string;
 }
 
-export interface ApiErrorData {
-    message?: string;
-    arguments?: Record<string, string>;
+export interface EventApiDto {
+    id: number;
+    title: string;
+    description?: string;
+    eventDate: string;
+    startTime: string;
+    endTime: string;
+    room?: {
+        id: number;
+        roomName?: string;
+    } | null;
+    attendees?: [];
+    attending?: boolean;
+}
+
+export interface CreateEventApiDto {
+    title: string;
+    description?: string;
+    eventDate: string;
+    startTime: string;
+    endTime: string;
+    roomId: number;
+}
+
+export interface UpdateEventApiDto extends CreateEventApiDto { }
+
+export interface Room {
+    id: number;
+    roomName: string;
+    capacity: number;
+    location: string;
 }
