@@ -13,7 +13,7 @@ public class EventRepository : Repository<EventModel>, IEventRepository
     }
 
     // Voor 1 event
-    public async Task<EventModel?> GetByIdWithIncludes(long id)
+    public async Task<EventModel?> GetEventById(long id)
     {
         return await DbSet
             .Include(e => e.Room)

@@ -44,6 +44,13 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
             .HasForeignKey(rBooking => rBooking.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<RoomBookingModel>()
+            .HasOne(rb => rb.Event)
+            .WithMany()
+            .HasForeignKey(rb => rb.EventId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
         modelBuilder.Entity<SettingsModel>()
             .HasKey(s => s.EmployeeId);
 

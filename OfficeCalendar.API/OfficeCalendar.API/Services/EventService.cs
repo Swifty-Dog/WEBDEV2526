@@ -12,34 +12,12 @@ namespace OfficeCalendar.API.Services;
 public class EventService : IEventService
 {
     private readonly IEventRepository _eventRepo;
+    private readonly IRoomBookingRepository _roomBookingRepo;
 
-    public EventService(IEventRepository eventRepo)
+    public EventService(IEventRepository eventRepo, IRoomBookingRepository roomBookingRepo)
     {
         _eventRepo = eventRepo;
-    }
-
-    private async Task<bool> HasRoomConflict(
-        long roomId,
-        DateTime eventDate,
-        DateTime startTime,
-        DateTime endTime,
-        long? ignoreEventId = null)
-    {
-        var startDateTime = eventDate.Date + startTime.TimeOfDay;
-        var endDateTime = eventDate.Date + endTime.TimeOfDay;
-
-        var eventsInRoom = await _eventRepo.GetEventsByRoomAndDate(roomId, eventDate);
-
-        return eventsInRoom.Any(e =>
-        {
-            if (ignoreEventId.HasValue && e.Id == ignoreEventId.Value)
-                return false;
-
-            var existingStart = e.EventDate.Date + e.StartTime.TimeOfDay;
-            var existingEnd = e.EventDate.Date + e.EndTime.TimeOfDay;
-
-            return startDateTime < existingEnd && endDateTime > existingStart;
-        });
+        _roomBookingRepo = roomBookingRepo;
     }
 
     private EventResponseDto MapEventToDto(EventModel eventModel, long? currentUserId)
@@ -74,22 +52,25 @@ public class EventService : IEventService
         {
             var startIso = dto.StartTime;
             var endIso = dto.EndTime;
-
             var eventDate = startIso.Date;
             var startTime = new DateTime(1, 1, 1, startIso.Hour, startIso.Minute, 0);
             var endTime = new DateTime(1, 1, 1, endIso.Hour, endIso.Minute, 0);
 
             if (eventDate < DateTime.Today)
-                return new CreateEventResult.Error("Event date cannot be in the past");
+                return new CreateEventResult.Error("events.API_ErrorEventDatePast");
 
             if (startTime >= endTime)
-                return new CreateEventResult.Error("End time must be later than start time");
+                return new CreateEventResult.Error("events.API_ErrorEndBeforeStart");
 
             if (startTime.TimeOfDay < TimeSpan.FromHours(8) || endTime.TimeOfDay > TimeSpan.FromHours(18))
-                return new CreateEventResult.Error("Event must be within office hours (08:00–18:00)");
+                return new CreateEventResult.Error("events.API_ErrorOutsideOfficeHours");
 
-            if (await HasRoomConflict(dto.RoomId, eventDate, startTime, endTime))
-                return new CreateEventResult.Error("Room is already booked for this time slot");
+            if (await _roomBookingRepo.HasConflict(
+                    dto.RoomId,
+                    DateOnly.FromDateTime(eventDate),
+                    TimeOnly.FromDateTime(startTime),
+                    TimeOnly.FromDateTime(endTime)))
+                return new CreateEventResult.Error("events.API_ErrorRoomAlreadyBooked");
 
             var newEvent = new EventModel
             {
@@ -104,16 +85,26 @@ public class EventService : IEventService
 
             var created = await _eventRepo.Create(newEvent);
             if (!created)
-                return new CreateEventResult.Error("Could not create event");
+                return new CreateEventResult.Error("events.API_ErrorCreateFailed");
 
-            var fullEvent = await _eventRepo.GetByIdWithIncludes(newEvent.Id);
+            var fullEvent = await _eventRepo.GetEventById(newEvent.Id);
             var dtoResult = MapEventToDto(fullEvent, currentUserId);
+
+            var roomBooking = new RoomBookingModel
+            {
+                EventId = fullEvent.Id,
+                RoomId = fullEvent.RoomId,
+                BookingDate = DateOnly.FromDateTime(fullEvent.EventDate),
+                StartTime = TimeOnly.FromDateTime(startTime),
+                EndTime = TimeOnly.FromDateTime(endTime),
+            };
+            await _roomBookingRepo.Create(roomBooking);
 
             return new CreateEventResult.Success(dtoResult);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new CreateEventResult.Error(ex.Message);
+            return new CreateEventResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -121,16 +112,16 @@ public class EventService : IEventService
     {
         try
         {
-            var eventModel = await _eventRepo.GetByIdWithIncludes(eventId);
+            var eventModel = await _eventRepo.GetEventById(eventId);
             if (eventModel == null)
-                return new GetEventResult.Error("Event not found");
+                return new GetEventResult.Error("events.API_ErrorNotFound");
 
             var dto = MapEventToDto(eventModel, currentUserId);
             return new GetEventResult.Success(dto);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetEventResult.Error(ex.Message);
+            return new GetEventResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -142,9 +133,9 @@ public class EventService : IEventService
             var dtos = eventModels.Select(e => MapEventToDto(e, currentUserId)).ToList();
             return new GetEventsResult.Success(dtos);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new GetEventsResult.Error(ex.Message);
+            return new GetEventsResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -154,7 +145,7 @@ public class EventService : IEventService
         {
             var eventModel = await _eventRepo.GetById(eventId);
             if (eventModel == null)
-                return new UpdateEventResult.NotFound("Event not found");
+                return new UpdateEventResult.NotFound("events.API_ErrorNotFound");
 
             var startIso = dto.StartTime;
             var endIso = dto.EndTime;
@@ -163,16 +154,21 @@ public class EventService : IEventService
             var endTime = new DateTime(1, 1, 1, endIso.Hour, endIso.Minute, 0);
 
             if (eventDate < DateTime.Today)
-                return new UpdateEventResult.Error("Event date cannot be in the past");
+                return new UpdateEventResult.Error("events.API_ErrorEventDatePast");
 
             if (startTime >= endTime)
-                return new UpdateEventResult.Error("End time must be later than start time");
+                return new UpdateEventResult.Error("events.API_ErrorEndBeforeStart");
 
             if (startTime.TimeOfDay < TimeSpan.FromHours(8) || endTime.TimeOfDay > TimeSpan.FromHours(18))
-                return new UpdateEventResult.Error("Event must be within office hours (08:00–18:00)");
+                return new UpdateEventResult.Error("events.API_ErrorOutsideOfficeHours");
 
-            if (await HasRoomConflict(dto.RoomId, eventDate, startTime, endTime, eventId))
-                return new UpdateEventResult.Error("Room is already booked for this time slot");
+            if (await _roomBookingRepo.HasConflict(
+                    dto.RoomId,
+                    DateOnly.FromDateTime(eventDate),
+                    TimeOnly.FromDateTime(startTime),
+                    TimeOnly.FromDateTime(endTime),
+                    eventId))
+                return new UpdateEventResult.Error("events.API_ErrorRoomAlreadyBooked");
 
             eventModel.Title = dto.Title;
             eventModel.Description = dto.Description;
@@ -183,16 +179,25 @@ public class EventService : IEventService
 
             var updated = await _eventRepo.Update(eventModel);
             if (!updated)
-                return new UpdateEventResult.Error("Cannot update event");
+                return new UpdateEventResult.Error("events.API_ErrorUpdateFailed");
 
-            var fullEvent = await _eventRepo.GetByIdWithIncludes(eventId);
+            var fullEvent = await _eventRepo.GetEventById(eventId);
             var dtoResult = MapEventToDto(fullEvent, currentUserId);
+
+            var roomBooking = await _roomBookingRepo.GetByEventId(fullEvent.Id);
+            if (roomBooking != null)
+            {
+                roomBooking.RoomId = fullEvent.RoomId;
+                roomBooking.StartTime = TimeOnly.FromDateTime(fullEvent.StartTime);
+                roomBooking.EndTime = TimeOnly.FromDateTime(fullEvent.EndTime);
+            }
+            await _roomBookingRepo.Update(roomBooking);
 
             return new UpdateEventResult.Success(dtoResult);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new UpdateEventResult.Error(ex.Message);
+            return new UpdateEventResult.Error("general.API_ErrorUnexpected");
         }
     }
 
@@ -202,17 +207,23 @@ public class EventService : IEventService
         {
             var eventModel = await _eventRepo.GetById(eventId);
             if (eventModel == null)
-                return new DeleteEventResult.NotFound("Event not found");
+                return new DeleteEventResult.NotFound("events.API_ErrorNotFound");
 
             var deleted = await _eventRepo.Delete(eventModel);
             if (!deleted)
-                return new DeleteEventResult.Error("Cannot delete event");
+                return new DeleteEventResult.Error("events.API_ErrorDeleteFailed");
+
+            var roomBooking = await _roomBookingRepo.GetByEventId(eventModel.Id);
+            if (roomBooking != null)
+            {
+                await _roomBookingRepo.Delete(roomBooking);
+            }
 
             return new DeleteEventResult.Success();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return new DeleteEventResult.Error(ex.Message);
+            return new DeleteEventResult.Error("general.API_ErrorUnexpected");
         }
     }
 }

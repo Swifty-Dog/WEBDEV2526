@@ -7,7 +7,7 @@ public interface IEventRepository : IRepository<EventModel>
 
     Task<List<EventModel>> GetAllEvents();
     Task<List<EventModel>> GetEventsByRoomAndDate(long roomId, DateTime eventDate);
-    Task<EventModel?> GetByIdWithIncludes(long id);
+    Task<EventModel?> GetEventById(long id);
 
 
 
