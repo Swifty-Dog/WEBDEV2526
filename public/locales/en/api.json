@@ -43,7 +43,6 @@
     "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the room.",
     "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the room.",
     "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the room."
-
   },
   "roomBookings": {
     "API_ErrorConflict": "There is a conflict with an existing booking.",
@@ -61,5 +60,15 @@
     "API_ErrorCreateUnexpected": "An unexpected error occurred while creating the settings.",
     "API_ErrorDeleteUnexpected": "An unexpected error occurred while deleting the settings.",
     "API_ErrorUpdateUnexpected": "An unexpected error occurred while updating the settings."
+  },
+  "events": {
+    "API_ErrorEventDatePast": "The event date cannot be in the past.",
+    "API_ErrorEndBeforeStart": "End time must be after start time.",
+    "API_ErrorOutsideOfficeHours": "The event must be scheduled within office hours (08:00–18:00).",
+    "API_ErrorRoomAlreadyBooked": "The selected room is already booked for this time slot.",
+    "API_ErrorCreateFailed": "Failed to create the event.",
+    "API_ErrorUpdateFailed": "Failed to update the event.",
+    "API_ErrorDeleteFailed": "Failed to delete the event.",
+    "API_ErrorNotFound": "Event not found."
   }
 }

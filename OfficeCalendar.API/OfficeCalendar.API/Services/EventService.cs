@@ -1,11 +1,9 @@
-using Microsoft.AspNetCore.Identity;
 using OfficeCalendar.API.DTOs.Events.Response;
 using OfficeCalendar.API.DTOs.Events.Request;
 using OfficeCalendar.API.Services.Interfaces;
 using OfficeCalendar.API.Services.Results.Events;
 using OfficeCalendar.API.Models.Repositories.Interfaces;
 using OfficeCalendar.API.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace OfficeCalendar.API.Services;
 
@@ -37,12 +35,12 @@ public class EventService : IEventService
                 Location = eventModel.Room.Location
             },
 
-            Attendees = eventModel.EventParticipations?
+            Attendees = eventModel.EventParticipations
                 .Select(ep => ep.Employee.FullName)
-                .ToList() ?? new List<string>(),
+                .ToList(),
 
             Attending = currentUserId.HasValue &&
-                        eventModel.EventParticipations?.Any(ep => ep.EmployeeId == currentUserId.Value) == true
+                        eventModel.EventParticipations.Any(ep => ep.EmployeeId == currentUserId.Value)
         };
     }
 
@@ -88,16 +86,22 @@ public class EventService : IEventService
                 return new CreateEventResult.Error("events.API_ErrorCreateFailed");
 
             var fullEvent = await _eventRepo.GetEventById(newEvent.Id);
+            if (fullEvent == null)
+                return new CreateEventResult.Error("events.API_ErrorNotFound");
+
             var dtoResult = MapEventToDto(fullEvent, currentUserId);
 
             var roomBooking = new RoomBookingModel
             {
                 EventId = fullEvent.Id,
-                RoomId = fullEvent.RoomId,
-                BookingDate = DateOnly.FromDateTime(fullEvent.EventDate),
+                RoomId = dto.RoomId,
+                EmployeeId = currentUserId,
+                BookingDate = DateOnly.FromDateTime(eventDate),
                 StartTime = TimeOnly.FromDateTime(startTime),
                 EndTime = TimeOnly.FromDateTime(endTime),
+                Purpose = $"Event Booking: {dto.Title}"
             };
+
             await _roomBookingRepo.Create(roomBooking);
 
             return new CreateEventResult.Success(dtoResult);
@@ -182,15 +186,21 @@ public class EventService : IEventService
                 return new UpdateEventResult.Error("events.API_ErrorUpdateFailed");
 
             var fullEvent = await _eventRepo.GetEventById(eventId);
+
+            if (fullEvent == null)
+                return new UpdateEventResult.Error("events.API_ErrorNotFound");
+
             var dtoResult = MapEventToDto(fullEvent, currentUserId);
 
             var roomBooking = await _roomBookingRepo.GetByEventId(fullEvent.Id);
-            if (roomBooking != null)
-            {
-                roomBooking.RoomId = fullEvent.RoomId;
-                roomBooking.StartTime = TimeOnly.FromDateTime(fullEvent.StartTime);
-                roomBooking.EndTime = TimeOnly.FromDateTime(fullEvent.EndTime);
-            }
+
+            if (roomBooking is null)
+                return new UpdateEventResult.Error("rooms.API_ErrorNotFound");
+
+            roomBooking.RoomId = fullEvent.RoomId;
+            roomBooking.StartTime = TimeOnly.FromDateTime(fullEvent.StartTime);
+            roomBooking.EndTime = TimeOnly.FromDateTime(fullEvent.EndTime);
+
             await _roomBookingRepo.Update(roomBooking);
 
             return new UpdateEventResult.Success(dtoResult);
@@ -209,15 +219,13 @@ public class EventService : IEventService
             if (eventModel == null)
                 return new DeleteEventResult.NotFound("events.API_ErrorNotFound");
 
+            var roomBooking = await _roomBookingRepo.GetByEventId(eventModel.Id);
+            if (roomBooking != null)
+                await _roomBookingRepo.Delete(roomBooking);
+
             var deleted = await _eventRepo.Delete(eventModel);
             if (!deleted)
                 return new DeleteEventResult.Error("events.API_ErrorDeleteFailed");
-
-            var roomBooking = await _roomBookingRepo.GetByEventId(eventModel.Id);
-            if (roomBooking != null)
-            {
-                await _roomBookingRepo.Delete(roomBooking);
-            }
 
             return new DeleteEventResult.Success();
         }
@@ -227,3 +235,4 @@ public class EventService : IEventService
         }
     }
 }
+
