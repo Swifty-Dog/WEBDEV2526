@@ -35,7 +35,8 @@
     "headerDate": "Datum",
     "headerLocation": "Locatie",
     "headerAttendees": "Deelnemers",
-    "empty": "Nog geen evenementen — maak een nieuw evenement om te beginnen.",
+    "empty": "Nog geen evenementen gepland.",
+    "emptyAdmin": "Maak een nieuw evenement om te beginnen.",
     "buttonAttendees": "Deelnemers"
   },
   "admin": {

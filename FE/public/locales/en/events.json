@@ -35,7 +35,8 @@
     "headerDate": "Date",
     "headerLocation": "Location",
     "headerAttendees": "Attendees",
-    "empty": "No events yet — create a new event to get started.",
+    "empty": "No events yet.",
+    "emptyAdmin": "Create a new event to get started.",
     "buttonAttendees": "Attendees"
   },
   "admin": {

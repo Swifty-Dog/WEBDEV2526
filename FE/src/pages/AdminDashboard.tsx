@@ -135,6 +135,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
                         onEdit={handleEdit}
                         onDelete={ev => setConfirmDeleteFor(ev)}
                         onViewAttendees={handleViewAttendees}
+                        showEdit={true}
+                        adminRights={true}
                     />
                 </div>
             </section>

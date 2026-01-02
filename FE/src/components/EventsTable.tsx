@@ -9,11 +9,11 @@ interface Props {
     onDelete: (ev: EventApiDto) => void;
     onViewAttendees: (ev: EventApiDto) => void;
     showEdit?: boolean;
-    showDelete?: boolean;
+    adminRights?: boolean;
     deleteLabel?: string;
 }
 
-export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees, showEdit = true, showDelete = true }) => {
+export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewAttendees, showEdit = false, adminRights = false }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
 
@@ -34,6 +34,12 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                         <tr>
                             <td colSpan={5} style={{ textAlign: 'center', padding: '1.25rem' }}>
                                 {tEvents('eventsTable.empty')}
+                                {adminRights && (
+                                    <>
+                                        <br />
+                                        {tEvents('eventsTable.emptyAdmin')}
+                                    </>
+                                )}
                             </td>
                         </tr>
                     )}
@@ -52,7 +58,7 @@ export const EventsTable: React.FC<Props> = ({ events, onEdit, onDelete, onViewA
                                         <button className="btn-sm" onClick={() => onEdit(ev)}>{tCommon('general.buttonEdit')}</button>
                                     )}
                                     <button className="btn-sm" onClick={() => onViewAttendees(ev)}>{tEvents('eventsTable.buttonAttendees')}</button>
-                                    {showDelete && (
+                                    {adminRights && (
                                         <button className="btn-sm btn-danger" onClick={() => onDelete(ev)}>{tCommon('general.buttonDelete')}</button>
                                     )}
                                 </div>

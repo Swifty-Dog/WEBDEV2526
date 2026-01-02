@@ -95,7 +95,7 @@ export const Dashboard: React.FC = () => {
                         onDelete={(ev) => unattend(ev)}
                         onViewAttendees={(ev) => setAttendeesFor(ev)}
                         showEdit={false}
-                        showDelete={getUserRoleFromToken(token) !== "employee"}
+                        adminRights={getUserRoleFromToken(token) !== "employee"}
                         deleteLabel={t('general.buttonUnattend')}
                     />
                 </div>
