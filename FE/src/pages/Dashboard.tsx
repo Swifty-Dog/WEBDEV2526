@@ -5,7 +5,7 @@ import { EventsTable } from '../components/EventsTable';
 import { AttendeesModal } from '../components/AttendeesModal';
 import type { EventApiDto } from '../utils/types';
 import { useTranslation } from 'react-i18next';
-import {getUserRoleFromToken} from "../utils/auth.ts";
+import { getUserRoleFromToken } from "../utils/auth.ts";
 
 export const Dashboard: React.FC = () => {
     const { t } = useTranslation('common');
@@ -40,23 +40,25 @@ export const Dashboard: React.FC = () => {
                 setLoading(false);
             }
         };
-        fetchEvents();
+        void fetchEvents();
     }, [t, token]);
 
-    const attendingEvents = useMemo(() => events.filter(ev => (ev as any).attending), [events]);
-    const filtered = useMemo(() => {
-        const base = attendingEvents;
-        if (!selectedDayISO) return base;
-        return base.filter(ev => toDayKeyISO(new Date(ev.eventDate)) === selectedDayISO);
-    }, [attendingEvents, selectedDayISO]);
+    const personalEventSchedule = useMemo(() => {
+        return events.filter(ev => (ev).attending);
+    }, [events]);
 
-    const toAdminItem = (e: EventApiDto): EventApiDto => e;
+    const tableData = useMemo(() => {
+        if (selectedDayISO) {
+            return events.filter(ev => toDayKeyISO(new Date(ev.eventDate)) === selectedDayISO);
+        }
+        return personalEventSchedule;
+    }, [events, selectedDayISO, personalEventSchedule]);
 
     const unattend = async (ev: EventApiDto) => {
         try {
-
             await ApiDelete(`/Event/${ev.id}/attend`, token ? { Authorization: `Bearer ${token}` } : undefined);
-            setEvents(prev => prev.filter(e => e.id !== ev.id));
+            const updated = events.map(e => e.id === ev.id ? { ...e, attending: false } : e);
+            setEvents(updated);
         } catch (e) {
             console.error('Unattend failed', e);
         }
@@ -72,13 +74,14 @@ export const Dashboard: React.FC = () => {
                         <button className="btn-sm" onClick={() => setSelectedDayISO(null)}>{t('general.clearFilter')}</button>
                     </div>
                 )}
+
                 <div className="panel-fancy-borders panel-compact">
                     {error && <p className="error-message">{error}</p>}
                     {loading ? (
                         <p>{t('dashboard.loadingEvents')}</p>
                     ) : (
                         <WeekCalendar
-                            events={events}
+                            events={personalEventSchedule}
                             selectedDayISO={selectedDayISO ?? undefined}
                             onDaySelect={(iso) => setSelectedDayISO(prev => prev === iso ? null : iso)}
                         />
@@ -87,8 +90,8 @@ export const Dashboard: React.FC = () => {
 
                 <div className="panel-fancy-borders" style={{ marginTop: '1rem' }}>
                     <EventsTable
-                        events={filtered.map(toAdminItem)}
-                        onEdit={() => { /* no edit on normal dashboard */ }}
+                        events={tableData}
+                        onEdit={() => { }}
                         onDelete={(ev) => unattend(ev)}
                         onViewAttendees={(ev) => setAttendeesFor(ev)}
                         showEdit={false}
