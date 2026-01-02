@@ -68,6 +68,12 @@ namespace OfficeCalendar.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -94,12 +100,17 @@ namespace OfficeCalendar.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("RoomId")
-                        .IsRequired()
+                    b.Property<long>("RoomId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -122,11 +133,6 @@ namespace OfficeCalendar.API.Migrations
 
                     b.Property<long>("EmployeeId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
 
                     b.HasKey("EventId", "EmployeeId");
 
@@ -236,8 +242,12 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<long>("EmployeeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeSpan>("EndTime")
+                    b.Property<string>("EndTime")
+                        .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<long?>("EventId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
@@ -247,12 +257,15 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<long>("RoomId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeSpan>("StartTime")
+                    b.Property<string>("StartTime")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("EventId");
 
                     b.HasIndex("RoomId");
 
@@ -268,6 +281,9 @@ namespace OfficeCalendar.API.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -278,9 +294,37 @@ namespace OfficeCalendar.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("OfficeCalendar.API.Models.SettingsModel", b =>
+                {
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AccentColor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DefaultCalendarView")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("FontSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SiteTheme")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("EmployeeId");
+
+                    b.ToTable("Settings");
                 });
 
             modelBuilder.Entity("OfficeCalendar.API.Models.AdminModel", b =>
@@ -305,7 +349,7 @@ namespace OfficeCalendar.API.Migrations
                     b.HasOne("OfficeCalendar.API.Models.RoomModel", "Room")
                         .WithMany("Events")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
@@ -381,6 +425,11 @@ namespace OfficeCalendar.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OfficeCalendar.API.Models.EventModel", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("OfficeCalendar.API.Models.RoomModel", "Room")
                         .WithMany("RoomBookings")
                         .HasForeignKey("RoomId")
@@ -389,7 +438,20 @@ namespace OfficeCalendar.API.Migrations
 
                     b.Navigation("Employee");
 
+                    b.Navigation("Event");
+
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("OfficeCalendar.API.Models.SettingsModel", b =>
+                {
+                    b.HasOne("OfficeCalendar.API.Models.EmployeeModel", "Employee")
+                        .WithOne("Settings")
+                        .HasForeignKey("OfficeCalendar.API.Models.SettingsModel", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("OfficeCalendar.API.Models.EmployeeModel", b =>
@@ -405,6 +467,9 @@ namespace OfficeCalendar.API.Migrations
                     b.Navigation("OfficeAttendances");
 
                     b.Navigation("RoomBookings");
+
+                    b.Navigation("Settings")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("OfficeCalendar.API.Models.EventModel", b =>

@@ -19,6 +19,9 @@ public class RoomBookingModel
 
     [ForeignKey(nameof(EmployeeId))]
     public EmployeeModel Employee { get; set; } = null!;
+    public long? EventId { get; set; }
+    [ForeignKey(nameof(EventId))]
+    public EventModel? Event { get; set; }
 
     [Required]
     public DateOnly BookingDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);

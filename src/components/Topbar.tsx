@@ -1,25 +1,17 @@
-// src/components/Topbar.tsx
-
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import '../styles/_components.css';
 import '../styles/_layout.css';
 import '../styles/global.css';
 
 interface TopBarProps {
-    theme: 'light' | 'dark';
-    toggleTheme: () => void;
     isLoggedIn: boolean;
     toggleSidebar: (() => void) | undefined;
 }
 
-const ThemeToggle: FC<Pick<TopBarProps, 'theme' | 'toggleTheme'>> = ({ theme, toggleTheme }) => (
-    <button className="header-button" onClick={toggleTheme}>
-        <span className="theme-toggle">{theme === 'dark' ? '☀️' : '🌙'}</span>
-    </button>
-);
-
-export const Topbar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn, toggleSidebar }) => {
+export const Topbar: FC<TopBarProps> = ({ isLoggedIn, toggleSidebar }) => {
+    const { t } = useTranslation('common');
     const navigate = useNavigate();
 
     const handleLoginClick = () => {
@@ -47,10 +39,9 @@ export const Topbar: FC<TopBarProps> = ({ theme, toggleTheme, isLoggedIn, toggle
                         className="header-button"
                         onClick={handleLoginClick}
                     >
-                        Login
+                        {t('general.buttonLogin')}
                     </button>
                 )}
-                <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
             </div>
         </div>
     );

@@ -1,14 +1,30 @@
-import { useState, type FormEvent, type FC, type Dispatch, type SetStateAction } from 'react';
+import { useState, type Dispatch, type FC, type FormEvent, type SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import '../styles/global.css';
+import { ApiPost } from '../config/ApiRequest.ts';
 import '../styles/_components.css';
+import '../styles/global.css';
 
 interface LoginProps {
     setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
     setUserRole: Dispatch<SetStateAction<string | null>>;
 }
 
+interface LoginResponse {
+    employee: {
+        employeeId: number;
+        name: string;
+        email: string;
+        role: string;
+        token: string;
+        refreshToken: string;
+    };
+}
+
 export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
+    const { t: tCommon } = useTranslation('common');
+    const { t: tApi } = useTranslation('api');
+
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -18,50 +34,40 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
         event.preventDefault();
         setErrorMessage(null);
 
-        if (email === '') {
-            if (password === '') {
-                alert('Email and Password are required');
-                return;
-            }
-            alert('Email is required');
-            return;
-        }
-        else if (password === '') {
-            alert('Password is required');
+        if (email === '' || password === '') {
+            const fields = [];
+            if (email === '') fields.push(tCommon('register.labelEmail'));
+            if (password === '') fields.push(tCommon('register.labelPassword'));
+
+            alert(tCommon('register.alertRequired', { fields: fields.join(tCommon('general.listSeparator')) }));
             return;
         }
 
         try {
-            const response = await fetch('http://localhost:5222/api/Employee/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            const token = localStorage.getItem('authToken');
+            const data: LoginResponse = await ApiPost<LoginResponse>(
+                '/Employee/login',
+                { email, password },
+                token ? { Authorization: `Bearer ${token}` } : undefined
+            );
 
-            if (response.ok) {
-                const data: { employee: { role: string; token: string }; token: string } = await response.json();
-                const token: string = data.token;
+            localStorage.setItem('authToken', data.employee.token);
+            sessionStorage.setItem('refreshToken', data.employee.refreshToken);
 
-                localStorage.setItem('authToken', token);
-                const employeeRole: string = data.employee.role.trim().toLowerCase();
+            const employeeRole: string = data.employee.role.trim().toLowerCase();
 
-                setIsLoggedIn(true);
-                setUserRole(employeeRole);
+            setIsLoggedIn(true);
+            setUserRole(employeeRole);
 
-                if (employeeRole === 'admin' || employeeRole === 'manager') {
-                    navigate('/admin-dashboard');
-                } else {
-                    navigate('/dashboard');
-                }
+            navigate(employeeRole === 'admin' || employeeRole === 'manager' ? '/admin-dashboard' : '/dashboard');
 
+        } catch (error) {
+            if (error instanceof Error) {
+                setErrorMessage(tApi(error.message));
             } else {
-                const errorData = await response.json().catch(() => null);
-                setErrorMessage(errorData?.message || 'Login failed.');
+                setErrorMessage(tApi('general.API_ErrorUnexpected'));
             }
-        } catch {
-            setErrorMessage('An error occurred while trying to log in.');
         }
-
     };
 
     return (
@@ -70,7 +76,7 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
                 type="email"
                 className="login-input"
                 id="email"
-                placeholder="Email"
+                placeholder={tCommon('form.placeholderEmail')}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 onInvalid={(e) => e.currentTarget.setCustomValidity('')}
@@ -81,16 +87,16 @@ export const Login: FC<LoginProps> = ({ setIsLoggedIn, setUserRole }) => {
                 type="password"
                 className="login-input"
                 id="password"
-                placeholder="Password"
+                placeholder={tCommon('form.placeholderPassword')}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
             />
 
-            {errorMessage && <p className="login-error">{errorMessage}</p>}
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
 
             <button type="submit" className="button-primary">
-                Login
+                {tCommon('general.buttonLogin')}
             </button>
         </form>
     );

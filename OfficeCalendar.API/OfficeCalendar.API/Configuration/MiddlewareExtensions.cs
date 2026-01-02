@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+using OfficeCalendar.API.Hubs;
 
 namespace OfficeCalendar.API.Configuration;
 
@@ -20,12 +20,12 @@ public static class MiddlewareExtensions
 
         app.UseRouting();
 
+        app.UseCors(CorsPolicyName);
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseCors(CorsPolicyName);
-
         app.MapControllers();
+        app.MapHub<GenericHub>("/hubs/genericHub");
 
         return app;
     }

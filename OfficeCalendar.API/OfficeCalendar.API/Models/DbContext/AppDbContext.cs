@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using OfficeCalendar.API.Configuration;
+
+
 
 namespace OfficeCalendar.API.Models.DbContext;
 
@@ -16,6 +19,7 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
     public DbSet<EventParticipationModel> EventParticipations => Set<EventParticipationModel>();
     public DbSet<OfficeAttendanceModel> OfficeAttendances => Set<OfficeAttendanceModel>();
     public DbSet<RoomBookingModel> RoomBookings => Set<RoomBookingModel>();
+    public DbSet<SettingsModel> Settings => Set<SettingsModel>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,17 +37,28 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
             .HasForeignKey(eventModel => eventModel.CreatedById)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<EventModel>()
-            .HasOne(eventModel => eventModel.Room)
-            .WithMany(r => r.Events)
-            .HasForeignKey(eventModel => eventModel.RoomId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<RoomBookingModel>()
             .HasOne(rBooking => rBooking.Room)
             .WithMany(room => room.RoomBookings)
             .HasForeignKey(rBooking => rBooking.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoomBookingModel>()
+            .HasOne(rb => rb.Event)
+            .WithMany()
+            .HasForeignKey(rb => rb.EventId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+        modelBuilder.Entity<SettingsModel>()
+            .HasKey(s => s.EmployeeId);
+
+        modelBuilder.Entity<SettingsModel>()
+            .HasOne(s => s.Employee)
+            .WithOne(e => e.Settings)
+            .HasForeignKey<SettingsModel>(s => s.EmployeeId)
+            .IsRequired();
 
         modelBuilder.Entity<RoomBookingModel>(builder =>
         {
@@ -53,14 +68,12 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
                     dateTime => DateOnly.FromDateTime(dateTime));
 
             builder.Property(rBooking => rBooking.StartTime)
-                .HasConversion(
-                    timeOnly => timeOnly.ToTimeSpan(),
-                    timeSpan => TimeOnly.FromTimeSpan(timeSpan));
+                .HasConversion<TimeOnlyToStringConverter>()
+                .Metadata.SetValueComparer(new TimeOnlyComparer());
 
             builder.Property(rb => rb.EndTime)
-                .HasConversion(
-                    timeOnly => timeOnly.ToTimeSpan(),
-                    timeSpan => TimeOnly.FromTimeSpan(timeSpan));
+                .HasConversion<TimeOnlyToStringConverter>()
+                .Metadata.SetValueComparer(new TimeOnlyComparer());
         });
     }
 }

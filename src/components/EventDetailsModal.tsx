@@ -1,0 +1,90 @@
+import React, { useState } from 'react';
+import { ApiDelete, ApiPost } from '../config/ApiRequest';
+import type { EventApiDto } from '../utils/types';
+import { useTranslation } from 'react-i18next';
+
+interface EventDetailsModalProps {
+    event: EventApiDto;
+    onClose: (finalAttending?: boolean) => void;
+    onAttendChange?: (eventId: number, attending: boolean) => void;
+}
+
+export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onClose, onAttendChange }) => {
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+
+    const [attending, setAttending] = useState<boolean>(event.attending === true);
+    const [busy, setBusy] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const toggleAttend = async () => {
+        if (busy) return;
+        setBusy(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem('authToken');
+            if (attending) {
+                await ApiDelete(`/attend/events/${event.id}`, token ? { Authorization: `Bearer ${token}` } : undefined);
+                setAttending(false);
+                onAttendChange?.(event.id, false);
+            } else {
+                await ApiPost(`/attend/events/${event.id}`, {}, token ? { Authorization: `Bearer ${token}` } : undefined);
+                setAttending(true);
+                onAttendChange?.(event.id, true);
+            }
+        } catch (e) {
+            const errorMsg = e instanceof Error ? e.message : tCommon('general.API_ErrorUnexpected');
+            setError(errorMsg);
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal">
+                <div className="modal-header">
+                    <h3>{event.title}</h3>
+                </div>
+                <div className="modal-body">
+                    <div className="detail-row">
+                        <strong>{tEvents('eventDetails.date')}:</strong>
+                        <span>
+                            {event.eventDate} {/* datum in YYYY-MM-DD */}
+                        </span>
+                    </div>
+
+                    {event.room?.roomName && (
+                        <div className="detail-row">
+                            <strong>{tEvents('eventDetails.location')}:</strong>
+                            <span>{event.room.roomName}</span>
+                        </div>
+                    )}
+                    {event.description && (
+                        <div className="detail-row">
+                            <strong>{tEvents('eventDetails.description')}:</strong>
+                            <span>{event.description}</span>
+                        </div>
+                    )}
+                    <div className="detail-row">
+                        <strong>{tEvents('eventDetails.attendees')}:</strong>
+                        <span>{(event.attendees ?? []).join(', ') || '—'}</span>
+                    </div>
+                    {error && <p className="error-message">{error}</p>}
+                </div>
+                <div className="modal-footer modal-footer--right">
+                    <button
+                        className={attending ? 'btn-danger' : 'button-secondary'}
+                        onClick={toggleAttend}
+                        disabled={busy}
+                    >
+                        {attending ? tEvents('eventDetails.buttonUnattend') : tEvents('eventDetails.buttonAttend')}
+                    </button>
+                    <button className="button-secondary" onClick={() => onClose(attending)}>
+                        {tCommon('general.buttonClose')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
