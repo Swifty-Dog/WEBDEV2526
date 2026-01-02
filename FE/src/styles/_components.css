@@ -689,6 +689,22 @@ textarea:disabled {
     background: var(--color-brand-accent-active);
 }
 
+.btn-sm-secondary {
+    background: var(--color-brand-primary);
+    color: var(--color-text-primary);
+    border-color: var(--color-brand-primary);
+}
+
+.btn-sm-secondary:hover:not(:disabled) {
+    background: var(--color-brand-secondary);
+    border-color: var(--color-brand-secondary);
+}
+
+.btn-sm-primary:active:not(:disabled) {
+    background: var(--color-brand-accent);
+}
+
+
 .btn-danger {
     display: flex;
     flex-direction: column;
@@ -844,7 +860,7 @@ textarea:disabled {
 .week-day.selected .weekday-date,
 .week-day.selected .muted,
 .week-day.selected .event-title {
-    color: var(--color-text-contrast);
+    color: var(--color-brand-primary);
 }
 
 .week-day.selected .badge {
@@ -1124,6 +1140,18 @@ textarea:disabled {
     animation: gradientMove 3s ease-in-out infinite;
 }
 
+.week-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.5rem 0 1rem 0;
+}
+
+.week-controls .nav-button {
+    display: flex;
+    gap: 0.25rem;
+}
+
 .admin-actions-list {
     list-style: none;
     padding: 0;
@@ -1280,4 +1308,8 @@ textarea:disabled {
 
 .section-card>.button-primary#button-smaller {
     margin: 0 auto;
+}
+
+.quick-dirty-margin {
+    margin-top: 1rem;
 }

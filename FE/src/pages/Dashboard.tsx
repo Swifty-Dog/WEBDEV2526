@@ -49,10 +49,10 @@ export const Dashboard: React.FC = () => {
 
     const tableData = useMemo(() => {
         if (selectedDayISO) {
-            return events.filter(ev => toDayKeyISO(new Date(ev.eventDate)) === selectedDayISO);
+            return personalEventSchedule.filter(ev => toDayKeyISO(new Date(ev.eventDate)) === selectedDayISO);
         }
         return personalEventSchedule;
-    }, [events, selectedDayISO, personalEventSchedule]);
+    }, [selectedDayISO, personalEventSchedule]);
 
     const unattend = async (ev: EventApiDto) => {
         try {
@@ -88,7 +88,7 @@ export const Dashboard: React.FC = () => {
                     )}
                 </div>
 
-                <div className="panel-fancy-borders" style={{ marginTop: '1rem' }}>
+                <div className="panel-fancy-borders quick-dirty-margin">
                     <EventsTable
                         events={tableData}
                         onEdit={() => { }}

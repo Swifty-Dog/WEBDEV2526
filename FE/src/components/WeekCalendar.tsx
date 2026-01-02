@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { EventApiDto } from '../utils/types';
 
 interface Props {
@@ -43,15 +43,30 @@ const startOfWeek = (date: Date): Date => {
     return d;
 };
 
+export const WeekCalendar: React.FC<Props> = ({events, selectedDayISO, onDaySelect}) => {
+    const [currentDate, setCurrentDate] = useState(new Date());
 
-export const WeekCalendar: React.FC<Props> = ({
-    events,
-    selectedDayISO,
-    onDaySelect
-}) => {
+    const prevWeek = () => {
+        setCurrentDate(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() - 7);
+            return d;
+        });
+    };
 
-    const today = new Date();
-    const weekStart = startOfWeek(today);
+    const nextWeek = () => {
+        setCurrentDate(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() + 7);
+            return d;
+        });
+    };
+
+    const goToToday = () => {
+        setCurrentDate(new Date());
+    };
+
+    const weekStart = useMemo(() => startOfWeek(currentDate), [currentDate]);
 
     const days = useMemo(() => {
         return Array.from({ length: 7 }, (_, i) => {
@@ -72,33 +87,50 @@ export const WeekCalendar: React.FC<Props> = ({
 
         Object.values(map).forEach(list =>
             list.sort((a, b) =>
-
                 combineDateAndTime(a.eventDate, a.startTime).getTime() -
                 combineDateAndTime(b.eventDate, b.startTime).getTime()
             )
-
         );
 
         return map;
     }, [events]);
 
+    const monthLabel = weekStart.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
     return (
         <div className="week-calendar">
+            <div className="week-controls">
+                <h3>{monthLabel}</h3>
+
+                <div className="nav-button">
+                    <button className="btn-sm btn-icon" onClick={prevWeek}>
+                        ❮
+                    </button>
+                    <button className="btn-sm btn-sm-secondary" onClick={goToToday}>
+                        ⟐
+                    </button>
+                    <button className="btn-sm btn-icon" onClick={nextWeek}>
+                        ❯
+                    </button>
+                </div>
+            </div>
+
             <div className="week-grid">
                 {days.map(day => {
                     const dayKey = toDayKeyISO(day);
                     const isSelected = dayKey === selectedDayISO;
                     const dayEvents = eventsByDay[dayKey] ?? [];
+                    const isToday = toDayKeyISO(new Date()) === dayKey;
 
                     return (
                         <div
                             key={dayKey}
-                            className={`week-day ${isSelected ? 'selected' : ''}`}
+                            className={`week-day ${isSelected ? 'selected' : ''} ${isToday ? 'current-day' : ''}`}
                             onClick={() => onDaySelect?.(dayKey)}
                         >
                             <div className="week-day-header">
                                 <div>{day.toLocaleDateString(undefined, { weekday: 'short' })}</div>
-                                <div>{day.getDate()}</div>
+                                <div className={isToday ? 'today-circle' : ''}>{day.getDate()}</div>
                             </div>
 
                             <div className="week-day-events">
