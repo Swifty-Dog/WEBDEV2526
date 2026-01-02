@@ -79,6 +79,12 @@ public class RoomBookingService : IRoomBookingService
         }
     }
 
+    public async Task<GetRoomBookingListResult> GetUpcomingRoomBookingsByEmployeeIdExcludeEvents(long employeeId)
+    {
+        var roomBookings = await _roomBookingRepo.GetUpcomingByEmployeeIdExcludeEvents(employeeId);
+        return new GetRoomBookingListResult.Success(roomBookings);
+    }
+
     public async Task<GetRoomBookingListResult> GetRoomBookingsByDate(DateOnly date)
     {
         try

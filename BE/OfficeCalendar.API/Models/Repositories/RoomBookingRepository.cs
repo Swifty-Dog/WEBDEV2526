@@ -21,6 +21,7 @@ public class RoomBookingRepository : Repository<RoomBookingModel>, IRoomBookingR
             (ignoreEventId == null || rb.EventId != ignoreEventId)
         );
     }
+
     public Task<RoomBookingModel?> GetOverlappingBooking(DateOnly bookingDate, TimeOnly startTime, TimeOnly endTime, long roomId)
     {
         return DbSet.FirstOrDefaultAsync(rb =>
@@ -40,6 +41,21 @@ public class RoomBookingRepository : Repository<RoomBookingModel>, IRoomBookingR
         return DbSet
             .Include(rb => rb.Room)
             .Where(rb => rb.EmployeeId == employeeId && (rb.BookingDate > today ||
+                                                         (rb.BookingDate == today && rb.EndTime > currentTime)))
+            .OrderBy(rb => rb.BookingDate)
+            .ThenBy(rb => rb.StartTime)
+            .ToListAsync();
+    }
+
+    public Task<List<RoomBookingModel>> GetUpcomingByEmployeeIdExcludeEvents(long employeeId)
+    {
+        var now = DateTime.UtcNow;
+        var today = DateOnly.FromDateTime(now);
+        var currentTime = TimeOnly.FromDateTime(now);
+
+        return DbSet
+            .Include(rb => rb.Room)
+            .Where(rb => rb.EmployeeId == employeeId && rb.EventId == null && (rb.BookingDate > today ||
                                                          (rb.BookingDate == today && rb.EndTime > currentTime)))
             .OrderBy(rb => rb.BookingDate)
             .ThenBy(rb => rb.StartTime)

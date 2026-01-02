@@ -67,7 +67,7 @@ public class RoomBookingController : BaseController
         var employee = await GetCurrentUserAsync();
         if (employee is null) return Unauthorized(new { message = "general.API_ErrorInvalidSession" });
 
-        var result = await _roomBookingService.GetUpcomingRoomBookingsByEmployeeId(employee.Id);
+        var result = await _roomBookingService.GetUpcomingRoomBookingsByEmployeeIdExcludeEvents(employee.Id);
 
         return result switch
         {
