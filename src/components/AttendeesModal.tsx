@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { EventItem } from '../pages/AdminDashboard';
+import type { EventApiDto } from '../utils/types';
 
 interface Props {
-    eventItem: EventItem;
+    eventItem: EventApiDto;
     onClose: () => void;
 }
 

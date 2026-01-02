@@ -11,14 +11,24 @@ public class RoomBookingRepository : Repository<RoomBookingModel>, IRoomBookingR
     {
     }
 
-    public Task<RoomBookingModel?> GetOverlappingBooking(DateOnly bookingDate, TimeOnly startTime, TimeOnly endTime,
-        long roomId)
+    public Task<bool> HasConflict(long roomId, DateOnly date, TimeOnly start, TimeOnly end, long? ignoreEventId = null)
+    {
+        return DbSet.AnyAsync(rb =>
+            rb.RoomId == roomId &&
+            rb.BookingDate == date &&
+            rb.StartTime < end &&
+            rb.EndTime > start &&
+            (ignoreEventId == null || rb.EventId != ignoreEventId)
+        );
+    }
+    public Task<RoomBookingModel?> GetOverlappingBooking(DateOnly bookingDate, TimeOnly startTime, TimeOnly endTime, long roomId)
     {
         return DbSet.FirstOrDefaultAsync(rb =>
             rb.BookingDate == bookingDate &&
             rb.RoomId == roomId &&
             rb.StartTime < endTime &&
-            rb.EndTime > startTime);
+            rb.EndTime > startTime
+        );
     }
 
     public Task<List<RoomBookingModel>> GetUpcomingBookingsByEmployeeId(long employeeId)
@@ -43,4 +53,10 @@ public class RoomBookingRepository : Repository<RoomBookingModel>, IRoomBookingR
             .Where(rb => rb.BookingDate == date)
             .ToListAsync();
     }
+
+    public Task<RoomBookingModel?> GetByEventId(long eventId)
+    {
+        return DbSet.FirstOrDefaultAsync(rb => rb.EventId == eventId);
+    }
+
 }

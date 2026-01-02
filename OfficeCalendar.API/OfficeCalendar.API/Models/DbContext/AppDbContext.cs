@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using OfficeCalendar.API.Configuration;
 
+
+
 namespace OfficeCalendar.API.Models.DbContext;
 
 public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
@@ -35,17 +37,19 @@ public class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
             .HasForeignKey(eventModel => eventModel.CreatedById)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<EventModel>()
-            .HasOne(eventModel => eventModel.Room)
-            .WithMany(r => r.Events)
-            .HasForeignKey(eventModel => eventModel.RoomId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<RoomBookingModel>()
             .HasOne(rBooking => rBooking.Room)
             .WithMany(room => room.RoomBookings)
             .HasForeignKey(rBooking => rBooking.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RoomBookingModel>()
+            .HasOne(rb => rb.Event)
+            .WithMany()
+            .HasForeignKey(rb => rb.EventId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 
         modelBuilder.Entity<SettingsModel>()
             .HasKey(s => s.EmployeeId);

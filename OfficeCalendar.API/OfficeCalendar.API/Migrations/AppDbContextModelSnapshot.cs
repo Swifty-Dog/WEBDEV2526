@@ -100,12 +100,17 @@ namespace OfficeCalendar.API.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("RoomId")
-                        .IsRequired()
+                    b.Property<long>("RoomId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -241,6 +246,9 @@ namespace OfficeCalendar.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("EventId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Purpose")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -256,6 +264,8 @@ namespace OfficeCalendar.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("EventId");
 
                     b.HasIndex("RoomId");
 
@@ -339,7 +349,7 @@ namespace OfficeCalendar.API.Migrations
                     b.HasOne("OfficeCalendar.API.Models.RoomModel", "Room")
                         .WithMany("Events")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
@@ -415,6 +425,11 @@ namespace OfficeCalendar.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OfficeCalendar.API.Models.EventModel", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("OfficeCalendar.API.Models.RoomModel", "Room")
                         .WithMany("RoomBookings")
                         .HasForeignKey("RoomId")
@@ -422,6 +437,8 @@ namespace OfficeCalendar.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+
+                    b.Navigation("Event");
 
                     b.Navigation("Room");
                 });

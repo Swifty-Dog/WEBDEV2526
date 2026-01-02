@@ -1,23 +1,18 @@
 import React, { useState } from 'react';
 import { ApiDelete, ApiPost } from '../config/ApiRequest';
-
-export interface EventDetailsItem {
-    id: string;
-    title: string;
-    date: string; 
-    location?: string;
-    description?: string;
-    attendees?: string[];
-    attending?: boolean;
-}
+import type { EventApiDto } from '../utils/types';
+import { useTranslation } from 'react-i18next';
 
 interface EventDetailsModalProps {
-    event: EventDetailsItem;
+    event: EventApiDto;
     onClose: (finalAttending?: boolean) => void;
-    onAttendChange?: (eventId: string, attending: boolean) => void;
+    onAttendChange?: (eventId: number, attending: boolean) => void;
 }
 
 export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onClose, onAttendChange }) => {
+    const { t: tEvents } = useTranslation('events');
+    const { t: tCommon } = useTranslation('common');
+
     const [attending, setAttending] = useState<boolean>(event.attending === true);
     const [busy, setBusy] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -29,16 +24,16 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onC
         try {
             const token = localStorage.getItem('authToken');
             if (attending) {
-                await ApiDelete(`/Event/${event.id}/attend`, token ? { Authorization: `Bearer ${token}` } : undefined);
+                await ApiDelete(`/attend/events/${event.id}`, token ? { Authorization: `Bearer ${token}` } : undefined);
                 setAttending(false);
                 onAttendChange?.(event.id, false);
             } else {
-                await ApiPost(`/Event/${event.id}/attend`, {}, token ? { Authorization: `Bearer ${token}` } : undefined);
+                await ApiPost(`/attend/events/${event.id}`, {}, token ? { Authorization: `Bearer ${token}` } : undefined);
                 setAttending(true);
                 onAttendChange?.(event.id, true);
             }
         } catch (e) {
-            const errorMsg = e instanceof Error ? e.message : 'Failed to update attendance';
+            const errorMsg = e instanceof Error ? e.message : tCommon('general.API_ErrorUnexpected');
             setError(errorMsg);
         } finally {
             setBusy(false);
@@ -52,15 +47,30 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onC
                     <h3>{event.title}</h3>
                 </div>
                 <div className="modal-body">
-                    <div className="detail-row"><strong>Date:</strong> <span>{new Date(event.date).toLocaleString()}</span></div>
-                    {event.location && (
-                        <div className="detail-row"><strong>Location:</strong> <span>{event.location}</span></div>
+                    <div className="detail-row">
+                        <strong>{tEvents('eventDetails.date')}:</strong>
+                        <span>
+                            {event.eventDate} {/* datum in YYYY-MM-DD */}
+                        </span>
+                    </div>
+
+                    {event.room?.roomName && (
+                        <div className="detail-row">
+                            <strong>{tEvents('eventDetails.location')}:</strong>
+                            <span>{event.room.roomName}</span>
+                        </div>
                     )}
                     {event.description && (
-                        <div className="detail-row"><strong>Description:</strong> <span>{event.description}</span></div>
+                        <div className="detail-row">
+                            <strong>{tEvents('eventDetails.description')}:</strong>
+                            <span>{event.description}</span>
+                        </div>
                     )}
-                    <div className="detail-row"><strong>Attendees:</strong> <span>{(event.attendees ?? []).join(', ') || '—'}</span></div>
-                    {error && <p className="error-message" style={{ marginTop: '1rem', color: 'var(--color-error-primary)' }}>{error}</p>}
+                    <div className="detail-row">
+                        <strong>{tEvents('eventDetails.attendees')}:</strong>
+                        <span>{(event.attendees ?? []).join(', ') || '—'}</span>
+                    </div>
+                    {error && <p className="error-message">{error}</p>}
                 </div>
                 <div className="modal-footer modal-footer--right">
                     <button
@@ -68,9 +78,11 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({ event, onC
                         onClick={toggleAttend}
                         disabled={busy}
                     >
-                        {attending ? 'Unattend' : 'Undo'}
+                        {attending ? tEvents('eventDetails.buttonUnattend') : tEvents('eventDetails.buttonAttend')}
                     </button>
-                    <button className="button-secondary" onClick={() => onClose(attending)}>Close</button>
+                    <button className="button-secondary" onClick={() => onClose(attending)}>
+                        {tCommon('general.buttonClose')}
+                    </button>
                 </div>
             </div>
         </div>

@@ -3,34 +3,18 @@ import { WeekCalendar } from '../components/WeekCalendar';
 import { ApiGet, ApiDelete } from '../config/ApiRequest';
 import { EventsTable } from '../components/EventsTable';
 import { AttendeesModal } from '../components/AttendeesModal';
-import type { EventItem as AdminEventItem } from './AdminDashboard';
+import type { EventApiDto } from '../utils/types';
 import { useTranslation } from 'react-i18next';
-
-interface EventApiItem {
-    id: number;
-    title: string;
-    description?: string;
-    eventDate: string;
-    roomName?: string;
-    location?: string;
-    attendees: string[];
-}
+import {getUserRoleFromToken} from "../utils/auth.ts";
 
 export const Dashboard: React.FC = () => {
     const { t } = useTranslation('common');
-    const [events, setEvents] = useState<Array<{
-        id: string;
-        title: string;
-        date: string; // ISO
-        location?: string;
-        description?: string;
-        attendees?: string[];
-        attending?: boolean;
-    }>>([]);
+    const [events, setEvents] = useState<EventApiDto[]>([]);
     const [selectedDayISO, setSelectedDayISO] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [attendeesFor, setAttendeesFor] = useState<AdminEventItem | null>(null);
+    const [attendeesFor, setAttendeesFor] = useState<EventApiDto | null>(null);
+    const token = localStorage.getItem('authToken');
 
     const toDayKeyISO = (d: Date) => {
         const y = d.getFullYear();
@@ -44,18 +28,8 @@ export const Dashboard: React.FC = () => {
             setLoading(true);
             setError(null);
             try {
-                const token = localStorage.getItem('authToken');
-                const data = await ApiGet<EventApiItem[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
-                const mapped = data.map(e => ({
-                    id: String(e.id),
-                    title: e.title,
-                    date: e.eventDate,
-                    location: e.location ?? e.roomName,
-                    description: e.description,
-                    attendees: e.attendees,
-                    attending: (e as any).attending === true
-                }));
-                setEvents(mapped);
+                const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
+                setEvents(data);
             } catch (e) {
                 setError(t('networkError'));
             } finally {
@@ -63,27 +37,20 @@ export const Dashboard: React.FC = () => {
             }
         };
         fetchEvents();
-    }, []);
+    }, [t]);
 
-    const attendingEvents = useMemo(() => events.filter(ev => ev.attending), [events]);
+    const attendingEvents = useMemo(() => events.filter(ev => (ev as any).attending), [events]);
     const filtered = useMemo(() => {
         const base = attendingEvents;
         if (!selectedDayISO) return base;
-        return base.filter(ev => toDayKeyISO(new Date(ev.date)) === selectedDayISO);
+        return base.filter(ev => toDayKeyISO(new Date(ev.eventDate)) === selectedDayISO);
     }, [attendingEvents, selectedDayISO]);
 
-    const toAdminItem = (e: { id: string; title: string; date: string; location?: string; description?: string; attendees?: string[]; }): AdminEventItem => ({
-        id: e.id,
-        title: e.title,
-        date: e.date,
-        location: e.location,
-        description: e.description,
-        attendees: e.attendees ?? []
-    });
+    const toAdminItem = (e: EventApiDto): EventApiDto => e;
 
-    const unattend = async (ev: AdminEventItem) => {
+    const unattend = async (ev: EventApiDto) => {
         try {
-            const token = localStorage.getItem('authToken');
+
             await ApiDelete(`/Event/${ev.id}/attend`, token ? { Authorization: `Bearer ${token}` } : undefined);
             setEvents(prev => prev.filter(e => e.id !== ev.id));
         } catch (e) {
@@ -121,6 +88,7 @@ export const Dashboard: React.FC = () => {
                         onDelete={(ev) => unattend(ev)}
                         onViewAttendees={(ev) => setAttendeesFor(ev)}
                         showEdit={false}
+                        showDelete={getUserRoleFromToken(token) !== "employee"}
                         deleteLabel={t('general.buttonUnattend')}
                     />
                 </div>

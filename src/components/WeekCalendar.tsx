@@ -1,146 +1,127 @@
-import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import type { EventItem } from '../pages/AdminDashboard';
+import React, { useMemo } from 'react';
+import type { EventApiDto } from '../utils/types';
 
 interface Props {
-    events: EventItem[];
+    events: EventApiDto[];
     selectedDayISO?: string;
-    onDaySelect?: (dateISO: string, eventsForDay: EventItem[]) => void;
-    startHour?: number;
-    endHour?: number;   
+    onDaySelect?: (iso: string) => void;
 }
 
-function startOfWeekMonday(date: Date): Date {
+const toDayKeyISO = (d: string | Date): string => {
+    const date = typeof d === 'string' ? new Date(d) : d;
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+};
+
+const combineDateAndTime = (date: string | Date, time: string | Date): Date => {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const t = typeof time === 'string' ? new Date(time) : time;
+    // if time is 'HH:MM' create ISO using date's date
+    if (typeof time === 'string' && !time.includes('T')) {
+        const [hh, mm] = time.split(':').map(Number);
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm, 0, 0);
+    }
+
+    return new Date(
+        t.getFullYear(),
+        t.getMonth(),
+        t.getDate(),
+        t.getHours(),
+        t.getMinutes(),
+        0,
+        0
+    );
+};
+
+const startOfWeek = (date: Date): Date => {
     const d = new Date(date);
-    const day = d.getDay();
-    const diff = (day === 0 ? -6 : 1 - day);
-    d.setDate(d.getDate() + diff);
+    const day = d.getDay() || 7; // zondag = 7
+    d.setDate(d.getDate() - (day - 1));
     d.setHours(0, 0, 0, 0);
     return d;
-}
+};
 
-function toDayKeyISO(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-}
 
-export const WeekCalendar: React.FC<Props> = ({ events, selectedDayISO, onDaySelect, startHour = 0, endHour = 24 }) => {
-    const { t, i18n } = useTranslation('common');
+export const WeekCalendar: React.FC<Props> = ({
+    events,
+    selectedDayISO,
+    onDaySelect
+}) => {
 
-    const [anchor, setAnchor] = useState<Date>(() => startOfWeekMonday(new Date()));
+    const today = new Date();
+    const weekStart = startOfWeek(today);
 
     const days = useMemo(() => {
         return Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(anchor);
-            d.setDate(anchor.getDate() + i);
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
             return d;
         });
-    }, [anchor]);
+    }, [weekStart]);
 
     const eventsByDay = useMemo(() => {
-        const map = new Map<string, EventItem[]>();
+        const map: Record<string, EventApiDto[]> = {};
+
         for (const ev of events) {
-            const d = new Date(ev.date);
-            const hr = d.getHours();
-            if (hr < startHour || hr >= endHour) continue;
-            const key = toDayKeyISO(d);
-            if (!map.has(key)) map.set(key, []);
-            map.get(key)!.push(ev);
+            const key = toDayKeyISO(ev.eventDate);
+            if (!map[key]) map[key] = [];
+            map[key].push(ev);
         }
-        // optional: sort by time within day
-        for (const [k, arr] of map) {
-            arr.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            map.set(k, arr);
-        }
+
+        Object.values(map).forEach(list =>
+            list.sort((a, b) =>
+
+                combineDateAndTime(a.eventDate, a.startTime).getTime() -
+                combineDateAndTime(b.eventDate, b.startTime).getTime()
+            )
+
+        );
+
         return map;
-    }, [events, startHour, endHour]);
-
-    const prevWeek = () => {
-        const d = new Date(anchor);
-        d.setDate(d.getDate() - 7);
-        setAnchor(startOfWeekMonday(d));
-    };
-    const nextWeek = () => {
-        const d = new Date(anchor);
-        d.setDate(d.getDate() + 7);
-        setAnchor(startOfWeekMonday(d));
-    };
-    const goToday = () => {
-        setAnchor(startOfWeekMonday(new Date()));
-    };
-
-    const headerLabel = useMemo(() => {
-        const end = new Date(anchor);
-        end.setDate(anchor.getDate() + 6);
-        const currentLanguage = i18n.language || 'en';
-        const intl = new Intl.DateTimeFormat(currentLanguage, { month: 'short', day: 'numeric', year: 'numeric' });
-        return `${intl.format(anchor)} – ${intl.format(end)}`;
-    }, [anchor, i18n.language]);
-
-    const weekdayAbbrKeys = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const weekdayNames = weekdayAbbrKeys.map(key => t(`calendar.weekdayAbbr.${key}`));
+    }, [events]);
 
     return (
         <div className="week-calendar">
-            <div className="week-header">
-                <button className="nav-btn" onClick={prevWeek} title={t('calendar.titlePrevWeek')}>❮</button>
-                <h3 style={{ margin: 0 }}>{headerLabel}</h3>
-                <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
-                    <button className="btn-sm" onClick={goToday} title={t('calendar.titleJumpToday')}>{t('calendar.buttonToday')}</button>
-                    <button className="nav-btn" onClick={nextWeek} title={t('calendar.titleNextWeek')}>❯</button>
-                </div>
-            </div>
-            <div className={selectedDayISO ? 'week-grid has-selection' : 'week-grid'}>
-                {days.map((d, idx) => {
-                    const key = toDayKeyISO(d);
-                    const dayEvents = eventsByDay.get(key) ?? [];
-                    const isToday = new Date().toDateString() === d.toDateString();
-                    const isSelected = selectedDayISO === key;
-                    const className = `week-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`;
-
-                    const dayTitle = dayEvents.length > 0 ? dayEvents.map(ev => ev.title).join(', ') : undefined;
+            <div className="week-grid">
+                {days.map(day => {
+                    const dayKey = toDayKeyISO(day);
+                    const isSelected = dayKey === selectedDayISO;
+                    const dayEvents = eventsByDay[dayKey] ?? [];
 
                     return (
                         <div
-                            key={key}
-                            className={className}
-                            title={dayTitle}
-                            onClick={() => onDaySelect?.(key, dayEvents)}
-                            role="button"
-                            tabIndex={0}
-                            aria-pressed={isSelected}
-                            aria-current={isToday ? 'date' : undefined}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDaySelect?.(key, dayEvents); } }}
+                            key={dayKey}
+                            className={`week-day ${isSelected ? 'selected' : ''}`}
+                            onClick={() => onDaySelect?.(dayKey)}
                         >
                             <div className="week-day-header">
-                                <span className="weekday-name">{weekdayNames[idx]}</span>
-                                <span className="weekday-date">{d.getDate()}</span>
-                                {isToday && (
-                                    <span className="day-chip today-chip" aria-hidden="true">{t('calendar.buttonToday')}</span>
-                                )}
-                                {isSelected && (
-                                    <span className="day-chip selected-chip" aria-hidden="true">{t('calendar.chipSelected')}</span>
-                                )}
-                                {dayEvents.length > 0 && (
-                                    <span className="badge">{dayEvents.length}</span>
-                                )}
+                                <div>{day.toLocaleDateString(undefined, { weekday: 'short' })}</div>
+                                <div>{day.getDate()}</div>
                             </div>
-                            <div className="day-events">
-                                {dayEvents.length === 0 ? (
-                                    <div className="muted" style={{ fontSize: '0.85rem' }}>{t('calendar.labelNoEvents')}</div>
-                                ) : (
-                                    dayEvents.slice(0, 3).map(e => (
-                                        <div key={e.id} className="event-chip" title={e.description}>
-                                            <span className="event-time">{new Date(e.date).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                                            <span className="event-title">{e.title}</span>
+
+                            <div className="week-day-events">
+                                {dayEvents.length === 0 && (
+                                    <div className="muted">—</div>
+                                )}
+
+                                {dayEvents.map(ev => {
+                                    const start = combineDateAndTime(ev.eventDate, ev.startTime);
+                                    const end = combineDateAndTime(ev.eventDate, ev.endTime);
+
+                                    return (
+                                        <div key={ev.id} className="calendar-event">
+                                            <div className="event-title">{ev.title}</div>
+                                            <div className="event-time">
+                                                {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {' – '}
+                                                {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                            <div className="muted">{ev.room?.roomName}</div>
                                         </div>
-                                    ))
-                                )}
-                                {dayEvents.length > 3 && (
-                                    <div className="muted more">{t('calendar.labelMoreEvents', { count: dayEvents.length - 3 })}</div>
-                                )}
+                                    );
+                                })}
                             </div>
                         </div>
                     );

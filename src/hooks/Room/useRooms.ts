@@ -3,7 +3,7 @@ import i18n from '../../utils/locales/i18n';
 import { translateFetchError } from '../../utils/locales/translateFetchError';
 import { ApiGet, ApiPost, ApiPut, ApiDelete } from '../../config/ApiRequest.ts';
 import type { Room } from '../../utils/types.ts';
-import { startGenericHub, onEvent, stopGenericHub } from '../../utils/signalR/genericHub';
+import { startGenericHub, onEvent } from '../../utils/signalR/genericHub';
 
 export const useRooms = () => {
     const token = localStorage.getItem('authToken');
@@ -27,7 +27,7 @@ export const useRooms = () => {
             });
 
             setRooms(data.map(r => ({
-                id: r.id || null,
+                id: r.id,
                 roomName: r.roomName,
                 capacity: r.capacity,
                 location: r.location
@@ -64,7 +64,7 @@ export const useRooms = () => {
         if (!token) return;
 
         try {
-            await ApiDelete(`/Room/${id}`, {Authorization: `Bearer ${token}`});
+            await ApiDelete(`/Room/${id}`, { Authorization: `Bearer ${token}` });
             setRooms(prev => prev.filter(r => r.id !== id));
         } catch (err) {
             const errorMessage = translateFetchError(err as Error, 'rooms:roomError.errorDelete');
@@ -85,9 +85,8 @@ export const useRooms = () => {
 
         return () => {
             unsubscribe();
-            stopGenericHub().catch(err => console.error('Error stopping SignalR hub for rooms:', err));
         };
     }, [token, fetchRooms]);
 
-    return {rooms, loading, error, fetchRooms, saveRoom, deleteRoom};
+    return { rooms, loading, error, fetchRooms, saveRoom, deleteRoom };
 };
