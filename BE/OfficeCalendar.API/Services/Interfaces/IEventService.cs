@@ -12,7 +12,9 @@ public interface IEventService
 
     public Task<GetEventsResult> GetAllEvents(long? currentUserId = null);
 
-    public Task<UpdateEventResult> UpdateEvent(long EventId, UpdateEventDto updatedEventDto, long? currentUserId = null);
+    public Task<GetEventsResult> GetEventsPastDateIncluding(DateTime? date, long? currentUserId = null);
+
+    public Task<UpdateEventResult> UpdateEvent(long eventId, UpdateEventDto updatedEventDto, long? currentUserId = null);
 
     public Task<DeleteEventResult> DeleteEvent(long eventId);
 

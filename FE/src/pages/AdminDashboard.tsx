@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventsTable } from '../components/EventsTable';
 import { AttendeesModal } from '../components/AttendeesModal';
@@ -10,14 +10,12 @@ import { ApiDelete } from '../config/ApiRequest';
 import type { EventApiDto } from '../utils/types';
 import { TerminateNavButton } from "../components/Admin/TerminateNavButton.tsx";
 import { useSaveEvents } from '../hooks/useSaveEvents';
-import { useEvents } from '../hooks/useEvents';
+import { useUpcomingEvents } from '../hooks/useUpcomingEvents.ts';
 import { useRooms } from '../hooks/Room/useRooms.ts';
 import '../styles/admin-dashboard.css';
 import PromoteDemoteModal from '../components/Admin/PromoteDemote.tsx';
 import '../styles/_components.css';
 import '../styles/admin-dashboard.css';
-
-
 
 interface AdminDashboardProps {
     userRole: string | null;
@@ -27,7 +25,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const { t: tEvents } = useTranslation('events');
     const { t: tCommon } = useTranslation('common');
     const { t: tAdmin } = useTranslation('admin');
-    const { eventsByDate, loading, error, refetch } = useEvents();
+    const { events, loading, error, refetch } = useUpcomingEvents();
     const { saveEvent } = useSaveEvents();
     const { rooms } = useRooms();
     const [editingEvent, setEditingEvent] = useState<EventApiDto | null>(null);
@@ -38,10 +36,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ userRole }) => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isPromoteDemoteOpen, setIsPromoteDemoteOpen] = useState(false);
 
+    useEffect(() => {
+        document.title = tCommon('menu.adminDashboard') + " | " + import.meta.env.VITE_APP_NAME;
+    }, [tCommon]);
 
     const filteredEvents: EventApiDto[] = selectedDayISO
-        ? eventsByDate[selectedDayISO] ?? []
-        : Object.values(eventsByDate).flat();
+        ? events[selectedDayISO] ?? []
+        : Object.values(events).flat();
 
     const openNew = () => {
         setEditingEvent(null);

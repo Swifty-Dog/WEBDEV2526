@@ -35,13 +35,13 @@ export const Dashboard: React.FC = () => {
                 const data = await ApiGet<EventApiDto[]>("/Event", token ? { Authorization: `Bearer ${token}` } : undefined);
                 setEvents(data);
             } catch {
-                setError(t('networkError'));
+                setError(t('general.networkError'));
             } finally {
                 setLoading(false);
             }
         };
         fetchEvents();
-    }, [t]);
+    }, [t, token]);
 
     const attendingEvents = useMemo(() => events.filter(ev => (ev as any).attending), [events]);
     const filtered = useMemo(() => {
@@ -75,7 +75,7 @@ export const Dashboard: React.FC = () => {
                 <div className="panel-fancy-borders panel-compact">
                     {error && <p className="error-message">{error}</p>}
                     {loading ? (
-                        <p>{t('loadingEvents')}</p>
+                        <p>{t('dashboard.loadingEvents')}</p>
                     ) : (
                         <WeekCalendar
                             events={events}

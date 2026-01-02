@@ -27,6 +27,7 @@
     "listSeparator": "and",
     "networkError": "Network error"
   },
+  "loadEventsFailed": "Failed to load events.",
   "form": {
     "placeholderEmail": "Email",
     "placeholderPassword": "Password",
@@ -54,7 +55,8 @@
     "headerEventsNone": "No events on {{date}}",
     "detailsClick": "Click for details...",
     "statusSelectDay": "Select a day on the calendar.",
-    "statusNothingPlanned": "Nothing planned."
+    "statusNothingPlanned": "Nothing planned.",
+    "loadingEvents": "Loading events..."
   },
   "notFound": {
     "title": "404 - Page Not Found",

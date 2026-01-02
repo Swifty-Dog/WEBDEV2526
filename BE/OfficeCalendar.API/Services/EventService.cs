@@ -143,6 +143,21 @@ public class EventService : IEventService
         }
     }
 
+    public async Task<GetEventsResult> GetEventsPastDateIncluding(DateTime? date, long? currentUserId = null)
+    {
+        try
+        {
+            DateTime targetDate = date?.Date ?? DateTime.Today;
+            var events = await _eventRepo.GetEventsPastDateIncluding(targetDate);
+            var dtos = events.Select(e => MapEventToDto(e, currentUserId)).ToList();
+            return new GetEventsResult.Success(dtos);
+        }
+        catch (Exception)
+        {
+            return new GetEventsResult.Error("general.API_ErrorUnexpected");
+        }
+    }
+
     public async Task<UpdateEventResult> UpdateEvent(long eventId, UpdateEventDto dto, long? currentUserId = null)
     {
         try

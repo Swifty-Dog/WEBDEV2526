@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { formatDate, FormatTimeUntil } from '../../utils/date.ts';
+import { formatDate, formatTimeUntil } from '../../utils/date.ts';
 import { type Booking } from '../../utils/types.ts';
 
 export const BookingItem: React.FC<{ booking: Booking }> = ({ booking }) => {
@@ -11,7 +11,7 @@ export const BookingItem: React.FC<{ booking: Booking }> = ({ booking }) => {
             <div className="booking-content" id="current-bookings">
                 <div className="form-row">
                     <label>{t('bookingItem.labelDateTime')}:</label>
-                    <span>{formatDate(booking.bookingDate)} ({booking.startTime} - {booking.endTime}) – {FormatTimeUntil(booking.bookingDate, booking.startTime)}</span>
+                    <span>{formatDate(booking.bookingDate)} ({booking.startTime} - {booking.endTime}) – {formatTimeUntil(booking.bookingDate, booking.startTime)}</span>
                 </div>
                 <div className="form-row">
                     <label>{t('bookingItem.labelRoom')}:</label>

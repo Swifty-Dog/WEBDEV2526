@@ -27,7 +27,6 @@
     "listSeparator": "en",
     "networkError": "Netwerkfout"
   },
-  "loadingEvents": "Evenementen laden...",
   "loadEventsFailed": "Kon evenementen niet laden.",
   "form": {
     "placeholderEmail": "E-mail",
@@ -56,7 +55,8 @@
     "headerEventsNone": "Geen evenementen op {{date}}",
     "detailsClick": "Klik voor details...",
     "statusSelectDay": "Selecteer een dag op de kalender.",
-    "statusNothingPlanned": "Niets gepland."
+    "statusNothingPlanned": "Niets gepland.",
+    "loadingEvents": "Evenementen laden..."
   },
   "notFound": {
     "title": "404 - Pagina niet gevonden",

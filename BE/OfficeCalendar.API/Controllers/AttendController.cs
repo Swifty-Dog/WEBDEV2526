@@ -27,20 +27,18 @@ public class AttendController : BaseController
         if (userId == null)
             return Unauthorized(new { message = "general.Unauthorized" });
 
-        await _genericHub.BroadcastEvent("AttendanceChanged");
-        if (userId == null) return Unauthorized();
-
         var result = await _attendService.Attend(eventId, userId.Value);
 
         if (result.Status == AttendStatus.Success)
         {
-            await _genericHub.BroadcastEvent("AttendanceChanged");
+            var updatedAttendees = await _attendService.GetAttendeeNames(eventId);
+            await _genericHub.BroadcastEvent("AttendanceChanged", new { eventId, attendees = updatedAttendees });
+
             return Ok(new { attending = true });
         }
 
         return result.Status switch
         {
-            AttendStatus.Success => Ok(new { attending = true }),
             AttendStatus.NotFound => NotFound(new { message = "attendance.EventNotFound" }),
             AttendStatus.Error => StatusCode(500, new { message = "general.API_ErrorUnexpected" }),
             _ => BadRequest(new { message = "general.BadRequest" })
@@ -55,9 +53,6 @@ public class AttendController : BaseController
         if (userId == null)
             return Unauthorized(new { message = "general.Unauthorized" });
 
-        await _genericHub.BroadcastEvent("AttendanceChanged");
-        if (userId == null) return Unauthorized();
-
         var result = await _attendService.Unattend(eventId, userId.Value);
 
         if (result.Status == AttendStatus.Success)
@@ -70,7 +65,6 @@ public class AttendController : BaseController
 
         return result.Status switch
         {
-            AttendStatus.Success => Ok(new { attending = false }),
             AttendStatus.NotFound => NotFound(new { message = "attendance.EventNotFound" }),
             AttendStatus.NoChange => NotFound(new { message = "attendance.ParticipationNotFound" }),
             AttendStatus.Error => StatusCode(500, new { message = "general.API_ErrorUnexpected" }),

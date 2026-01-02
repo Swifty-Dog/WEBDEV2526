@@ -83,6 +83,8 @@ export const EventCard: React.FC<EventCardProps> = ({
     useEffect(() => {
         if (!token) return;
 
+        void refreshData();
+
         const unsubscribe = onEvent("AttendanceChanged", () => {
             void refreshData();
         });

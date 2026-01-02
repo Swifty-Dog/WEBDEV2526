@@ -32,7 +32,6 @@ public class EventRepository : Repository<EventModel>, IEventRepository
             .ToListAsync();
     }
 
-
     public async Task<List<EventModel>> GetEventsByRoomAndDate(long roomId, DateTime eventDate)
     {
         return await DbSet
@@ -43,5 +42,13 @@ public class EventRepository : Repository<EventModel>, IEventRepository
             .ToListAsync();
     }
 
-
+    public async Task<List<EventModel>> GetEventsPastDateIncluding(DateTime date)
+    {
+        return await DbSet
+            .Include(e => e.Room)
+            .Include(e => e.EventParticipations)
+                .ThenInclude(ep => ep.Employee)
+            .Where(e => e.EventDate >= date.Date)
+            .ToListAsync();
+    }
 }

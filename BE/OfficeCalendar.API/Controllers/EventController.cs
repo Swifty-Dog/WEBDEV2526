@@ -66,6 +66,20 @@ public class EventController : BaseController
         };
     }
 
+    [HttpGet("upcoming")]
+    public async Task<IActionResult> GetUpcomingEvents()
+    {
+        var currentUserId = GetCurrentUserId();
+        var result = await _eventService.GetEventsPastDateIncluding(DateTime.Today, currentUserId);
+
+        return result switch
+        {
+            GetEventsResult.Success success => Ok(success.eventDtoList),
+            GetEventsResult.Error error => StatusCode(500, new { message = error.Message }),
+            _ => StatusCode(500, new { message = "general.API_ErrorUnexpected" })
+        };
+    }
+
     [HttpPut("{eventId:long}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateEvent(long eventId, [FromBody] UpdateEventDto dto)

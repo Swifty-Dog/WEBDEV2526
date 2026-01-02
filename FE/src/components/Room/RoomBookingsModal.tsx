@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Booking } from '../../utils/types.ts';
-import { formatDate, FormatTimeUntil, isBookingInPast } from '../../utils/date.ts';
+import { formatDate, formatTimeUntil, isBookingInPast } from '../../utils/date.ts';
 
 type RoomBookingsModalProps = {
     bookings: Booking[];
@@ -39,7 +39,7 @@ export const RoomBookingsModal: React.FC<RoomBookingsModalProps> = ({ bookings, 
                                             <label>{tRooms('bookingItem.labelDateTime')}:</label>
                                             <span>
                                                 {formatDate(booking.bookingDate)} ({booking.startTime} - {booking.endTime}) –{' '}
-                                                {FormatTimeUntil(booking.bookingDate, booking.startTime)}
+                                                {formatTimeUntil(booking.bookingDate, booking.startTime)}
                                             </span>
                                         </div>
                                         <div className="form-row">
