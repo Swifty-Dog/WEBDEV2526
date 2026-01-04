@@ -1,0 +1,59 @@
+{
+  "attendeesModal": {
+    "title": "Deelnemers - {{title}}",
+    "empty": "Nog geen deelnemers aangemeld."
+  },
+  "eventCard": {
+    "attend": "Aanmelden",
+    "unattend": "Afmelden",
+    "loading": "Bezig…",
+    "errorGeneric": "Er is iets misgegaan.",
+    "ariaAttend": "Aanmelden voor evenement",
+    "ariaUnattend": "Afmelden voor evenement",
+    "attendeesLabel": "Deelnemers: {{attendees}}"
+  },
+  "loading": {
+    "loadingEvents": "Evenementen laden...",
+    "loadEventsFailed": "Evenementen laden mislukt."
+  },
+  "eventForm": {
+    "titleEdit": "Evenement bewerken",
+    "titleNew": "Nieuw evenement",
+    "labelTitle": "Titel",
+    "labelDate": "Date",
+    "labelStartTime": "Start Time",
+    "labelEndTime": "End Time",
+    "labelLocation": "Locatie",
+    "labelDescription": "Beschrijving",
+    "labelRoom": "Kamer",
+    "labelSelectRoom": "Selecteer een kamer",
+    "placeholderStartTime": "-- Kies starttijd --",
+    "placeholderEndTime": "-- Kies eindtijd --"
+  },
+  "eventsTable": {
+    "headerTitle": "Titel",
+    "headerDate": "Datum",
+    "headerLocation": "Locatie",
+    "headerAttendees": "Deelnemers",
+    "empty": "Nog geen evenementen gepland.",
+    "emptyAdmin": "Maak een nieuw evenement om te beginnen.",
+    "buttonAttendees": "Deelnemers"
+  },
+  "admin": {
+    "eventLabel": "evenement"
+  },
+  "useSaveEvents": {
+    "errors": {
+      "roomRequired": "Selecteer een ruimte",
+      "notAuthorized": "Niet geautoriseerd"
+    }
+  },
+  "eventDetails": {
+    "date": "Datum",
+    "location": "Locatie",
+    "description": "Beschrijving",
+    "attendees": "Deelnemers",
+    "buttonAttend": "Aanmelden",
+    "buttonUnattend": "Afmelden"
+  }
+}
