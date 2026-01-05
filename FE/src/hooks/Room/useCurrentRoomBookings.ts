@@ -44,17 +44,28 @@ export const useCurrentRoomBookings = () => {
         void fetchBookings();
         if (!token) return;
 
-        startGenericHub().catch(err => console.error('Error starting SignalR hub for bookings:', err));
-
-        const unsubscribe = onEvent("BookingChanged", () => {
+        startGenericHub().catch(err => console.error('Error starting SignalR hub:', err));
+        const unsubscribeSignalR = onEvent("BookingChanged", () => {
             void fetchBookings();
         });
 
-        return () => unsubscribe();
+        return () => unsubscribeSignalR();
     }, [token, fetchBookings]);
 
     useEffect(() => {
-        const interval = setInterval(() => setBookings(prev => [...prev]), 60000);
+        const handleLocalUpdate = () => {
+            void fetchBookings();
+        };
+
+        window.addEventListener('LocalBookingChanged', handleLocalUpdate);
+
+        return () => {
+            window.removeEventListener('LocalBookingChanged', handleLocalUpdate);
+        };
+    }, [fetchBookings]);
+
+    useEffect(() => {
+        const interval = setInterval(() => setBookings(prev => [...prev]), 5000);
         return () => clearInterval(interval);
     }, []);
 

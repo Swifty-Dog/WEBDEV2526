@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { BookingForm } from './BookingForm';
-import { useRooms } from '../../hooks/Room/useRooms.ts';
-import { useMakeNewBooking } from '../../hooks/Room/useMakeNewBooking.ts';
-import { useBookingFormLogic } from '../../hooks/Room/useBookingFormLogic.ts';
-import { getInitialBookingDate } from '../../utils/date';
+import React, {useCallback, useEffect, useMemo} from 'react';
+import {useTranslation} from 'react-i18next';
+import {BookingForm} from './BookingForm';
+import {useRooms} from '../../hooks/Room/useRooms.ts';
+import {useMakeNewBooking} from '../../hooks/Room/useMakeNewBooking.ts';
+import {useBookingFormLogic} from '../../hooks/Room/useBookingFormLogic.ts';
+import {getInitialBookingDate} from '../../utils/date';
+import { onEvent} from "../../utils/signalR/genericHub";
 
 export const NewRoomBooking: React.FC = () => {
     const { t } = useTranslation('rooms');
@@ -35,6 +36,12 @@ export const NewRoomBooking: React.FC = () => {
     );
 
     useEffect(() => {
+        return onEvent('BookingChanged', () => {
+            setBookingDetails((prev) => ({...prev}));
+        });
+    }, [setBookingDetails]);
+
+    useEffect(() => {
         if (bookingDetails.endTime && !availableEndTimes.includes(bookingDetails.endTime)) {
             setBookingDetails(prev => ({
                 ...prev,
@@ -46,6 +53,7 @@ export const NewRoomBooking: React.FC = () => {
     const onBookingSuccess = useCallback(() => {
         setMessage({ text: t('newBooking.messageSuccess'), type: 'success' });
         setBookingDetails(initialBookingDetails);
+        window.dispatchEvent(new Event('LocalBookingChanged'));
     }, [setMessage, setBookingDetails, initialBookingDetails, t]);
 
     const onBookingError = useCallback((errorMessage: string) => {
